@@ -1,0 +1,1767 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics="">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;family=IBM+Plex+Mono:wght@400;500;600&amp;display=swap">
+<script src="./image-slot.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box}
+html{scrollbar-gutter:stable;overflow-x:hidden}
+body{margin:0;overflow-x:hidden}
+h1,h2,h3,h4{font-family:'IBM Plex Mono',ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:-.02em}
+a{color:inherit;text-decoration:none}
+image-slot{display:block;width:100%;height:100%}
+@media (pointer:fine) and (prefers-reduced-motion:no-preference){
+  body[data-cursor="custom"] *{cursor:none !important}
+  body[data-cursor="custom"] input,body[data-cursor="custom"] textarea,body[data-cursor="custom"] select,body[data-cursor="custom"] [contenteditable="true"]{cursor:text !important}
+  body[data-cursor="custom"] input[type="range"]{cursor:none !important}
+}
+a:hover{color:#FF7A1A}
+:focus-visible{outline:2px solid #FF7A1A;outline-offset:2px}
+::selection{background:rgba(255,122,26,.35)}
+.jk-carousel::-webkit-scrollbar{display:none}
+.jk-tab{color:#17171a;transition:color .15s,background .15s}
+.jk-tab:hover{color:#c05e0e}
+.jk-tab-active{color:#f4f1ea !important}
+.jk-tab{border:1px solid transparent}
+.jk-ctrl{background:#1c1c1e;border:1px solid rgba(255,255,255,.1);color:#fff;cursor:pointer;transition:background .15s,border-color .15s}
+.jk-ctrl:hover{background:#26262a;border-color:rgba(255,122,26,.5);color:#FF7A1A}
+.jk-card-img img,.jk-card-ph{transition:transform .4s ease}
+.jk-card:hover .jk-card-img img,.jk-card:hover .jk-card-ph{transform:scale(1.08)}
+.jk-card-img{-webkit-mask-image:-webkit-linear-gradient(#000,#000);mask-image:linear-gradient(#000,#000);isolation:isolate}
+.jk-card{border-radius:14px;box-shadow:0 7px 17px rgba(0,0,0,.25)}
+.jk-album{background:#f4f1ea;border:1px solid #17171a;border-radius:22px;padding:14px 14px 16px;display:flex;flex-direction:column;gap:14px;box-sizing:border-box;box-shadow:none}
+.jk-album .jk-card-img{border-radius:14px;flex:0 0 auto;mask-image:none;-webkit-mask-image:none;isolation:isolate;contain:paint}
+.jk-album,.jk-album *{backface-visibility:hidden;-webkit-backface-visibility:hidden}
+.jk-card-overlay{position:absolute;inset:0;border-radius:14px;overflow:hidden;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .25s ease;background:rgba(0,0,0,.3);backdrop-filter:blur(5px);-webkit-backdrop-filter:blur(5px)}
+.jk-card:hover .jk-card-overlay{opacity:1}
+.jk-album .jk-card-overlay{backdrop-filter:none;-webkit-backdrop-filter:none;background:rgba(0,0,0,.35)}
+.jk-play-btn{width:52px;height:52px;border-radius:50%;background:rgba(255,255,255,.92);display:flex;align-items:center;justify-content:center;box-shadow:0 4px 10px rgba(0,0,0,.22)}
+.jk-vinyl{animation:jk-spin 6s linear infinite}
+@keyframes jk-spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+.jk-seek{-webkit-appearance:none;appearance:none;width:100%;height:4px;border-radius:999px;background:rgba(23,23,26,.35);outline:none;cursor:pointer}
+.jk-seek::-webkit-slider-thumb{-webkit-appearance:none;width:12px;height:12px;border-radius:50%;background:#17171a;margin-top:-4px}
+.jk-seek::-moz-range-thumb{width:12px;height:12px;border-radius:50%;background:#17171a;border:none}
+.jk-seek::-webkit-slider-runnable-track{background:linear-gradient(to right,#17171a var(--pct,0%),rgba(23,23,26,.35) var(--pct,0%));height:4px;border-radius:999px}
+.jk-row{cursor:pointer;transition:background .15s;border-radius:10px}
+.jk-playlist-input::placeholder{color:#6b665f;opacity:.7}
+.jk-row:hover{background:rgba(23,23,26,.06)}
+.jk-cardstack{position:relative;width:100%;height:100%}
+.jk-cardstack-card{position:absolute;top:50%;left:50%;margin:-20px 0 0 -20px;width:40px;height:40px;border-radius:10px;border:1px solid #17171a;transition:transform .35s cubic-bezier(.2,.8,.2,1)}
+.jk-cardstack-base{transform:translate(-4px,-4px)}
+.jk-cardstack-mid{transform:translate(0,0)}
+.jk-cardstack-top{transform:translate(4px,4px)}
+[aria-label="Card stack"]:hover .jk-cardstack-mid{transform:translate(-6px,-16px) rotate(-8deg)}
+[aria-label="Card stack"]:hover .jk-cardstack-top{transform:translate(8px,-28px) rotate(10deg)}
+@keyframes jk-bgshift{0%{background-position:22% 34%,58% 76%,76% 34%}33%{background-position:50% 50%,50% 50%,50% 50%}66%{background-position:38% 66%,38% 30%,30% 56%}100%{background-position:22% 34%,58% 76%,76% 34%}}
+@keyframes jk-float-l{0%{transform:rotate(-3deg) translateY(0)}50%{transform:rotate(-3deg) translateY(-14px)}100%{transform:rotate(-3deg) translateY(0)}}
+@keyframes jk-float-r{0%{transform:rotate(3deg) translateY(0)}50%{transform:rotate(3deg) translateY(-14px)}100%{transform:rotate(3deg) translateY(0)}}
+@keyframes jk-marquee{0%,10%{transform:translateX(0)}45%,55%{transform:translateX(min(0px, calc(-100% + 120px)))}90%,100%{transform:translateX(0)}}
+.jk-marquee-track{animation:jk-marquee 14s linear infinite;white-space:nowrap;width:max-content}
+</style>
+</helmet>
+<div style="background-color: #dcd9d3; color: #17171a; font-family: 'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif; min-height: 100vh; display: flex; flex-direction: column; position: relative">
+  <sc-if value="{{ texFine }}" hint-placeholder-val="{{ false }}">
+    <div style="position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.38;mix-blend-mode:multiply;background-image:url(data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20width%3D%27180%27%20height%3D%27180%27%3E%3Cfilter%20id%3D%27n%27%3E%3CfeTurbulence%20type%3D%27fractalNoise%27%20baseFrequency%3D%271.4%27%20numOctaves%3D%273%27%2F%3E%3CfeColorMatrix%20type%3D%27saturate%27%20values%3D%270%27%2F%3E%3C%2Ffilter%3E%3Crect%20width%3D%27180%27%20height%3D%27180%27%20filter%3D%27url%28%23n%29%27%20opacity%3D%270.9%27%2F%3E%3C%2Fsvg%3E)"></div>
+  </sc-if>
+  <sc-if value="{{ texPaper }}" hint-placeholder-val="{{ true }}">
+    <div style="position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.55;mix-blend-mode:multiply;background-image:url(data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20width%3D%27180%27%20height%3D%27180%27%3E%3Cfilter%20id%3D%27n%27%3E%3CfeTurbulence%20type%3D%27fractalNoise%27%20baseFrequency%3D%270.8%27%20numOctaves%3D%274%27%2F%3E%3CfeColorMatrix%20type%3D%27saturate%27%20values%3D%270%27%2F%3E%3C%2Ffilter%3E%3Crect%20width%3D%27180%27%20height%3D%27180%27%20filter%3D%27url%28%23n%29%27%20opacity%3D%270.9%27%2F%3E%3C%2Fsvg%3E)"></div>
+  </sc-if>
+  <sc-if value="{{ texVignette }}" hint-placeholder-val="{{ false }}">
+    <div style="position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.5;mix-blend-mode:multiply;background-image:url(data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20width%3D%27180%27%20height%3D%27180%27%3E%3Cfilter%20id%3D%27n%27%3E%3CfeTurbulence%20type%3D%27fractalNoise%27%20baseFrequency%3D%270.8%27%20numOctaves%3D%274%27%2F%3E%3CfeColorMatrix%20type%3D%27saturate%27%20values%3D%270%27%2F%3E%3C%2Ffilter%3E%3Crect%20width%3D%27180%27%20height%3D%27180%27%20filter%3D%27url%28%23n%29%27%20opacity%3D%270.9%27%2F%3E%3C%2Fsvg%3E)"></div>
+    <div style="position:fixed;inset:0;z-index:0;pointer-events:none;background:radial-gradient(120% 90% at 50% 38%, rgba(255,255,255,.30), rgba(23,23,26,.10) 100%)"></div>
+  </sc-if>
+  <sc-if value="{{ texLinen }}" hint-placeholder-val="{{ false }}">
+    <div style="position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.9;background-image:repeating-linear-gradient(0deg, rgba(23,23,26,.05) 0 1px, transparent 1px 4px),repeating-linear-gradient(90deg, rgba(23,23,26,.05) 0 1px, transparent 1px 4px)"></div>
+  </sc-if>
+  <div style="position: relative; z-index: 1; display: flex; flex-direction: column; flex: 1">
+  <sc-if value="{{ hasPlayerSrc }}" hint-placeholder-val="{{ false }}">
+  <audio ref="{{ playerAudioRef }}" src="{{ playerTrack.src }}" preload="metadata" onTimeUpdate="{{ onPlayerTimeUpdate }}" onLoadedMetadata="{{ onPlayerLoadedMetadata }}" onDurationChange="{{ onPlayerLoadedMetadata }}" onCanPlay="{{ onPlayerLoadedMetadata }}" onEnded="{{ onPlayerEnded }}"></audio>
+  </sc-if>
+
+
+  <div style="position:sticky;top:0;z-index:20;display:flex;justify-content:center;padding-top:18px">
+    <div ref="{{ navRef }}" style="position:relative;display:flex;gap:4px;background:rgba(244,241,234,.5);backdrop-filter:blur(18px) saturate(120%);-webkit-backdrop-filter:blur(18px) saturate(120%);border:1px solid #17171a;border-radius:999px;padding:5px">
+      <div style="{{ indicatorStyle }}"></div>
+      <a href="#" ref="{{ workTabRef }}" onClick="{{ goWork }}" aria-label="Work" title="Work" class="{{ workTabClass }}" style="display:flex;align-items:center;justify-content:center;width:38px;height:38px;border-radius:999px;position:relative;z-index:1">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style="width:20px;height:20px">
+          <rect x="3" y="3" width="7" height="7" rx="1.5"></rect><rect x="14" y="3" width="7" height="7" rx="1.5"></rect><rect x="3" y="14" width="7" height="7" rx="1.5"></rect><rect x="14" y="14" width="7" height="7" rx="1.5"></rect>
+        </svg>
+      </a>
+      <a href="#" ref="{{ forFunTabRef }}" onClick="{{ goForFun }}" aria-label="For fun" title="For fun" class="{{ forFunTabClass }}" style="display:flex;align-items:center;justify-content:center;width:38px;height:38px;border-radius:999px;position:relative;z-index:1">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style="width:20px;height:20px">
+          <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+        </svg>
+      </a>
+      <a href="#" onClick="{{ goHome }}" aria-label="Home" style="display:flex;align-items:center;justify-content:center;padding:0 14px;position:relative;z-index:1">
+        <img src="assets/logo.png" alt="Joe Kim logo" style="height:18px;display:block;filter:none">
+      </a>
+      <a href="#" ref="{{ aboutTabRef }}" onClick="{{ goAbout }}" aria-label="About" title="About" class="{{ aboutTabClass }}" style="display:flex;align-items:center;justify-content:center;width:38px;height:38px;border-radius:999px;position:relative;z-index:1">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style="width:20px;height:20px">
+          <circle cx="12" cy="8" r="4"></circle><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"></path>
+        </svg>
+      </a>
+      <a href="#" class="jk-tab" aria-label="Resume" title="Resume" style="display:flex;align-items:center;justify-content:center;width:38px;height:38px;border-radius:999px;position:relative;z-index:1">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style="width:20px;height:20px">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><path d="M14 2v6h6"></path><path d="M9 13h6"></path><path d="M9 17h6"></path>
+        </svg>
+      </a>
+    </div>
+  </div>
+
+  <sc-if value="{{ isWork }}" hint-placeholder-val="{{ true }}">
+  <div data-screen-label="Work" style="flex:1">
+    <div style="position: relative; padding: clamp(28px,5vw,88px) 32px clamp(20px,4vw,72px); max-width: 1200px; box-sizing: border-box; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; margin: 0 auto">
+      <div style="font-size: clamp(14px,1.4vw,18px); font-weight: 600; color: #FF7A1A; margin-bottom: clamp(10px,1.8vw,28px); font-family: Inter">Hey, I'm Joe.</div>
+      <p style="font-size: clamp(26px, 4.2vw, 58px); line-height: 1.2; font-weight: 900; color: #17171a; margin: 0 0 clamp(10px,1.6vw,24px); letter-spacing: -0.015em; font-family: Inter; max-width: 1140px; text-wrap: balance" data-comment-anchor="e8e26dd4f9-p">Product designer, problem solver, and all-around design enthusiast.</p>
+      <div style="font-size: 14px; color: #5a5a5f; font-family: Inter">Based in Arlington, VA · Currently at SAIC</div>
+    </div>
+    <canvas ref="{{ bgWaveRef }}" style="display:block;width:100%;height:150px;margin-bottom:20px"></canvas>
+    <div style="padding: 0 0 140px">
+      <div ref="{{ workStageRef }}" style="position:relative;z-index:2;height:590px;perspective:2600px;transform-style:preserve-3d;max-width:1120px;margin:0 auto" data-comment-anchor="8ef7e52c52-div">
+        <sc-for list="{{ workCoverflow }}" as="p" hint-placeholder-count="6">
+          <div class="jk-card jk-album" style="{{ p.wrapperStyle }}" onClick="{{ p.onClick }}">
+            <div class="jk-card-img" style="width:100%;height:238px;position:relative;overflow:hidden">
+              <sc-if value="{{ p.hasImage }}" hint-placeholder-val="{{ false }}">
+                <div role="img" aria-label="{{ p.title }}" style="{{ p.imgBgStyle }}"></div>
+              </sc-if>
+              <sc-if value="{{ p.noImage }}" hint-placeholder-val="{{ false }}">
+                <div class="jk-card-ph" style="width:100%;height:100%;background:rgba(23,23,26,.12);display:flex;align-items:center;justify-content:center">
+                  <span style="font-size:11px;color:#6b665f;letter-spacing:0.02em;text-align:center;padding:0 20px">{{ p.placeholderLabel }}</span>
+                </div>
+              </sc-if>
+              <div class="jk-card-overlay">
+                <div class="jk-play-btn">
+                  <svg viewBox="0 0 24 24" width="20" height="20" fill="#FF7A1A"><path d="M8 5v14l11-7z"></path></svg>
+                </div>
+              </div>
+            </div>
+            <div style="flex:1;display:flex;flex-direction:column;gap:8px;padding:0 4px;text-align:left">
+              <div style="display:flex;align-items:baseline;justify-content:space-between;gap:10px">
+                <span style="font-family:'IBM Plex Mono',monospace;font-size:17px;font-weight:600;letter-spacing:-.02em;color:#17171a;line-height:1.15">{{ p.title }}</span>
+                <sc-if value="{{ p.hasDate }}" hint-placeholder-val="{{ false }}">
+                  <span style="font-size:11px;font-weight:700;color:#c05e0e;white-space:nowrap">{{ p.dateLabel }}</span>
+                </sc-if>
+              </div>
+              <sc-if value="{{ p.hasBlurb }}" hint-placeholder-val="{{ false }}">
+                <span style="font-size:12px;color:#4a4a4c;line-height:1.45;text-wrap:pretty">{{ p.blurb }}</span>
+              </sc-if>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+      <div style="display:flex;justify-content:center;align-items:center;gap:8px;padding-top:14px" data-comment-anchor="9c27553382-div">
+        <sc-for list="{{ workDots }}" as="d" hint-placeholder-count="6">
+          <div onClick="{{ d.onClick }}" style="{{ d.style }}"></div>
+        </sc-for>
+      </div>
+    </div>
+  </div>
+  </sc-if>
+
+  <sc-if value="{{ isAbout }}" hint-placeholder-val="{{ false }}">
+  <div data-screen-label="About" style="flex:1;padding:48px 32px 80px;display:flex;justify-content:center;align-items:flex-start">
+    <div style="max-width:1120px;width:100%">
+    <div style="display:grid;grid-template-columns:1.3fr 0.7fr;gap:72px;align-items:stretch">
+      <div>
+        <div style="font-size:12px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:#FF7A1A;margin-bottom:12px">About</div>
+        <h1 style="font-size:38px;font-weight:800;margin:0 0 24px">Get to know me</h1>
+        <p style="font-size:20px;line-height:1.7;color:#4a4a4c;max-width:620px;margin:0 0 20px">I'm a passionate UI/UX designer with additional experience in client consulting, visual design, and human-centered design (HCD). I thrive at the intersection of creativity and strategy, crafting user-focused solutions that uncover possibilities and define actionable insights for furthering the client mission.</p>
+        <p style="font-size:20px;line-height:1.7;color:#4a4a4c;max-width:620px;margin:0">As a 9 wing 1 on the Enneagram, I naturally seek harmony and clarity, ensuring that every detail serves a purpose. Beyond design, I find inspiration in music, playing guitar, and exploring the outdoors, all of which fuel my passion for thoughtful and intentional problem-solving.</p>
+      </div>
+      <div style="width:280px;max-width:100%;height:100%;overflow:hidden;box-shadow:0 7px 17px rgba(0,0,0,.25);margin:0 0 0 auto">
+        <img src="uploads/72b668d4-6ad0-436f-98dd-f7ba1b8b93ef_edited-db5b53d7.jpg" alt="Joe Kim" style="width:100%;height:100%;object-fit:cover;display:block">
+      </div>
+    </div>
+
+    <div style="margin-top:72px">
+      <h3 style="font-size:20px;font-weight:700;color:#17171A;margin:0 0 18px">More pics if you are interested</h3>
+      <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;align-items:stretch">
+        <div style="display:flex;flex-direction:column;gap:16px">
+          <image-slot id="about-pic-1" style="width:100%;aspect-ratio:4 / 3" shape="rounded" radius="6" fit="cover" placeholder="Drop a photo"></image-slot>
+          <image-slot id="about-pic-3" style="width:100%;aspect-ratio:3 / 4" shape="rounded" radius="6" fit="cover" placeholder="Drop a photo"></image-slot>
+          <image-slot id="about-pic-5" style="width:100%;aspect-ratio:4 / 3" shape="rounded" radius="6" fit="cover" placeholder="Drop a photo"></image-slot>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:16px;height:100%">
+          <image-slot id="about-pic-2" style="width:100%;flex:1 1 0;min-height:0" shape="rounded" radius="6" fit="cover" placeholder="Drop a photo"></image-slot>
+          <image-slot id="about-pic-4" style="width:100%;flex:1 1 0;min-height:0" shape="rounded" radius="6" fit="cover" placeholder="Drop a photo"></image-slot>
+          <image-slot id="about-pic-6" style="width:100%;flex:1.3 1 0;min-height:0" shape="rounded" radius="6" fit="cover" placeholder="Drop a photo"></image-slot>
+        </div>
+      </div>
+    </div>
+
+    </div>
+  </div>
+  </sc-if>
+
+  <sc-if value="{{ isForFun }}" hint-placeholder-val="{{ false }}">
+  <div data-screen-label="For Fun" style="flex:1">
+    <div style="padding:56px 32px 72px;max-width:1100px;margin:0 auto;text-align:center">
+      <h1 style="font-family:Inter;font-size:12px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:#FF7A1A;margin:0 0 12px">For fun</h1>
+      <h2 style="font-size:38px;font-weight:800;letter-spacing:-0.02em;margin:0 0 16px">The things I make for fun</h2>
+      <p style="font-size:20px;line-height:1.7;color:#4a4a4c;max-width:820px;margin:0 auto;text-wrap:balance">Lately I build most of them with Claude on nights and weekends, prototyping fast to see how far a loose idea gets before it needs a real plan.</p>
+    </div>
+    <div style="padding:40px 32px 140px;display:flex;flex-wrap:wrap;justify-content:center;align-items:flex-start;gap:56px;max-width:1100px;margin:0 auto" data-comment-anchor="de89052804-div">
+      <sc-for list="{{ forFunFloating }}" as="p" hint-placeholder-count="2">
+        <div style="{{ p.floatStyle }}">
+          <div class="jk-card" onClick="{{ p.onClick }}" style="width:260px;height:260px;cursor:pointer">
+            <div class="jk-card-img" style="width:100%;height:100%;border-radius:14px;position:relative;overflow:hidden">
+              <sc-if value="{{ p.hasImage }}" hint-placeholder-val="{{ false }}">
+                <div role="img" aria-label="{{ p.title }}" style="{{ p.imgBgStyle }}"></div>
+              </sc-if>
+              <sc-if value="{{ p.noImage }}" hint-placeholder-val="{{ false }}">
+                <div class="jk-card-ph" style="width:100%;height:100%;background-image:repeating-linear-gradient(135deg,#1c1c1e 0px,#1c1c1e 12px,#242426 12px,#242426 24px);display:flex;align-items:center;justify-content:center">
+                  <span style="font-size:11px;color:#7d7d82;letter-spacing:0.02em;text-align:center;padding:0 20px">{{ p.placeholderLabel }}</span>
+                </div>
+              </sc-if>
+              <div class="jk-card-overlay">
+                <div class="jk-play-btn">
+                  <svg viewBox="0 0 24 24" width="20" height="20" fill="#FF7A1A"><path d="M8 5v14l11-7z"></path></svg>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div style="text-align:center;padding-top:14px">
+            <h3 style="font-size:15px;font-weight:700;margin:0 0 4px;display:inline-flex;align-items:center;gap:8px;justify-content:center;width:100%"><span style="{{ p.titleStyle }}">{{ p.title }}</span>
+              <sc-if value="{{ p.hasStatus }}" hint-placeholder-val="{{ false }}">
+                <span style="font-size:10px;font-weight:700;color:#FF7A1A;background:rgba(255,122,26,.18);border-radius:999px;padding:3px 10px;text-decoration:none">{{ p.status }}</span>
+              </sc-if>
+            </h3>
+            <div style="font-size:13px;color:#FF7A1A;font-weight:600">{{ p.tagsLine }}</div>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+    <div style="max-width:640px;margin:64px auto 0;padding:0 32px 360px;text-align:center;position:relative">
+      <svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="#FF7A1A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="position:absolute;top:-14px;left:6%;opacity:.9;filter:drop-shadow(0 0 6px rgba(255,122,26,.7));animation:jk-float-l 6s ease-in-out infinite"><path d="M9 18V5l12-2v13"></path><circle cx="6" cy="18" r="3"></circle><circle cx="18" cy="16" r="3"></circle></svg>
+      <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#E8B21F" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="position:absolute;top:28px;right:8%;opacity:.85;filter:drop-shadow(0 0 6px rgba(232,178,31,.6));animation:jk-float-r 7s ease-in-out infinite"><path d="M9 18V5l12-2v13"></path><circle cx="6" cy="18" r="3"></circle><circle cx="18" cy="16" r="3"></circle></svg>
+      <svg viewBox="0 0 24 24" width="22" height="22" fill="#D8571C" stroke="none" style="position:absolute;top:-6px;right:22%;opacity:.9;filter:drop-shadow(0 0 6px rgba(216,87,28,.7));animation:jk-float-l 5.5s ease-in-out infinite"><path d="M9 18V5l12-2v13a3 3 0 1 1-2-2.83V6.28L11 7.5v9.5a3 3 0 1 1-2-2.83Z"></path></svg>
+      <svg viewBox="0 0 24 24" width="28" height="28" fill="#FFFFFF" stroke="none" style="position:absolute;top:38px;left:13%;opacity:.85;filter:drop-shadow(0 0 5px rgba(255,255,255,.6));animation:jk-float-l 5s ease-in-out infinite"><path d="M9 18V6l2-.3v10.6a3 3 0 1 1-2-2.3Z"></path></svg>
+      <h2 style="font-size:26px;font-weight:800;margin:0 0 8px">Let's jam together!</h2>
+      <p style="font-size:14px;color:#8a7d74;margin:0 0 24px">Drop a YouTube link and I'll add it to the playlist below.</p>
+      <div style="position:relative">
+      <div onDragOver="{{ onDropZoneDragOver }}" onDragLeave="{{ onDropZoneDragLeave }}" onDrop="{{ onDropZoneDrop }}" style="{{ dropZoneStyle }}">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#8a7d74" stroke-width="1.8" stroke-linecap="round" style="flex:0 0 auto"><path d="M10 13a5 5 0 0 0 7 0l2-2a5 5 0 0 0-7-7l-1 1"></path><path d="M14 11a5 5 0 0 0-7 0l-2 2a5 5 0 0 0 7 7l1-1"></path></svg>
+        <input type="url" value="{{ playlistLink }}" onChange="{{ onPlaylistLinkChange }}" onKeyDown="{{ onPlaylistLinkKeyDown }}" placeholder="youtube.com/watch?v=…" style="flex:1;min-width:0;border:none;outline:none;background:transparent;font-family:inherit;font-size:14px;font-weight:600;color:#17171a" />
+        <button type="button" onClick="{{ submitPlaylist }}" disabled="{{ playlistSubmitDisabled }}" style="{{ playlistAddBtnStyle }}" style-hover="background:#c05e0e">
+          <sc-if value="{{ playlistBusy }}" hint-placeholder-val="{{ false }}">
+            <span style="width:13px;height:13px;border:2px solid rgba(255,255,255,.35);border-top-color:#fff;border-radius:50%;animation:jk-spin 0.7s linear infinite;display:block"></span>
+          </sc-if>
+          <sc-if value="{{ playlistNotBusy }}" hint-placeholder-val="{{ true }}">Add</sc-if>
+        </button>
+      </div>
+
+      </div>
+      <div style="margin-top:28px;background:rgba(244,241,234,.5);backdrop-filter:blur(18px) saturate(120%);-webkit-backdrop-filter:blur(18px) saturate(120%);border:1px solid #17171a;border-radius:20px;overflow:hidden;text-align:left">
+        <div style="padding:14px 18px 10px;font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:#c05e0e;border-bottom:1px solid rgba(23,23,26,.16)">Jam Sesh</div>
+        <div style="padding:10px 12px;max-height:260px;overflow-y:auto">
+        <sc-for list="{{ playlistItems }}" as="t" hint-placeholder-count="0">
+          <div class="jk-row" style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 8px">
+            <div style="min-width:0">
+              <div style="font-size:14px;font-weight:700;color:#17171a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ t.title }}</div>
+              <div style="font-size:11px;font-weight:600;color:#c05e0e">{{ t.sourceLabel }}</div>
+            </div>
+            <button type="button" onClick="{{ t.onRemove }}" aria-label="Remove from playlist" style="width:26px;height:26px;flex:0 0 26px;border-radius:50%;background:none;border:none;color:#17171a;cursor:pointer;display:flex;align-items:center;justify-content:center"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
+          </div>
+        </sc-for>
+        <sc-if value="{{ playlistEmpty }}" hint-placeholder-val="{{ true }}">
+          <div style="text-align:center;font-size:13px;color:#4a4a4c;padding:16px 0">No tracks yet — add the first one above.</div>
+        </sc-if>
+        </div>
+      </div>
+    </div>
+  </div>
+  </sc-if>
+
+  <sc-if value="{{ isDetail }}" hint-placeholder-val="{{ false }}">
+  <div data-screen-label="Case study" style="flex:1;padding:8px 32px 240px">
+    <div style="display:flex;gap:48px;align-items:flex-start;justify-content:center;max-width:1616px;margin:0 auto">
+    <sc-if value="{{ detailHasRail }}" hint-placeholder-val="{{ false }}">
+    <div style="position:sticky;top:96px;flex:0 0 210px;width:210px;display:flex;flex-direction:column">
+      <a href="#" onClick="{{ backHandler }}" style="font-family:'IBM Plex Mono',ui-monospace,monospace;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:#9a9a9f;padding:0;margin-bottom:18px;align-self:flex-start" style-hover="color:#17171A">{{ backLabel }}</a>
+      <sc-for list="{{ sectionNav }}" as="sec" hint-placeholder-count="6">
+        <a href="#" onClick="{{ sec.onClick }}" style="display:flex;align-items:baseline;gap:10px;margin-bottom:14px"><span style="{{ sec.numStyle }}">{{ sec.num }}</span><span style="{{ sec.style }}">{{ sec.label }}</span></a>
+      </sc-for>
+    </div>
+    </sc-if>
+    <div style="flex:1 1 1100px;min-width:0;max-width:1100px">
+      <h1 style="font-size:32px;font-weight:800;margin:0 0 8px;line-height:1.15">{{ detail.title }}</h1>
+      <div style="font-size:12px;font-weight:700;color:#FF7A1A;letter-spacing:.06em;text-transform:uppercase;margin-bottom:20px">{{ detail.tagsLine }}</div>
+
+      <sc-if value="{{ detailHasMeta }}" hint-placeholder-val="{{ false }}">
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:24px;margin:0 0 28px;padding:16px 0;border-top:1px solid rgba(23,23,26,.16);border-bottom:1px solid rgba(23,23,26,.16)" data-comment-anchor="46e77a67f4-div">
+        <div>
+          <div style="font-size:10px;color:#8a8a8e;text-transform:uppercase;letter-spacing:.04em;margin-bottom:2px">Timeline</div>
+          <div style="font-size:13px;font-weight:600" data-comment-anchor="43646c5945-div">{{ detail.meta.timeline }}</div>
+        </div>
+        <div data-comment-anchor="0953370f51-div">
+          <div style="font-size:10px;color:#8a8a8e;text-transform:uppercase;letter-spacing:.04em;margin-bottom:2px">Tools</div>
+          <div style="font-size:13px;font-weight:600">{{ detail.meta.tools }}</div>
+        </div>
+        <div>
+          <div style="font-size:10px;color:#8a8a8e;text-transform:uppercase;letter-spacing:.04em;margin-bottom:2px">Contributions</div>
+          <div style="font-size:13px;font-weight:600" data-comment-anchor="0a5a0f5536-div">{{ detail.meta.contributions }}</div>
+        </div>
+        <div>
+          <div style="font-size:10px;color:#8a8a8e;text-transform:uppercase;letter-spacing:.04em;margin-bottom:2px">{{ detailAgencyLabel }}</div>
+          <div style="font-size:13px;font-weight:600">{{ detail.meta.agency }}</div>
+        </div>
+      </div>
+      </sc-if>
+
+      <image-slot id="{{ detail.heroSlotId }}" style="{{ heroSlotStyle }}" shape="rect" radius="0" fit="cover" placeholder="Drop a hero image" data-comment-anchor="db306b3d53-image-slot"></image-slot>
+
+      <sc-if value="{{ detail.richCaseStudy }}" hint-placeholder-val="{{ false }}">
+      <p style="{{ headlineStyle }}" data-comment-anchor="d63b2bd966-p">{{ detail.headline }}</p>
+      <sc-if value="{{ detailHasHeadlineStats }}" hint-placeholder-val="{{ false }}">
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin:0">
+          <sc-for list="{{ detail.headlineStats }}" as="st" hint-placeholder-count="3">
+            <div style="display:flex;flex-direction:column;align-items:center;text-align:center;gap:6px">
+              <div style="font-size:40px;line-height:1;font-weight:700;color:#FF7A1A">{{ st.value }}</div>
+              <div style="font-size:15px;color:#8a8a8e">{{ st.label }}</div>
+            </div>
+          </sc-for>
+        </div>
+      </sc-if>
+      <sc-if value="{{ detailHasMetricsTop }}" hint-placeholder-val="{{ false }}">
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px;margin:0 0 44px">
+          <sc-for list="{{ detailMetricsTop }}" as="m" hint-placeholder-count="3">
+            <div style="background:#17171A;color:#fff;padding:22px 16px;min-height:104px;display:flex;align-items:center;justify-content:center;text-align:center;font-size:15px;font-weight:700;line-height:1.35;box-shadow:0 5px 14px rgba(0,0,0,.09)">{{ m }}</div>
+          </sc-for>
+        </div>
+      </sc-if>
+      </sc-if>
+
+
+
+
+      <sc-if value="{{ detailIsGeneric }}" hint-placeholder-val="{{ false }}">
+      <sc-if value="{{ detailHasCards }}" hint-placeholder-val="{{ false }}">
+        <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin:0 0 48px">
+          <sc-for list="{{ detailCards }}" as="card" hint-placeholder-count="4">
+            <div style="display:flex;align-items:center;gap:16px;border:1px solid #17171a;border-radius:14px;padding:18px 20px">
+              <span style="flex:0 0 auto;color:#FF7A1A;display:flex;align-items:center;justify-content:center">{{ card.icon }}</span>
+              <span style="font-size:15.5px;line-height:1.5;color:#4a4a4c">{{ card.text }}</span>
+            </div>
+          </sc-for>
+        </div>
+      </sc-if>
+      <sc-for list="{{ detailSections }}" as="sec" hint-placeholder-count="3">
+        <div id="{{ sec.domId }}" style="margin:0 0 44px">
+          <h3 style="font-size:13px;font-weight:700;color:#FF7A1A;letter-spacing:.08em;text-transform:uppercase;margin:0 0 14px">{{ sec.heading }}</h3>
+          <sc-if value="{{ sec.hasLead }}" hint-placeholder-val="{{ false }}">
+            <p style="font-size:20px;line-height:1.7;font-weight:700;color:#17171A;margin:0 0 20px">{{ sec.lead }}</p>
+          </sc-if>
+          <sc-if value="{{ sec.hasBody }}" hint-placeholder-val="{{ false }}">
+            <p style="font-size:20px;line-height:1.7;color:#4a4a4c;margin:0">{{ sec.body }}</p>
+          </sc-if>
+          <sc-if value="{{ sec.hasSlot }}" hint-placeholder-val="{{ false }}">
+            <image-slot data-autoheight="" id="{{ sec.slotId }}" style="{{ sec.slotStyle }}" shape="rect" radius="0" fit="contain" placeholder="Drop an image"></image-slot>
+          </sc-if>
+          <sc-if value="{{ sec.hasSlides }}" hint-placeholder-val="{{ false }}">
+            <div style="{{ genSlideFrameStyle }}">
+              <sc-for list="{{ genSlides }}" as="sl" hint-placeholder-count="4">
+                <div style="{{ sl.style }}"><image-slot data-autoheight="" id="{{ sl.id }}" style="width:100%;height:100%" shape="rect" radius="0" placeholder="Drop an image"></image-slot></div>
+              </sc-for>
+              <button type="button" onClick="{{ genPrev }}" aria-label="Previous image" style="position:absolute;left:12px;top:50%;transform:translateY(-50%);width:36px;height:36px;border-radius:50%;background:rgba(23,23,26,.6);color:#fff;border:none;cursor:pointer;font-size:15px;z-index:3">‹</button>
+              <button type="button" onClick="{{ genNext }}" aria-label="Next image" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);width:36px;height:36px;border-radius:50%;background:rgba(23,23,26,.6);color:#fff;border:none;cursor:pointer;font-size:15px;z-index:3">›</button>
+              <div style="position:absolute;bottom:12px;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:7px;z-index:3;background:rgba(23,23,26,.55);padding:7px 10px;border-radius:999px">
+                <sc-for list="{{ genDots }}" as="d" hint-placeholder-count="4">
+                  <div onClick="{{ d.onClick }}" style="{{ d.style }}"></div>
+                </sc-for>
+              </div>
+            </div>
+          </sc-if>
+        </div>
+      </sc-for>
+      <sc-if value="{{ detailHasCards }}" hint-placeholder-val="{{ false }}">
+        <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin:0">
+          <sc-for list="{{ detailCards }}" as="card" hint-placeholder-count="4">
+            <div style="display:flex;align-items:center;gap:16px;border:1px solid #17171a;border-radius:14px;padding:18px 20px">
+              <span style="flex:0 0 auto;color:#FF7A1A;display:flex;align-items:center;justify-content:center">{{ card.icon }}</span>
+              <span style="font-size:15.5px;line-height:1.5;color:#4a4a4c">{{ card.text }}</span>
+            </div>
+          </sc-for>
+        </div>
+      </sc-if>
+      </sc-if>
+
+      <sc-if value="{{ detail.richCaseStudy }}" hint-placeholder-val="{{ false }}">
+
+
+
+      <sc-if value="{{ detailHasDescription }}" hint-placeholder-val="{{ false }}">
+        <h3 style="font-size:13px;font-weight:700;color:#FF7A1A;letter-spacing:.08em;text-transform:uppercase;margin:60px 0 14px" id="cs-overview">Overview</h3>
+        <sc-if value="{{ detailHasDescriptionLead }}" hint-placeholder-val="{{ false }}">
+          <p style="font-size:20px;line-height:1.7;font-weight:700;color:#17171A;margin:0 0 20px">{{ detail.descriptionLead }}</p>
+        </sc-if>
+        <p style="font-size:20px;line-height:1.7;color:#4a4a4c;margin:0 0 20px" data-comment-anchor="003ec62998-p">{{ detail.description }}</p>
+        <sc-if value="{{ detailHasDescription2 }}" hint-placeholder-val="{{ false }}">
+          <p style="font-size:20px;line-height:1.7;color:#4a4a4c;margin:0">{{ detail.description2 }}</p>
+        </sc-if>
+      </sc-if>
+
+      <sc-if value="{{ detailHasIntroCaption }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex;flex-direction:column;align-items:center;gap:2px;text-align:center;margin:60px 0 10px">
+          <sc-if value="{{ detailHasIntroCaptionLead }}" hint-placeholder-val="{{ false }}">
+            <p style="font-size:20px;line-height:1.7;font-weight:700;color:#17171A;margin:0">{{ detail.introCaptionLead }}</p>
+          </sc-if>
+          <p style="font-size:20px;line-height:1.7;color:#4a4a4c;margin:0">{{ detail.introCaption }}</p>
+        </div>
+      </sc-if>
+      <div style="{{ introRowStyle }}">
+        <sc-if value="{{ detailHasIntro2 }}" hint-placeholder-val="{{ false }}">
+          <image-slot id="{{ detail.introSlotId }}" style="{{ introSlotStyle }}" shape="rect" radius="0" fit="cover" placeholder="Drop an image"></image-slot>
+          <image-slot id="{{ detail.introSlotId2 }}" style="{{ introSlotStyle2 }}" shape="rect" radius="0" fit="cover" placeholder="Drop an image"></image-slot>
+        </sc-if>
+        <sc-if value="{{ detailNoIntro2 }}" hint-placeholder-val="{{ true }}">
+          <image-slot data-autoheight="" id="{{ detail.introSlotId }}" style="{{ introSlotStyle }}" shape="rect" radius="0" fit="contain" placeholder="Drop an image"></image-slot>
+        </sc-if>
+      </div>
+
+      <h3 style="font-size:13px;font-weight:700;color:#FF7A1A;letter-spacing:.08em;text-transform:uppercase;margin:60px 0 14px" id="cs-problem">The Problem</h3>
+      <sc-if value="{{ detailHasProblemLead }}" hint-placeholder-val="{{ false }}">
+        <p style="font-size:20px;line-height:1.7;font-weight:700;color:#17171A;margin:0 0 20px">{{ detail.problemLead }}</p>
+      </sc-if>
+      <p style="font-size:20px;line-height:1.7;color:#4a4a4c;margin:0 0 24px" data-comment-anchor="fd5c9b62f0-p">{{ detail.problem }}</p>
+
+
+      <image-slot data-autoheight="" id="{{ detail.problemSlotId }}" style="{{ problemSlotStyle }}" shape="rect" radius="0" fit="contain" placeholder="Drop an image"></image-slot>
+      <sc-if value="{{ detailHasProblemCaption }}" hint-placeholder-val="{{ false }}">
+        <p style="font-size:12px;color:#8a8a8e;margin:0">{{ detail.problemCaption }}</p>
+      </sc-if>
+
+      <h3 style="font-size:13px;font-weight:700;color:#FF7A1A;letter-spacing:.08em;text-transform:uppercase;margin:60px 0 16px" id="cs-process">My Process</h3>
+      <sc-if value="{{ detailHasProcessLead }}" hint-placeholder-val="{{ false }}">
+        <p style="font-size:20px;line-height:1.7;font-weight:700;color:#17171A;margin:0 0 22px">{{ detail.processLead }}</p>
+      </sc-if>
+      <sc-for list="{{ detail.process }}" as="step" hint-placeholder-count="3">
+        <div style="{{ step.wrapStyle }}">
+          <p style="font-size:20px;line-height:1.7;color:#4a4a4c;margin:0"><sc-if value="{{ step.hasLabel }}" hint-placeholder-val="{{ true }}"><em style="font-style:normal;font-weight:700;color:#17171A">{{ step.label }}</em>&nbsp;</sc-if>{{ step.body }}</p>
+          <sc-if value="{{ step.hasBody2 }}" hint-placeholder-val="{{ false }}">
+            <p style="font-size:20px;line-height:1.7;color:#4a4a4c;margin:14px 0 0">{{ step.body2 }}</p>
+          </sc-if>
+          <sc-if value="{{ step.hasBullets }}" hint-placeholder-val="{{ false }}">
+            <ul style="margin:12px 0 0;padding-left:20px" data-comment-anchor="42905cb946-ul">
+              <sc-for list="{{ step.bullets }}" as="b" hint-placeholder-count="4">
+                <li style="font-size:20px;line-height:1.7;color:#4a4a4c;margin-bottom:10px"><strong style="color:#17171A">{{ b.label }}</strong> — {{ b.body }}</li>
+              </sc-for>
+            </ul>
+          </sc-if>
+          <sc-if value="{{ step.hasPostBullets }}" hint-placeholder-val="{{ false }}">
+            <p style="font-size:20px;line-height:1.7;color:#4a4a4c;margin:20px 0 0">{{ step.postBullets }}</p>
+          </sc-if>
+          <sc-if value="{{ step.hasSlideshow }}" hint-placeholder-val="{{ false }}">
+            <div style="{{ slideshowFrameStyle }}">
+              <div style="{{ scherrSlide0 }}"><image-slot data-autoheight="" id="{{ step.slideId0 }}" style="width:100%;height:100%" shape="rect" radius="0" placeholder="Drop a platform screen"></image-slot></div>
+              <div style="{{ scherrSlide1 }}"><image-slot data-autoheight="" id="{{ step.slideId1 }}" style="width:100%;height:100%" shape="rect" radius="0" placeholder="Drop a platform screen"></image-slot></div>
+              <div style="{{ scherrSlide2 }}"><image-slot data-autoheight="" id="{{ step.slideId2 }}" style="width:100%;height:100%" shape="rect" radius="0" placeholder="Drop a platform screen"></image-slot></div>
+              <div style="{{ scherrSlide3 }}"><image-slot data-autoheight="" id="{{ step.slideId3 }}" style="width:100%;height:100%" shape="rect" radius="0" placeholder="Drop a platform screen"></image-slot></div>
+              <button type="button" onClick="{{ scherrPrev }}" aria-label="Previous image" style="position:absolute;left:12px;top:50%;transform:translateY(-50%);width:36px;height:36px;border-radius:50%;background:rgba(23,23,26,.6);color:#fff;border:none;cursor:pointer;font-size:15px;z-index:3">‹</button>
+              <button type="button" onClick="{{ scherrNext }}" aria-label="Next image" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);width:36px;height:36px;border-radius:50%;background:rgba(23,23,26,.6);color:#fff;border:none;cursor:pointer;font-size:15px;z-index:3">›</button>
+              <div style="position:absolute;bottom:12px;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:7px;z-index:3;background:rgba(23,23,26,.55);padding:7px 10px;border-radius:999px">
+                <sc-for list="{{ scherrDots }}" as="d" hint-placeholder-count="4">
+                  <div onClick="{{ d.onClick }}" style="{{ d.style }}"></div>
+                </sc-for>
+              </div>
+            </div>
+            <sc-if value="{{ step.hasCaption }}" hint-placeholder-val="{{ false }}">
+              <p style="font-size:12px;color:#8a8a8e;margin:0">{{ step.caption }}</p>
+            </sc-if>
+          </sc-if>
+          <sc-if value="{{ step.hasSlot }}" hint-placeholder-val="{{ false }}">
+            <div style="{{ step.slotRowStyle }}">
+              <sc-if value="{{ step.hasSlot2 }}" hint-placeholder-val="{{ false }}">
+                <image-slot id="{{ step.slotId }}" style="{{ step.slotStyle }}" shape="rect" radius="0" fit="cover" placeholder="Drop an image"></image-slot>
+              </sc-if>
+              <sc-if value="{{ step.noSlot2 }}" hint-placeholder-val="{{ true }}">
+                <image-slot data-autoheight="" id="{{ step.slotId }}" style="{{ step.slotStyle }}" shape="rect" radius="0" fit="contain" placeholder="Drop an image"></image-slot>
+              </sc-if>
+              <sc-if value="{{ step.hasSlot2 }}" hint-placeholder-val="{{ false }}">
+                <image-slot data-autoheight="" id="{{ step.slotId2 }}" style="{{ step.slotStyle2 }}" shape="rect" radius="0" fit="contain" placeholder="Drop an image"></image-slot>
+              </sc-if>
+            </div>
+            <sc-if value="{{ step.hasCaption }}" hint-placeholder-val="{{ false }}">
+              <p style="font-size:12px;color:#8a8a8e;margin:0">{{ step.caption }}</p>
+            </sc-if>
+          </sc-if>
+        </div>
+      </sc-for>
+
+      <h3 style="font-size:13px;font-weight:700;color:#FF7A1A;letter-spacing:.08em;text-transform:uppercase;margin:60px 0 14px" id="cs-decisions">Key Decisions</h3>
+      <sc-if value="{{ detailHasDecisionsLead }}" hint-placeholder-val="{{ false }}">
+        <p style="font-size:20px;line-height:1.7;font-weight:700;color:#17171A;margin:0 0 20px">{{ detail.decisionsLead }}</p>
+      </sc-if>
+      <p style="font-size:20px;line-height:1.7;color:#4a4a4c;margin:0" data-comment-anchor="47541da82c-p">{{ detail.decisions }}</p>
+
+      <h3 style="font-size:13px;font-weight:700;color:#FF7A1A;letter-spacing:.08em;text-transform:uppercase;margin:60px 0 16px" id="cs-impact">Impact</h3>
+      <sc-if value="{{ detailHasImpactLead }}" hint-placeholder-val="{{ false }}">
+        <p style="font-size:20px;line-height:1.7;font-weight:700;color:#17171A;margin:0 0 18px">{{ detail.impactLead }}</p>
+      </sc-if>
+      <sc-if value="{{ detailHasImpactBody }}" hint-placeholder-val="{{ false }}">
+        <p style="font-size:20px;line-height:1.7;color:#4a4a4c;margin:0 0 20px">{{ detail.impactBody }}</p>
+      </sc-if>
+      <ul style="margin:0 0 22px;padding-left:20px">
+        <sc-for list="{{ detail.impact }}" as="imp" hint-placeholder-count="5">
+          <li style="font-size:20px;line-height:1.7;color:#4a4a4c;margin-bottom:10px">{{ imp }}</li>
+        </sc-for>
+      </ul>
+      <sc-if value="{{ detailHasMetricsRest }}" hint-placeholder-val="{{ false }}">
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px;margin:0" data-comment-anchor="929c6e5aca-div">
+        <sc-for list="{{ detailMetricsRest }}" as="m" hint-placeholder-count="1">
+          <div style="background:#17171A;color:#fff;border-radius:16px;padding:22px 16px;min-height:104px;display:flex;align-items:center;justify-content:center;text-align:center;font-size:15px;font-weight:700;line-height:1.35;box-shadow:0 5px 14px rgba(0,0,0,.09)">{{ m }}</div>
+        </sc-for>
+      </div>
+      </sc-if>
+
+
+      <h3 style="font-size:13px;font-weight:700;color:#FF7A1A;letter-spacing:.08em;text-transform:uppercase;margin:60px 0 14px" id="cs-reflection">Reflection</h3>
+      <sc-if value="{{ detailHasReflectionLead }}" hint-placeholder-val="{{ false }}">
+        <p style="font-size:20px;line-height:1.7;font-weight:700;color:#17171A;margin:0 0 20px">{{ detail.reflectionLead }}</p>
+      </sc-if>
+      <p style="font-size:20px;line-height:1.7;color:#4a4a4c;margin:0" data-comment-anchor="425d24479a-p">{{ detail.reflection }}</p>
+
+      </sc-if>
+
+      <h3 style="font-size:13px;font-weight:700;color:#FF7A1A;letter-spacing:.08em;text-transform:uppercase;margin:90px 0 20px">More work</h3>
+      <div style="display:flex;flex-direction:column">
+        <sc-for list="{{ otherProjects }}" as="op" hint-placeholder-count="3">
+          <a href="#" onClick="{{ op.onClick }}" style="{{ op.rowStyle }}" style-hover="background:rgba(23,23,26,.03)">
+            <span style="{{ op.numStyle }}">{{ op.num }}</span>
+            <span style="{{ op.titleStyle }}">{{ op.title }}</span>
+            <span style="{{ op.blurbStyle }}">{{ op.blurbText }}</span>
+            <span style="{{ op.markerStyle }}">{{ op.marker }}</span>
+          </a>
+        </sc-for>
+      </div>
+
+    </div>
+    <sc-if value="{{ detailHasRail }}" hint-placeholder-val="{{ false }}">
+      <div style="flex:0 1000 210px;min-width:0"></div>
+    </sc-if>
+    </div>
+  </div>
+  </sc-if>
+
+  <div style="margin-top:auto;padding:36px 32px;border-top:1px solid rgba(255,255,255,.08);display:flex;justify-content:center">
+    <a href="mailto:joe98kim@gmail.com" style="font-size: 16px; font-weight: 700; color: #17171a">Let's stay in touch → joe98kim@gmail.com</a>
+  </div>
+
+  <sc-if value="{{ playerCollapsed }}" hint-placeholder-val="{{ true }}">
+  <div style="position:fixed;bottom:110px;left:50%;transform:translateX(-50%);z-index:25;display:flex;align-items:center;gap:10px">
+  <div style="position:absolute;right:calc(100% + 10px);top:50%;transform:translateY(-50%);z-index:30">
+    <button type="button" onClick="{{ togglePlaylistPicker }}" aria-label="Card stack" style="position:relative;width:64px;height:64px;background:none;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0">
+      <div class="jk-cardstack">
+        <div class="jk-cardstack-card jk-cardstack-base" style="background:rgba(244,241,234,.5);backdrop-filter:blur(18px) saturate(120%);-webkit-backdrop-filter:blur(18px) saturate(120%);z-index:1"></div>
+        <div class="jk-cardstack-card jk-cardstack-mid" style="background:#17171a;z-index:2"></div>
+        <div class="jk-cardstack-card jk-cardstack-top" style="background-image:url(uploads/IMG_5502.jpg);background-size:cover;background-position:center;z-index:3"></div>
+      </div>
+    </button>
+    <sc-if value="{{ playlistPickerOpen }}" hint-placeholder-val="{{ false }}">
+      <div style="position:absolute;bottom:76px;right:0;background:rgba(244,241,234,.5);backdrop-filter:blur(18px) saturate(120%);-webkit-backdrop-filter:blur(18px) saturate(120%);border:1px solid #17171a;border-radius:16px;padding:14px" data-comment-anchor="a514209019-div">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+          <span style="font-size:12px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:#c05e0e">Playlists</span>
+          <button type="button" onClick="{{ togglePlaylistPicker }}" aria-label="Close" style="width:24px;height:24px;border-radius:50%;background:none;border:none;color:#17171a;cursor:pointer;display:flex;align-items:center;justify-content:center"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <sc-for list="{{ playlistOptions }}" as="pl" hint-placeholder-count="3">
+            <button type="button" onClick="{{ pl.onClick }}" style="{{ pl.tileStyle }}">
+              <div style="{{ pl.swatchStyle }}"></div>
+              <span style="font-size:11px;font-weight:700;color:#17171a">{{ pl.name }}</span>
+            </button>
+          </sc-for>
+        </div>
+      </div>
+    </sc-if>
+  </div>
+  <div style="display:flex;align-items:center;gap:10px;background:rgba(244,241,234,.5);backdrop-filter:blur(18px) saturate(120%);-webkit-backdrop-filter:blur(18px) saturate(120%);border:1px solid #17171a;border-radius:999px;padding:8px 10px" data-comment-anchor="c5c6d61e04-div">
+    <div style="position:relative;width:56px;height:40px;flex:0 0 56px">
+      <div class="jk-vinyl" style="position:absolute;left:0;top:0;width:40px;height:40px;border-radius:50%;border:1px solid #17171a;display:flex;align-items:center;justify-content:center;animation-play-state:{{ playerVinylState }}">
+        <div style="position:absolute;inset:6px;border-radius:50%;border:1px solid rgba(23,23,26,.16)"></div>
+        <div style="width:22%;height:22%;border-radius:50%;background:#FF7A1A"></div>
+      </div>
+      <div style="position:absolute;left:44.5px;top:2.5px;width:5px;height:5px;border-radius:50%;background:#17171a"></div>
+      <div style="position:absolute;left:46.25px;top:5px;width:1.5px;height:27px;transform-origin:top center;transition:transform .6s cubic-bezier(.4,0,.2,1);transform:{{ tonearmTransform }}">
+        <div style="position:absolute;inset:0;background:#17171a;border-radius:999px"></div>
+        <div style="position:absolute;top:-6px;left:-1.75px;width:5px;height:6px;border-radius:2px;background:#17171a"></div>
+      </div>
+    </div>
+    <div style="width:120px;flex:0 0 120px;overflow:hidden">
+      <div class="jk-marquee-track" style="font-size:12px;font-weight:700;color:#17171a;line-height:1.2">{{ playerTrack.title }}</div>
+      <div style="font-size:11px;color:#c05e0e;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ playerTrack.artist }}</div>
+    </div>
+    <button type="button" onClick="{{ prevPlayerTrack }}" aria-label="Previous track" style="width:28px;height:28px;border-radius:50%;background:none;border:none;color:#17171a;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:12px"><span style="position:relative;top:-1px">⏮</span></button>
+    <button type="button" onClick="{{ togglePlayer }}" aria-label="Play or pause" style="width:44px;height:44px;border-radius:50%;background:#17171a;color:#f4f1ea;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:17px" data-comment-anchor="727eea1370-button"><span style="{{ playerIconStyle }}">{{ playerIcon }}</span></button>
+    <button type="button" onClick="{{ nextPlayerTrack }}" aria-label="Next track" style="width:28px;height:28px;border-radius:50%;background:none;border:none;color:#17171a;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:12px"><span style="position:relative;top:-1px">⏭</span></button>
+    <button type="button" onClick="{{ toggleShuffle }}" aria-label="Shuffle" aria-pressed="{{ playerShuffle }}" style="{{ shuffleBtnStyle }}"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="20" x2="21" y2="3"></line><polyline points="21 16 21 21 16 21"></polyline><line x1="15" y1="15" x2="21" y2="21"></line><line x1="4" y1="4" x2="9" y2="9"></line><polyline points="16 3 21 3 21 8"></polyline></svg></button>
+    <button type="button" onClick="{{ openPlayerOverlay }}" aria-label="Open full player" style="width:26px;height:26px;border-radius:50%;background:none;border:none;display:flex;align-items:center;justify-content:center;color:#17171a;cursor:pointer"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="stroke: #17171a"><line x1="4" y1="7" x2="20" y2="7"></line><line x1="4" y1="12" x2="20" y2="12"></line><line x1="4" y1="17" x2="20" y2="17"></line></svg></button>
+  </div>
+  <div style="position:absolute;left:calc(100% + 10px);top:50%;transform:translateY(-50%);flex:0 0 auto">
+    <button type="button" onClick="{{ toggleVolumePopup }}" aria-label="Volume" style="width:44px;height:44px;border-radius:50%;background:rgba(244,241,234,.5);backdrop-filter:blur(18px) saturate(120%);-webkit-backdrop-filter:blur(18px) saturate(120%);border:1px solid #17171a;color:#17171a;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:transform .2s ease,color .2s ease" style-hover="transform:scale(1.08);color:#c05e0e"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path><path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path></svg></button>
+    <sc-if value="{{ playerVolumeOpen }}" hint-placeholder-val="{{ false }}">
+      <div style="position:absolute;bottom:48px;left:50%;transform:translateX(-50%);background:#f4f1ea;border:1px solid #17171a;border-radius:14px;padding:14px 10px;width:36px;height:96px;display:flex;align-items:center;justify-content:center">
+        <input type="range" min="0" max="1" step="0.01" value="{{ playerVolume }}" onChange="{{ onPlayerVolume }}" style="{{ volumeSliderStyle }}">
+      </div>
+    </sc-if>
+  </div>
+  </div>
+  </sc-if>
+
+  <sc-if value="{{ playerExpanded }}" hint-placeholder-val="{{ false }}">
+  <div style="position:fixed;bottom:110px;left:50%;transform:translateX(-50%);z-index:25;display:flex;align-items:flex-end;gap:10px">
+  <div style="position:absolute;right:calc(100% + 10px);bottom:-2px;z-index:30">
+    <button type="button" onClick="{{ togglePlaylistPicker }}" aria-label="Card stack" style="position:relative;width:64px;height:64px;background:none;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0">
+      <div class="jk-cardstack">
+        <div class="jk-cardstack-card jk-cardstack-base" style="background:rgba(244,241,234,.5);backdrop-filter:blur(18px) saturate(120%);-webkit-backdrop-filter:blur(18px) saturate(120%);z-index:1"></div>
+        <div class="jk-cardstack-card jk-cardstack-mid" style="background:#17171a;z-index:2"></div>
+        <div class="jk-cardstack-card jk-cardstack-top" style="background-image:url(uploads/IMG_5502.jpg);background-size:cover;background-position:center;z-index:3"></div>
+      </div>
+    </button>
+    <sc-if value="{{ playlistPickerOpen }}" hint-placeholder-val="{{ false }}">
+      <div style="position:absolute;bottom:76px;right:0;background:rgba(244,241,234,.5);backdrop-filter:blur(18px) saturate(120%);-webkit-backdrop-filter:blur(18px) saturate(120%);border:1px solid #17171a;border-radius:16px;padding:14px" data-comment-anchor="a514209019-div">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+          <span style="font-size:12px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:#c05e0e">Playlists</span>
+          <button type="button" onClick="{{ togglePlaylistPicker }}" aria-label="Close" style="width:24px;height:24px;border-radius:50%;background:none;border:none;color:#17171a;cursor:pointer;display:flex;align-items:center;justify-content:center"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <sc-for list="{{ playlistOptions }}" as="pl" hint-placeholder-count="3">
+            <button type="button" onClick="{{ pl.onClick }}" style="{{ pl.tileStyle }}">
+              <div style="{{ pl.swatchStyle }}"></div>
+              <span style="font-size:11px;font-weight:700;color:#17171a">{{ pl.name }}</span>
+            </button>
+          </sc-for>
+        </div>
+      </div>
+    </sc-if>
+  </div>
+  <div style="width:min(460px,calc(100vw - 32px));background:rgba(244,241,234,.72);backdrop-filter:blur(22px) saturate(120%);-webkit-backdrop-filter:blur(22px) saturate(120%);border:1px solid #17171a;border-radius:24px;overflow:hidden">
+    <div style="padding:14px 18px;display:flex;align-items:center;gap:14px">
+      <div style="position:relative;width:66px;height:48px;flex:0 0 66px">
+        <div class="jk-vinyl" style="position:absolute;left:0;top:0;width:48px;height:48px;border-radius:50%;border:1px solid #17171a;display:flex;align-items:center;justify-content:center;animation-play-state:{{ playerVinylState }}">
+          <div style="position:absolute;inset:7px;border-radius:50%;border:1px solid rgba(23,23,26,.16)"></div>
+          <div style="width:22%;height:22%;border-radius:50%;background:#FF7A1A"></div>
+        </div>
+        <div style="position:absolute;left:53px;top:3px;width:6px;height:6px;border-radius:50%;background:#17171a"></div>
+        <div style="position:absolute;left:55px;top:6px;width:2px;height:32px;transform-origin:top center;transition:transform .6s cubic-bezier(.4,0,.2,1);transform:{{ tonearmTransform }}">
+          <div style="position:absolute;inset:0;background:#17171a;border-radius:999px"></div>
+          <div style="position:absolute;top:-7px;left:-2px;width:6px;height:7px;border-radius:2px;background:#17171a"></div>
+        </div>
+      </div>
+      <div style="flex:1;min-width:0">
+        <div style="display:flex;justify-content:space-between;margin-bottom:4px;gap:8px">
+          <div style="font-size:13px;font-weight:700;color:#17171a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ playerTrack.title }}</div>
+          <div style="font-size:11px;color:#6b665f;white-space:nowrap">{{ playerTimeLabel }} / {{ playerDurationLabel }}</div>
+        </div>
+        <input class="jk-seek" type="range" min="0" max="{{ playerSeekMax }}" step="0.01" value="{{ playerTime }}" disabled="{{ playerSeekDisabled }}" onChange="{{ onPlayerSeek }}" onInput="{{ onPlayerSeek }}" style="--pct: {{ playerSeekPct }}" data-comment-anchor="3e5f360e79-input">
+      </div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <button type="button" onClick="{{ prevPlayerTrack }}" aria-label="Previous track" style="width:26px;height:26px;border-radius:50%;background:none;border:none;color:#17171a;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px"><span style="position:relative;top:-1px">⏮</span></button>
+        <button type="button" onClick="{{ togglePlayer }}" aria-label="Play or pause" style="width:42px;height:42px;border-radius:50%;background:#17171a;color:#f4f1ea;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:17px"><span style="{{ playerIconStyle }}">{{ playerIcon }}</span></button>
+        <button type="button" onClick="{{ nextPlayerTrack }}" aria-label="Next track" style="width:26px;height:26px;border-radius:50%;background:none;border:none;color:#17171a;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px"><span style="position:relative;top:-1px">⏭</span></button>
+        <button type="button" onClick="{{ toggleShuffle }}" aria-label="Shuffle" aria-pressed="{{ playerShuffle }}" style="{{ shuffleBtnStyleLg }}"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 3 21 3 21 8"></polyline><line x1="4" y1="20" x2="21" y2="3"></line><polyline points="21 16 21 21 16 21"></polyline><line x1="15" y1="15" x2="21" y2="21"></line><line x1="4" y1="4" x2="9" y2="9"></line></svg></button>
+        <button type="button" onClick="{{ closePlayerOverlay }}" aria-label="Collapse player" style="width:24px;height:24px;border-radius:50%;background:none;border:none;color:#17171a;cursor:pointer;display:flex;align-items:center;justify-content:center"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
+      </div>
+    </div>
+    <div style="border-top:1px solid rgba(23,23,26,.16);padding:10px 18px 14px;max-height:180px;overflow-y:auto">
+      <div style="font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:#6b665f;margin-bottom:4px">Queue</div>
+      <sc-for list="{{ playerQueue }}" as="t" hint-placeholder-count="3">
+        <div class="jk-row" onClick="{{ t.onClick }}" style="display:flex;align-items:center;justify-content:space-between;padding:8px 6px">
+          <div style="display:flex;align-items:center;gap:10px">
+            <span style="font-size:11px;color:{{ t.numColor }};width:14px;font-variant-numeric:tabular-nums">{{ t.num }}</span>
+            <div>
+              <div style="font-size:13px;font-weight:600;color:{{ t.titleColor }}">{{ t.title }}</div>
+              <div style="font-size:11px;color:#6b665f">{{ t.artist }}</div>
+            </div>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+  <div style="position:absolute;left:calc(100% + 10px);bottom:8px;flex:0 0 auto">
+    <button type="button" onClick="{{ toggleVolumePopup }}" aria-label="Volume" style="width:44px;height:44px;border-radius:50%;background:rgba(244,241,234,.5);backdrop-filter:blur(18px) saturate(120%);-webkit-backdrop-filter:blur(18px) saturate(120%);border:1px solid #17171a;color:#17171a;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:transform .2s ease,color .2s ease" style-hover="transform:scale(1.08);color:#c05e0e"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path><path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path></svg></button>
+    <sc-if value="{{ playerVolumeOpen }}" hint-placeholder-val="{{ false }}">
+      <div style="position:absolute;bottom:52px;left:50%;transform:translateX(-50%);background:#f4f1ea;border:1px solid #17171a;border-radius:14px;padding:14px 10px;width:36px;height:96px;display:flex;align-items:center;justify-content:center">
+        <input type="range" min="0" max="1" step="0.01" value="{{ playerVolume }}" onChange="{{ onPlayerVolume }}" style="{{ volumeSliderStyle }}" data-comment-anchor="b36615a136-input">
+      </div>
+    </sc-if>
+  </div>
+  </div>
+  </sc-if>
+
+
+  </div>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;customCursor&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Interaction&quot;}}">
+class Component extends DCLogic {
+  state = { page: 'work', detailId: null, ...(function(){ try { const r = JSON.parse(localStorage.getItem('jk-portfolio-nav') || 'null'); if (r && r.page) return { page: r.page, detailId: r.detailId || null }; } catch (e) {} return {}; })(), indicatorStyle: { position: 'absolute', opacity: 0 }, playerPlaying: false, playerIndex: 0, playerTime: 0, playerDuration: 0, playerExpanded: false, workCenter: 0, forFunCenter: 0, playerShuffle: false, playerVolume: 1, playerVolumeOpen: false, playlistFile: null, playlistItems: [], playlistBusy: false, activePlaylistId: 'main', playlistPickerOpen: false, dropZoneActive: false };
+  navRef = React.createRef();
+  workTabRef = React.createRef();
+  forFunTabRef = React.createRef();
+  aboutTabRef = React.createRef();
+  playerAudioRef = React.createRef();
+  bgWaveRef = React.createRef();
+  introSlotRef = React.createRef();
+  playerTracks = [
+    { title: 'Alone with You', artist: 'Mac Ayres', src: 'uploads/Mac Ayres - Alone with you.mp3' },
+    { title: 'Alesis', artist: 'Mk.gee', src: 'uploads/Alesis - Mk.gee.mp3' },
+    { title: 'supertight', artist: 'georgee', src: 'uploads/supertight - georgee.mp3' },
+    { title: 'Love It If We Made It', artist: 'The 1975', src: 'uploads/The 1975 - Love It If We Made It.mp3' },
+    { title: 'Angel Appearing in a Small Cafe', artist: 'Chris Trapper', src: 'uploads/Angel Appearing in a Small Cafe - Chris Trapper.mp3' },
+    { title: 'morning comes', artist: 'georgee', src: 'uploads/morning comes - georgee.mp3' },
+    { title: 'In the Blood', artist: 'John Mayer', src: 'uploads/In the Blood - John Mayer.mp3' },
+    { title: 'Track Two', artist: 'Add your song title', src: '' },
+    { title: 'Track Three', artist: 'Add your song title', src: '' },
+    { title: 'Track Four', artist: 'Add your song title', src: '' },
+    { title: 'Track Five', artist: 'Add your song title', src: '' },
+    { title: 'Track Six', artist: 'Add your song title', src: '' },
+    { title: 'Track Seven', artist: 'Add your song title', src: '' },
+    { title: 'Track Eight', artist: 'Add your song title', src: '' },
+  ];
+
+  togglePlayer() {
+    const a = this.playerAudioRef.current;
+    if (!a) return;
+    if (this.audioCtx && this.audioCtx.state === 'suspended') this.audioCtx.resume();
+    this.connectAnalyser();
+    if (this.state.playerPlaying) { a.pause(); this.setState({ playerPlaying: false }); }
+    else { a.play().then(() => this.setState({ playerPlaying: true })).catch(() => {}); }
+  }
+  getActiveTracks() {
+    if (this.state.activePlaylistId === 'blank') return [];
+    if (this.state.activePlaylistId === 'forfun') return this.state.playlistItems.map(t => ({ title: t.title, artist: 'Uploaded', src: t.src }));
+    return this.playerTracks;
+  }
+  switchPlaylist(id) {
+    if (id === this.state.activePlaylistId) { this.setState({ playlistPickerOpen: false }); return; }
+    const a = this.playerAudioRef.current;
+    if (a) a.pause();
+    this.setState({ activePlaylistId: id, playerIndex: 0, playerTime: 0, playerDuration: 0, playerPlaying: false, playlistPickerOpen: false });
+  }
+  setPlayerIndex(i) {
+    const n = this.getActiveTracks().length;
+    if (n === 0) return;
+    const next = ((i % n) + n) % n;
+    const wasPlaying = this.state.playerPlaying;
+    this.setState({ playerIndex: next, playerTime: 0, playerDuration: 0 }, () => {
+      const a = this.playerAudioRef.current;
+      if (a) a.load();
+      if (wasPlaying) a.play().then(() => this.setState({ playerPlaying: true })).catch(() => {});
+    });
+  }
+  prevPlayerTrack() { this.setPlayerIndex(this.state.playerIndex - 1); }
+  nextPlayerTrack() {
+    const n = this.getActiveTracks().length;
+    if (this.state.playerShuffle && n > 1) {
+      let next;
+      do { next = Math.floor(Math.random() * n); } while (next === this.state.playerIndex);
+      this.setPlayerIndex(next);
+    } else {
+      this.setPlayerIndex(this.state.playerIndex + 1);
+    }
+  }
+  toggleShuffle() { this.setState(s => ({ playerShuffle: !s.playerShuffle })); }
+  toggleVolumePopup() { this.setState(s => ({ playerVolumeOpen: !s.playerVolumeOpen })); }
+  onPlayerVolume(e) {
+    const v = parseFloat(e.target.value);
+    const a = this.playerAudioRef.current;
+    if (a) a.volume = v;
+    this.setState({ playerVolume: v });
+  }
+  onPlayerTimeUpdateFn() { const a = this.playerAudioRef.current; if (!a) return; const next = { playerTime: a.currentTime }; if (isFinite(a.duration) && a.duration > 0 && a.duration !== this.state.playerDuration) next.playerDuration = a.duration; this.setState(next); }
+  onPlayerLoadedMetadata() { const a = this.playerAudioRef.current; if (a && isFinite(a.duration) && a.duration > 0 && a.duration !== this.state.playerDuration) this.setState({ playerDuration: a.duration }); }
+  onPlayerSeek(e) { const v = parseFloat(e.target.value); const a = this.playerAudioRef.current; if (a) a.currentTime = v; this.setState({ playerTime: v }); }
+  onPlayerEnded() { this.nextPlayerTrack(); }
+  fmtTime(t) {
+    if (!t || isNaN(t)) return '0:00';
+    const m = Math.floor(t / 60);
+    const s = Math.floor(t % 60).toString().padStart(2, '0');
+    return m + ':' + s;
+  }
+
+  initBgWave() {
+    const barCount = 64;
+    this.waveBars = Array.from({ length: barCount }, () => ({ v: 0.1, target: 0.1 }));
+    try {
+      this.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      this.analyser = this.audioCtx.createAnalyser();
+      this.analyser.fftSize = 128;
+      this.freqData = new Uint8Array(this.analyser.frequencyBinCount);
+    } catch (e) { this.analyser = null; }
+    this._lastWaveCvs = null;
+    const draw = () => {
+      const cvs = this.bgWaveRef.current;
+      if (cvs) {
+        const r = cvs.getBoundingClientRect();
+        if (cvs !== this._lastWaveCvs || Math.round(r.width) !== cvs.width) {
+          this._lastWaveCvs = cvs;
+          cvs.width = r.width; cvs.height = r.height;
+        }
+        const ctx = cvs.getContext('2d');
+        const w = cvs.width, h = cvs.height;
+        ctx.clearRect(0, 0, w, h);
+        // bass left, mid centre, treble right (log frequency, highs tilted up)
+        const half = barCount;
+        const levels = new Array(barCount);
+        const place = (j, v) => { levels[j] = v; };
+        if (this.analyser && this.state.playerPlaying) {
+          this.analyser.getByteFrequencyData(this.freqData);
+          const nb = this.freqData.length;
+          const sampleLog = (f) => {
+            const pos = (Math.pow(2, f * 5) - 1) / 31;
+            const x = pos * (nb - 1), i = Math.floor(x), fr = x - i;
+            const a = this.freqData[Math.min(nb - 1, i)] / 255;
+            const b = this.freqData[Math.min(nb - 1, i + 1)] / 255;
+            return Math.min(1.2, (a + (b - a) * fr) * (1 + f * 1.5));
+          };
+          for (let j = 0; j < half; j++) {
+            const bar = this.waveBars[j];
+            const target = sampleLog(half > 1 ? j / (half - 1) : 0);
+            bar.v += (target - bar.v) * (target > bar.v ? 0.5 : 0.16);
+            place(j, bar.v);
+          }
+        } else {
+          for (let j = 0; j < half; j++) {
+            const bar = this.waveBars[j];
+            if (Math.random() < 0.05) bar.target = 0.2 + Math.random() * 0.45;
+            bar.v += (bar.target - bar.v) * 0.12;
+            place(j, bar.v);
+          }
+        }
+        const bw = Math.max(4, Math.floor(w / barCount) - 4);
+        const gap = (w - bw * barCount) / (barCount + 1);
+        const midY = h * 0.5;
+        ctx.fillStyle = 'rgba(20,20,20,0.55)';
+        levels.forEach((lv, i) => {
+          const barH = Math.max(8, lv * h * 0.5);
+          const x = gap + i * (bw + gap);
+          const px = Math.round(x / 3) * 3;
+          const ph = Math.round(barH / 6) * 6;
+          const rr = Math.min(bw / 2, 3);
+          ctx.beginPath();
+          if (ctx.roundRect) ctx.roundRect(px, midY - ph / 2, bw, ph, rr);
+          else ctx.rect(px, midY - ph / 2, bw, ph);
+          ctx.fill();
+        });
+      }
+      this.bgWaveRaf = requestAnimationFrame(draw);
+    };
+    draw();
+  }
+
+  connectAnalyser() {
+    const a = this.playerAudioRef.current;
+    if (!a || !this.audioCtx || !this.analyser || this.mediaSourceNode) return;
+    try {
+      this.mediaSourceNode = this.audioCtx.createMediaElementSource(a);
+      this.mediaSourceNode.connect(this.analyser);
+      this.analyser.connect(this.audioCtx.destination);
+    } catch (e) {}
+  }
+
+  updateIndicator() {
+    const detail = this.state.detailId ? this.projectsData.find(p => p.id === this.state.detailId) : null;
+    const activeKey = this.state.page === 'detail' && detail ? detail.origin : this.state.page;
+    const refMap = { work: this.workTabRef, forfun: this.forFunTabRef, about: this.aboutTabRef };
+    const tabRef = refMap[activeKey];
+    const nav = this.navRef.current;
+    const el = tabRef && tabRef.current;
+    if (!nav || !el) return;
+    const next = { position: 'absolute', left: el.offsetLeft, top: el.offsetTop, width: el.offsetWidth, height: el.offsetHeight, borderRadius: 999, background: '#17171a', transition: 'left .55s cubic-bezier(.34,1.56,.64,1),width .55s cubic-bezier(.34,1.56,.64,1),top .55s cubic-bezier(.34,1.56,.64,1)', opacity: 1 };
+    const cur = this.state.indicatorStyle;
+    if (cur.left === next.left && cur.width === next.width && cur.opacity === next.opacity) return;
+    this.setState({ indicatorStyle: next });
+  }
+
+  projectsData = [
+    { id: 'dess', title: 'DESS', img: null, origin: 'work', richCaseStudy: true, date: 'aug 2026', dateRange: 'Aug 2026', blurb: 'A 2-week proof-of-concept moving seized evidence from cutter to analyst.',
+      headline: 'Designing a proof-of-concept in 2 weeks that turned a weeks-long process into a minutes-long one',
+      descriptionLead: '[Add a one-line overview subheading.]', description: '[Add the overview paragraph here.]',
+      metrics: ['2-week sprint', 'Days/weeks → minutes (projected)', 'Accepted for deployment'],
+      headlineStats: [{ value: '2 weeks', label: 'concept to accepted' }, { value: 'Minutes', label: 'down from days' }, { value: '100%', label: 'accepted for deployment' }],
+      meta: { timeline: '2-week proof-of-concept sprint', tools: 'Figma', contributions: 'Sole UX Designer', agency: 'U.S. Coast Guard · SAIC' },
+      problemLead: 'Manual data transfers were delaying access to seized evidence by days or weeks.',
+      problem: 'During maritime interdictions, the Coast Guard seizes digital evidence that needs to reach analysts quickly — but the existing process relied on manual data transfers from cutter to shore, often taking days or weeks per case file. With hundreds of case files already in the system and more generated continuously, that delay represented a real operational bottleneck for the Law Enforcement and Intelligence community.',
+      processLead: 'Scoped the workflow, then used Claude to turn workshop research into wireframes fast enough to hit a 2-week deadline.',
+      process: [
+        { label: '', body: 'Working with a USCG PM and a SAIC PM, I scoped what a proof-of-concept could realistically demonstrate in two weeks — not a finished product, but enough to prove the workflow was viable and worth building.' },
+        { label: '', body: 'I fed the themes and requirements that came out of the workshop directly into Claude to quickly translate that research into wireframes for DESS, focused on cataloguing seized material and validating a secure, cutter-to-cloud data path that could replace the manual transfer process entirely. Using Claude here meant I could iterate on the workflow in real time instead of losing days to manual wireframing, which was critical given the 2-week timeline.', body2: 'After, I presented the wireframes and workflow directly to Coast Guard and SAIC stakeholders to demonstrate feasibility within the 2-week deadline.' },
+      ],
+      decisionsLead: 'Prioritized proving the workflow over polishing the interface.',
+      decisions: 'Given the hard 2-week constraint, I prioritized proving the core workflow — how evidence would move from cutter to cloud to analyst — over polishing visual design. The goal was to answer "is this viable and worth building," not to ship a finished interface.',
+      impactLead: 'Accepted for deployment, with major projected time savings once it ships.',
+      impact: [
+        "Workflow and wireframes were accepted for inclusion in the Law Enforcement and Intelligence community's toolset.",
+        'Directly led to a team decision to pursue full deployment of the app.',
+        'MVP is on track for initial deployment to stakeholders by end of August 2026',
+        'Designed to take a process that previously took days to weeks down to an estimated minutes once deployed (projected).',
+      ],
+      reflectionLead: "The real win was earning stakeholder trust to move this into production.",
+      reflection: "Getting Coast Guard and SAIC stakeholders to accept the workflow and greenlight full deployment, off the back of a 2-week proof-of-concept, was the part I'm most proud of. It would have been easy for a fast, rough concept like this to get dismissed as unfinished. Instead, focusing the presentation on proving the workflow held up under real scrutiny is what earned the trust to move DESS into production.",
+    },
+    { id: 'scherr', title: 'Scherr', img: 'assets/scherr.png', origin: 'work', richCaseStudy: true, date: 'jun 2025', dateRange: 'Jan – Jun 2025', blurb: 'One platform replacing four disconnected tools for general contractors.',
+      headline: 'Replacing 4 disconnected tools with one platform',
+      headlineStats: [{ value: '$30K', label: 'per year saved' }, { value: '59%', label: 'faster data entry' }, { value: '63%', label: 'fewer conflicts' }],
+      metrics: ['$30K/yr saved', '59% faster data entry', '63% fewer conflicts'],
+      meta: { timeline: 'Jan - Jun 2025', tools: 'Figma', contributions: 'Product Designer', agency: 'Scherr' },
+      introCaptionLead: 'Meet the team', introCaption: 'One product designer, one developer, and one project manager',
+      problemCaption: "A screenshot of Scherr's scheduling spreadsheet.",
+      descriptionLead: 'Scherr, a locally owned general contracting company based in the DMV.', description: 'Our task was to design a custom CRM to streamline their task management and improve their communication between contractors and handymen.', description2: 'I led the product design by developing wireframes, ensuring an intuitive and user-friendly experience. I focused on designing a functional MVP that streamlines task management and contractor communication while remaining flexible for future enhancements.',
+      problemLead: 'Contractors were losing real time and money across four disconnected tools.',
+      problem: "Scherr's ~150 contractors and employees were juggling 4 separate tools and spreadsheets for scheduling, messaging, invoicing, and notes. Beyond the daily friction of missed messages, scheduling conflicts, and slow appointment booking, the fragmentation was costing the business directly: roughly $30,000 a year spent across the disconnected tools.",
+      processLead: 'Research themes directly shaped what got built, feature by feature.',
+      process: [
+        { label: '', body: 'I mapped the existing workflows across all 4 tools and ran a 15-question survey with contractors and staff to pinpoint exactly where time and money were being lost. Synthesis surfaced four core themes:',
+          bullets: [
+            { label: 'Disorganization', body: 'customer and job information scattered across disconnected tools' },
+            { label: 'Inefficiency', body: 'job scheduling, estimates, and invoicing all handled manually' },
+            { label: 'Poor Communication', body: 'no clear channel between customers and teams' },
+            { label: 'Limited Visibility', body: 'managers lacked a clear overview of ongoing projects, job status, and customer interactions' },
+          ], slot2: true, postBullets: 'With those themes in hand, I facilitated working sessions with the Scherr team to design out key features together rather than designing in isolation. The calendar in particular went through several rounds of collaborative iteration in these sessions, since scheduling was one of the most tangled workflows to get right.' },
+        { label: 'I designed a single, cohesive CRM platform tailored to how general contractors and handymen actually work.', body: '', body2: 'I addressed each research theme: centralizing customer and job data in one place, automating scheduling/estimates/invoicing, building in clear communication channels, and giving managers a project-wide overview.', slideshow: true },
+      ],
+      impactLeadLabel: '',
+      reflectionLead: 'Good UX here meant matching the tool to how people already worked, not the reverse.',
+      impactBody: "After rollout, I ran user surveys and a month of user testing to confirm the new system was actually solving the problems it was designed for, not just replacing one set of tools with another.",
+      impactLead: 'Major time, cost, and error reductions once the new system rolled out.',
+      decisionsLead: 'Every feature traced back to a specific research finding, not a generic CRM pattern.',
+      decisions: "For example, the manager dashboard existed specifically to solve the \"Limited Visibility\" theme, not because dashboards are a standard CRM pattern. I prioritized designing around the contractors' real day-to-day workflow rather than adapting an off-the-shelf CRM structure. This is part of why adoption and error reduction were as strong as they were; the tool matched how the team already thought about their work instead of forcing them to adapt to it.",
+      impact: [
+        'Consolidated 4 separate tools into 1 platform, used by ~150 contractors and employees',
+        'Eliminated roughly $30,000/year in costs previously spent across the fragmented toolset',
+        'Data entry time per session dropped from 34 minutes to 14 minutes (a ~59% reduction)',
+        'Scheduling conflicts dropped from an average of 8 to 3 — a ~63% reduction',
+        'User testing after one month of rollout showed a measurable reduction in user errors',
+      ],
+      reflection: 'This project reinforced how much of "good UX" for operational tools is really about matching the software to the existing mental model of the people using it, not just cleaning up the interface. The time and cost savings came directly from removing the need to think in 4 different systems at once.',
+    },
+    { id: 'fleet', title: 'Navy Engagement', img: 'assets/fleet-engagement.jpg', extraImg: 'assets/fleet-engagement-detail.png', origin: 'work', richCaseStudy: true, date: 'nov 2023', dateRange: 'Sep – Nov 2023', blurb: 'Workshop and research sprint that cut time-to-find on a Navy resource site.',
+      headline: 'Cutting time-to-find by 67% on a critical Navy resource site',
+      descriptionLead: 'Aligning stakeholders, defining objectives, and generating solutions.', description: 'The activation process informed a Communications Plan and guided the redesign of the SAILOR site, a critical digital resource for Navy personnel. The redesign focused on improving user experience, accessibility, and engagement to better support communication and services for the fleet. Insights from the process highlighted key areas for improvement, providing a data-driven foundation for enhancing CANES communication effectiveness and the overall user experience.',
+      metrics: ['67% faster wayfinding', '30+ participants', '8 interviews', '4.8/5 rating'],
+      headlineStats: [{ value: '67%', label: 'faster wayfinding' }, { value: '30+', label: 'participants' }, { value: '4.8/5', label: 'workshop satisfaction rating' }],
+      meta: { timeline: 'Sep - Nov 2023', tools: 'Mural, Photoshop', contributions: 'UX Researcher', agency: 'U.S. Navy' },
+      problemLead: 'Fleet members had lost trust in their ability to find what they needed on a critical Navy resource site.',
+      problem: 'SAILOR is a critical digital resource for Navy personnel, but fleet members and leadership had lost confidence in their ability to quickly find what they needed on the site. Before redesigning anything, I needed to understand where the friction actually lived — not just gather opinions in a room.',
+      processLead: 'Workshop and interviews surfaced the real issues; design and testing confirmed the fix worked.',
+      process: [
+        { label: 'Discovery.', body: 'I facilitated a workshop with 30+ participants, which included 5 Navy leaders, to align stakeholders around shared objectives and surface the core issues firsthand, rather than relying on assumptions from leadership alone.' },
+        { label: 'Synthesis.', body: 'I followed up with 8 one-on-one interviews to go deeper on the patterns that emerged in the workshop, and synthesized everything into a set of core research themes that pointed directly at where the site was failing people.' },
+        { label: 'Design.', body: "Those themes led to two concrete changes: reorganizing the site's content structure and simplifying the navigation bar around how fleet members actually think about their tasks, not how the organization was structured internally." },
+        { label: 'Validation.', body: 'I ran usability testing before and after the redesign to confirm the changes actually solved the problem, rather than just assuming they would.' },
+      ],
+      decisionsLead: 'Prioritized fixing find-ability over polishing visuals.',
+      decisions: 'I prioritized structural navigation changes over surface-level visual polish, because the research consistently pointed to findability, not aesthetics, as the core issue. It would have been easy to jump straight to redesigning the interface. Instead, I made sure the research themes drove what got fixed first.',
+      impactLead: 'Users found information roughly 3x faster, and the workshop itself landed well.',
+      impact: [
+        'Average time-to-find key information dropped from 96 seconds to 32 seconds — roughly 3x faster',
+        'Post-workshop satisfaction survey averaged 4.8 / 5',
+        'Direct feedback from a participant: "This workshop was engaging and insightful. The team did a great job of challenging us to think of core issues while also helping with the ideating and solutioning process."',
+      ],
+      reflectionLead: 'The follow-up validation is what proved the fix actually worked.',
+      reflection: 'The workshop alone told me what people were frustrated by. It was the follow-up interviews and before/after usability testing that told me whether the fix actually worked. That validation step is one I\'d build into every workshop-based project going forward.',
+    },
+    { id: 'aerospace', title: 'Aerospace Offsite', img: 'assets/aerospace-workshop.jpg', origin: 'work', richCaseStudy: true, date: 'apr 2023', dateRange: 'Jan – Apr 2023', blurb: '50+ senior leaders redesigning how their own teams work.',
+      headline: 'Helping 50+ senior leaders redesign how their teams work, together',
+      descriptionLead: 'A creative solutioning workshop for Aerospace senior leaders within Booz Allen Hamilton, designed to explore innovative approaches to hybrid work.', description: 'Through hands-on activities and discussions, leaders identified ways to enhance collaboration, strengthen team connections, and drive organizational change.',
+      metrics: ['50+ leaders', '64% adoption rate', '4.6/5 rating', 'Up to 50% fewer meetings'],
+      headlineStats: [{ value: '50+', label: 'senior leaders' }, { value: '64%', label: 'adoption rate' }, { value: '50%', label: 'fewer meetings' }],
+      meta: { timeline: 'Jan - Apr 2023', tools: 'Mural, Illustrator', contributions: 'UX Researcher, Facilitator', agency: 'Booz Allen Hamilton' },
+      problemLead: 'Leadership needed a way to solve hybrid-work challenges themselves, not a mandate handed down.',
+      problem: 'Aerospace senior leaders, including several senior VPs, needed clearer strategies and tools to integrate hybrid work, foster collaboration, and keep their teams aligned with mission needs. Rather than hand leadership a top-down policy, the goal was to get 50+ leaders in a room to collaboratively solve this for their own teams.',
+      processLead: 'A collaborative workshop followed by months of accountability check-ins.',
+      process: [
+        { label: '', body: 'I designed and facilitated a workshop built around collaborative ideation rather than lecture. The goal was for leaders to leave with solutions tailored to their own teams, not a one-size-fits-all mandate.' },
+        { label: '', body: 'I led the session with 50+ senior leaders, including senior VPs, guiding them through structured ideation on hybrid work, collaboration, and mission alignment.' },
+        { label: '', body: 'Rather than treating the offsite as a one-time event, I ran structured check-ins at 1, 3, and 6 months post-workshop to track whether ideas actually turned into action.' },
+      ],
+      decisionsLead: 'Let each team solve the problem their own way instead of issuing one mandate.',
+      decisions: 'I chose to let each team design their own solution instead of prescribing a single hybrid-work policy across the department. Leadership teams vary widely in function, and a mandate would likely have seen far lower real adoption than a collaboratively-designed approach did.',
+      impactLead: 'Most attendees made real, lasting changes to how their teams operate.',
+      impact: [
+        '64% of attendees reported implementing real changes to their teams by the 3–6 month check-in',
+        'Changes included dedicated in-office days, adjusted meeting cadences, cutting meeting load by up to half, and adoption of collaboration tools like Mural',
+        'Post-workshop satisfaction survey averaged 4.6 / 5',
+        '[PLACEHOLDER — replace with a real attendee testimonial before publishing]',
+      ],
+      reflectionLead: 'Long-term follow-through is what proved real impact, not just a well-received event.',
+      reflection: "The 1/3/6-month check-ins were the most valuable part of this project. Without them, I'd only know how the room felt on the day, not whether anything actually changed. That follow-through is what turned this from \"a well-received workshop\" into a measurable shift in how teams operate.",
+    },
+    { id: 'bethel', title: 'Bethel CWM', img: 'assets/bethel-cwm.png', origin: 'work', date: 'jul 2021', dateRange: 'Feb – Jul 2021', blurb: 'Add a one-line description of this project.',
+      meta: { timeline: 'Feb – Jul 2021', tools: 'Figma', contributions: 'UI/UX Designer', agency: 'Bethel CWM' },
+      sections: [
+        { heading: 'Overview', lead: "Bethel Korean Presbyterian Church's Center for World Missions (CWM) is a nonprofit organization that supports missionaries around the world through community involvement." },
+        { heading: 'The Problem', lead: 'The website was unfortunately outdated, suffering from obsolete content, poor information architecture, and dull UI design.' },
+        { heading: 'Process', lead: 'So we went back to the drawing board.', body: 'To address these issues, I conducted a full website audit to identify outdated content and usability pain points. I then gathered stakeholder input through interviews to understand the organization\u2019s goals and user needs. Using this research, I developed wireframes and prototypes to improve the site\u2019s structure, ensuring clear navigation and an engaging user experience. After iterative testing and feedback, I refined the design for accessibility and responsiveness.', slides: true },
+        { heading: 'Solution', lead: 'By enhancing usability and visual appeal, the new website better represents CWM\u2019s mission and fosters stronger engagement with supporters and missionaries.', body: 'Many users expressed decision fatigue and difficulty visualizing outfit combinations. I then created wireframes and interactive prototypes, testing them with users to refine features. The app was designed with an intuitive interface for cataloging clothing items, outfit planning, and social style inspiration.', slot: true },
+      ],
+      cards: [
+        { text: 'A refreshed, modern UI with an inviting and mission-driven aesthetic.', paths: ['M3 5.5h7v5H3z', 'M14 5.5h7v5h-7z', 'M3 14h7v4.5H3z', 'M14 14h7v4.5h-7z'] },
+        { text: 'Improved information architecture, making it easier for users to find resources, events, and donation options.', paths: ['M4 10.5 12 4l8 6.5V20a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1z', 'M9.5 21v-6h5v6'] },
+        { text: 'Streamlined navigation with clear calls to action for community involvement.', paths: ['M12 21V11', 'M12 11 5 4', 'M12 11l7-7', 'M5 4h4.5M5 4v4.5', 'M19 4h-4.5M19 4v4.5'] },
+        { text: 'Added an interactive map with missionary bios helps users track locations, stay updated, and offer support.', paths: ['M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18z', 'M3.5 9h17', 'M3.5 15h17', 'M12 3c2.5 2.5 3.8 5.6 3.8 9s-1.3 6.5-3.8 9c-2.5-2.5-3.8-5.6-3.8-9S9.5 5.5 12 3z'] },
+      ] },
+    { id: 'koop', title: 'The Koop', img: 'assets/the-koop.png', origin: 'work', date: 'jan 2021', dateRange: 'Oct 2020 – Jan 2021', blurb: 'Add a one-line description of this project.',
+      meta: { timeline: 'Oct 2020 – Jan 2021', tools: 'Adobe XD, Photoshop', contributions: 'Lead UI/UX Designer, Photographer', agency: 'The Koop' },
+      sections: [
+        { heading: 'Overview', lead: 'A redesigned website for The Koop, a popular Korean fried chicken restaurant in State College, Pennsylvania, aimed at enhancing the customer experience and optimizing restaurant operations.' },
+        { heading: 'The Problem', lead: 'The existing website was outdated and lacked essential functionality.', body: 'As the restaurant\u2019s popularity grew, the owner needed an easy-to-navigate website and an online ordering system to keep up with demand. Relying solely on phone and in-person orders was inefficient, leading to longer wait times and reduced productivity.' },
+        { heading: 'Process', lead: 'I researched competitors, gathered staff insights, and designed prototypes to optimize online ordering and navigation.', body: 'To address these issues, I first conducted a competitive analysis of similar restaurant websites to identify best practices for online ordering and menu viewing. Insights were also gathered from the restaurant staff to understand their workflow and pain points. Based on this research, I developed wireframes and prototypes to create a seamless ordering experience. Usability testing was conducted to refine the design, ensuring a smooth and intuitive interface for customers.', slides: true },
+        { heading: 'Solution', lead: 'By improving functionality, visuals, and accessibility, the new website enhances customer engagement, increases efficiency, and supports the restaurant\u2019s growing demand.', slot: true },
+      ],
+      cards: [
+        { text: 'A reorganized menu layout with clear categories and enticing images for easy browsing.', paths: ['M3.5 4.5h17v15h-17z', 'M9.5 4.5v15', 'M9.5 11h11'] },
+        { text: 'A fully mobile-responsive design, allowing customers to place orders effortlessly from any device.', paths: ['M8 3.5h9a1.5 1.5 0 0 1 1.5 1.5v14a1.5 1.5 0 0 1-1.5 1.5H8A1.5 1.5 0 0 1 6.5 19V5A1.5 1.5 0 0 1 8 3.5z', 'M4 7v10'] },
+        { text: 'Implemented UI with vibrant visuals and an integrated online ordering system for a more efficient, branded experience', paths: ['M3 5.5h7v5H3z', 'M14 5.5h7v5h-7z', 'M3 14h7v4.5H3z', 'M14 14h7v4.5h-7z'] },
+        { text: 'High-quality food and restaurant photography to create a more appetizing and inviting digital experience.', paths: ['M3.5 8.5h3l1.5-2.5h8L17.5 8.5h3v11h-17z', 'M12 17a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z'] },
+      ] },
+    { id: 'sendit', title: 'SendIt', img: null, origin: 'forfun' },
+    { id: 'wrobe', title: 'Wrobe', img: 'assets/wrobe.png', origin: 'forfun' },
+  ];
+
+  goTo(page) {
+    const alreadyThere = this.state.page === page;
+    this.setState({ page, detailId: null }, () => {
+      requestAnimationFrame(() => {
+        const target = page === 'work' ? document.documentElement.scrollHeight - window.innerHeight : 0;
+        if (alreadyThere && Math.abs(window.scrollY - target) < 2) return;
+        window.scrollTo({ top: target, behavior: 'smooth' });
+      });
+    });
+  }
+  resetScroll() {
+    const apply = () => {
+      document.body.scrollTop = 0;
+      if (document.scrollingElement) document.scrollingElement.scrollTop = 0;
+      document.documentElement.scrollTop = 0;
+      window.scrollTo(0, 0);
+    };
+    apply();
+    requestAnimationFrame(apply);
+    setTimeout(apply, 60);
+  }
+  openDetail(id) { this.setState({ page: 'detail', detailId: id, activeSection: null }); this.resetScroll(); }
+  scrollToId(id) { const el = document.getElementById(id); if (el) window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - 100, behavior: 'smooth' }); }
+
+  shiftCenter(kind, dir) {
+    const n = this.projectsData.filter(p => p.origin === kind).length;
+    const key = kind === 'work' ? 'workCenter' : 'forFunCenter';
+    this.setState(s => ({ [key]: ((s[key] + dir) % n + n) % n }));
+  }
+
+  lastWheelAt = 0;
+  workStageRef = React.createRef();
+  forFunStageRef = React.createRef();
+  onWheelKind(kind, e) {
+    e.preventDefault();
+    const now = Date.now();
+    if (now - this.lastWheelAt < 350) return;
+    const delta = Math.abs(e.deltaY) > Math.abs(e.deltaX) ? e.deltaY : e.deltaX;
+    if (Math.abs(delta) < 4) return;
+    this.lastWheelAt = now;
+    this.shiftCenter(kind, delta > 0 ? 1 : -1);
+  }
+  syncWheelListeners() {
+    const pairs = [['work', this.workStageRef, '_workWheelNode', '_workWheelHandler'], ['forfun', this.forFunStageRef, '_forFunWheelNode', '_forFunWheelHandler']];
+    pairs.forEach(([kind, ref, nodeKey, handlerKey]) => {
+      const node = ref.current || null;
+      if (this[nodeKey] === node) return;
+      if (this[nodeKey] && this[handlerKey]) this[nodeKey].removeEventListener('wheel', this[handlerKey]);
+      this[nodeKey] = node;
+      if (node) {
+        if (!this[handlerKey]) this[handlerKey] = (e) => this.onWheelKind(kind, e);
+        node.addEventListener('wheel', this[handlerKey], { passive: false });
+      }
+    });
+  }
+  componentDidUpdate(prev) {
+    const navKey = this.state.page + '|' + (this.state.detailId || '');
+    if (this._navKey !== navKey) {
+      this._navKey = navKey;
+      try { localStorage.setItem('jk-portfolio-nav', JSON.stringify({ page: this.state.page, detailId: this.state.detailId })); } catch (e) {}
+    }
+    this.syncWheelListeners();
+    this.updateIndicator();
+    this.onPlayerLoadedMetadata();
+    this.syncSlotHeights();
+    if (this.props.customCursor === false) this.teardownCursor();
+    else if (prev && prev.customCursor === false) this.initCursor();
+  }
+  // Case-study slots are fit="contain", so a fixed frame height letterboxes the
+  // image. Measure each dropped image and match its frame to the real aspect.
+  // Records {aspect, width} per slot id; the hero slot opts out (no data-autoheight).
+  syncSlotHeights() {
+    if (!this._slotWatched) this._slotWatched = new WeakSet();
+    const nodes = Array.from(document.querySelectorAll('image-slot[data-autoheight]'));
+    const measure = () => {
+      const next = {};
+      let changed = false;
+      const cur = this.state.slotAuto || {};
+      Array.from(document.querySelectorAll('image-slot[data-autoheight]')).forEach(n => {
+        const img = n.shadowRoot && n.shadowRoot.querySelector('.frame img');
+        const iw = img && img.naturalWidth, ih = img && img.naturalHeight;
+        const w = n.clientWidth;
+        if (!n.id || !iw || !ih) return;
+        next[n.id] = { aspect: ih / iw, width: w || (cur[n.id] && cur[n.id].width) || 0 };
+      });
+      const keys = new Set(Object.keys(next).concat(Object.keys(cur)));
+      keys.forEach(k => {
+        const a = next[k], b = cur[k];
+        if (!a || !b || a.aspect !== b.aspect || a.width !== b.width) changed = true;
+      });
+      if (changed) this.setState({ slotAuto: next });
+    };
+    this._slotMeasure = measure;
+    nodes.forEach(n => {
+      if (this._slotWatched.has(n)) return;
+      this._slotWatched.add(n);
+      new ResizeObserver(() => this._slotMeasure()).observe(n);
+      if (n.shadowRoot) {
+        new MutationObserver(() => this._slotMeasure()).observe(n.shadowRoot, {
+          subtree: true, childList: true, attributes: true, attributeFilter: ['src'],
+        });
+        const img = n.shadowRoot.querySelector('.frame img');
+        if (img) img.addEventListener('load', () => this._slotMeasure());
+      }
+    });
+    measure();
+  }
+  autoSlotHeight(id, fallback) {
+    const rec = (this.state.slotAuto || {})[id];
+    if (!rec || !rec.width || !rec.aspect) return fallback;
+    return Math.round(rec.width * rec.aspect);
+  }
+  componentDidMount() {
+    this.syncWheelListeners();
+    this.onPlayerLoadedMetadata();
+    requestAnimationFrame(() => this.onPlayerLoadedMetadata());
+    this.updateIndicator();
+    requestAnimationFrame(() => this.updateIndicator());
+    setTimeout(() => this.updateIndicator(), 250);
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => this.updateIndicator());
+    window.addEventListener('resize', this.boundUpdateIndicator = () => this.updateIndicator());
+    this.initBgWave();
+    this.syncSlotHeights();
+    this.initCursor();
+    this.initHeadlineHover();
+    this.initSectionSpy();
+    if (this.playerAudioRef.current) this.playerAudioRef.current.volume = this.state.playerVolume;
+  }
+  projectOrder(p) {
+    const order = ['dess', 'scherr', 'fleet', 'aerospace', 'bethel', 'koop'];
+    const i = order.indexOf(p.id);
+    return i === -1 ? 99 : i;
+  }
+  projectTime(p) {
+    const t = Date.parse((p.date || '').replace(/(^|\s)(\w{3})\s/, '$1$2 1, '));
+    return isNaN(t) ? Infinity : t;
+  }
+  sectionPresent(detail, id) {
+    if (!detail) return false;
+    if (id === 'cs-overview') return !!detail.description;
+    if (id === 'cs-problem') return !!detail.problem;
+    if (id === 'cs-process') return !!(detail.process && detail.process.length);
+    if (id === 'cs-decisions') return !!detail.decisions;
+    if (id === 'cs-impact') return !!(detail.impact && detail.impact.length);
+    if (id === 'cs-reflection') return !!detail.reflection;
+    return true;
+  }
+  genericSections(detail) {
+    if (detail && detail.sections && detail.sections.length) return detail.sections;
+    return [
+      { heading: 'Overview', body: '[Add project overview here.]' },
+      { heading: 'Approach', body: '[Add process and approach here.]' },
+      { heading: 'Outcome', body: '[Add outcome and impact here.]' },
+    ];
+  }
+  navDefsFor(detail) {
+    if (detail && !detail.richCaseStudy) {
+      const defs = this.genericSections(detail).map((sec, i) => ({ id: 'gen-' + i, label: sec.heading }));
+      this._navDefs = defs;
+      return defs;
+    }
+    this._navDefs = this.sectionDefs.filter(d => this.sectionPresent(detail, d.id));
+    return this._navDefs;
+  }
+  sectionDefs = [
+    { id: 'cs-overview', label: 'Overview' },
+    { id: 'cs-problem', label: 'The Problem' },
+    { id: 'cs-process', label: 'My Process' },
+    { id: 'cs-decisions', label: 'Key Decisions' },
+    { id: 'cs-impact', label: 'Impact' },
+    { id: 'cs-reflection', label: 'Reflection' },
+  ];
+  scrollParentOf(el) {
+    let n = el && el.parentElement;
+    while (n) {
+      const o = getComputedStyle(n).overflowY;
+      if ((o === 'auto' || o === 'scroll') && n.scrollHeight > n.clientHeight + 4) return n;
+      n = n.parentElement;
+    }
+    return null;
+  }
+  scrollToSection(id) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const offset = 96;
+    const sp = this.scrollParentOf(el) || document.body;
+    const target = el.getBoundingClientRect().top - sp.getBoundingClientRect().top + sp.scrollTop - offset;
+    const start = sp.scrollTop, dist = target - start, dur = 480, t0 = performance.now();
+    this._scrollLock = 1;
+    if (this._scrollRaf) cancelAnimationFrame(this._scrollRaf);
+    const step = (now) => {
+      const p = Math.min(1, (now - t0) / dur);
+      const e = p < 0.5 ? 2 * p * p : 1 - Math.pow(-2 * p + 2, 2) / 2;
+      sp.scrollTop = start + dist * e;
+      if (p < 1) this._scrollRaf = requestAnimationFrame(step);
+      else this._scrollLock = 0;
+    };
+    this._scrollRaf = requestAnimationFrame(step);
+  }
+  initSectionSpy() {
+    if (this._sectionSpy) return;
+    this._sectionSpy = () => {
+      if (this._scrollLock) return;
+      const defs = this._navDefs || this.sectionDefs;
+      const present = defs.map(d => document.getElementById(d.id)).filter(Boolean);
+      if (!present.length) return;
+      const sp = this.scrollParentOf(present[0]) || document.body;
+      const atBottom = sp.scrollTop + sp.clientHeight >= sp.scrollHeight - 4;
+      let active = null;
+      defs.forEach(d => {
+        const el = document.getElementById(d.id);
+        if (el && el.getBoundingClientRect().top <= 140) active = d.id;
+      });
+      if (atBottom) active = present[present.length - 1].id;
+      if (active && active !== this.state.activeSection) this.setState({ activeSection: active });
+    };
+    window.addEventListener('scroll', this._sectionSpy, true);
+    this._sectionSpy();
+  }
+  initHeadlineHover() {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const attach = () => {
+      const el = document.querySelector('[data-comment-anchor="e8e26dd4f9-p"]');
+      if (!el || el.__wordLift) return;
+      el.__wordLift = true;
+      const words = el.textContent.split(' ');
+      el.textContent = '';
+      const spans = words.map((w, i) => {
+        const s = document.createElement('span');
+        s.textContent = w + (i < words.length - 1 ? '\u00a0' : '');
+        s.style.display = 'inline-block';
+        s.style.transition = `transform .34s cubic-bezier(.2,.9,.25,1) ${i * 34}ms, color .34s ease ${i * 34}ms`;
+        el.appendChild(s);
+        return s;
+      });
+      el.addEventListener('mouseenter', () => spans.forEach(s => { s.style.transform = 'translateY(-9px)'; s.style.color = '#c05e0e'; }));
+      el.addEventListener('mouseleave', () => spans.forEach(s => { s.style.transform = 'none'; s.style.color = ''; }));
+    };
+    attach();
+    this._headlineTimer = setInterval(attach, 400);
+  }
+
+  initCursor() {
+    if (this._cursorOn) return;
+    if (this.props.customCursor === false) { document.body.removeAttribute('data-cursor'); return; }
+    document.body.setAttribute('data-cursor', 'custom');
+    const fine = window.matchMedia('(pointer: fine)').matches;
+    const calm = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (!fine || calm) return;
+    this._cursorOn = true;
+    const mk = (css) => { const d = document.createElement('div'); d.setAttribute('style', css); document.body.appendChild(d); return d; };
+    const ring = mk('position:fixed;left:0;top:0;width:30px;height:30px;border-radius:50%;border:1px solid #17171a;pointer-events:none;z-index:9998;transform:translate(-50%,-50%);opacity:0;transition:width .16s,height .16s,border-color .16s,opacity .2s');
+    const dot = mk('position:fixed;left:0;top:0;width:6px;height:6px;border-radius:50%;background:#FF7A1A;pointer-events:none;z-index:9999;transform:translate(-50%,-50%);opacity:0;transition:opacity .2s');
+    let tx = 0, ty = 0, rx = 0, ry = 0, seen = false;
+    this._cursorMove = (e) => {
+      tx = e.clientX; ty = e.clientY;
+      if (!seen) { seen = true; rx = tx; ry = ty; ring.style.opacity = '1'; dot.style.opacity = '1'; }
+      dot.style.left = tx + 'px'; dot.style.top = ty + 'px';
+    };
+    this._cursorOut = (e) => { if (!e.relatedTarget && !e.toElement) { ring.style.opacity = '0'; dot.style.opacity = '0'; seen = false; } };
+    this._cursorDown = () => { ring.style.width = '54px'; ring.style.height = '54px'; ring.style.borderColor = '#000'; };
+    this._cursorUp = () => { ring.style.width = '30px'; ring.style.height = '30px'; ring.style.borderColor = '#17171a'; };
+    const loop = () => {
+      rx += (tx - rx) * 0.16; ry += (ty - ry) * 0.16;
+      ring.style.left = rx + 'px'; ring.style.top = ry + 'px';
+      this._cursorRaf = requestAnimationFrame(loop);
+    };
+    loop();
+    window.addEventListener('mousemove', this._cursorMove);
+    document.addEventListener('mouseout', this._cursorOut);
+    window.addEventListener('mousedown', this._cursorDown);
+    window.addEventListener('mouseup', this._cursorUp);
+    this._cursorNodes = [ring, dot];
+    document.documentElement.style.cursor = 'none';
+  }
+  teardownCursor() {
+    if (!this._cursorOn) { document.body.removeAttribute('data-cursor'); return; }
+    this._cursorOn = false;
+    cancelAnimationFrame(this._cursorRaf);
+    window.removeEventListener('mousemove', this._cursorMove);
+    document.removeEventListener('mouseout', this._cursorOut);
+    window.removeEventListener('mousedown', this._cursorDown);
+    window.removeEventListener('mouseup', this._cursorUp);
+    (this._cursorNodes || []).forEach(n => n.remove());
+    this._cursorNodes = [];
+    document.documentElement.style.cursor = '';
+    document.body.removeAttribute('data-cursor');
+  }
+  componentWillUnmount() {
+    if (this._sectionSpy) window.removeEventListener('scroll', this._sectionSpy, true);
+    if (this._workWheelNode && this._workWheelHandler) this._workWheelNode.removeEventListener('wheel', this._workWheelHandler);
+    if (this._forFunWheelNode && this._forFunWheelHandler) this._forFunWheelNode.removeEventListener('wheel', this._forFunWheelHandler);
+    window.removeEventListener('resize', this.boundUpdateIndicator);
+    cancelAnimationFrame(this.bgWaveRaf);
+    clearInterval(this._headlineTimer);
+    if (this._cursorOn) {
+      cancelAnimationFrame(this._cursorRaf);
+      window.removeEventListener('mousemove', this._cursorMove);
+      document.removeEventListener('mouseout', this._cursorOut);
+      window.removeEventListener('mousedown', this._cursorDown);
+      window.removeEventListener('mouseup', this._cursorUp);
+      (this._cursorNodes || []).forEach(n => n.remove());
+      document.documentElement.style.cursor = '';
+      this._cursorOn = false;
+    }
+    document.body.removeAttribute('data-cursor');
+  }
+
+
+  wrapOffset(i, center, n) {
+    let d = i - center;
+    while (d > n / 2) d -= n;
+    while (d <= -n / 2) d += n;
+    return d;
+  }
+
+  buildCoverflow(list, center) {
+    const n = list.length;
+    return list.map((p, i) => {
+      const off = this.wrapOffset(i, center, n);
+      const absOff = Math.abs(off);
+      // visible set is symmetric (±2 around center), so the fan is centered with no shift
+      const place = d => d === 0 ? 0 : Math.sign(d) * (272 + (Math.abs(d) - 1) * 186);
+      const sign = Math.sign(off);
+      const x = place(off);
+      const z = -absOff * 140;
+      const tilt = sign * -42;
+      const scale = absOff === 0 ? 1 : absOff === 1 ? 0.64 : 0.46;
+      const hidden = absOff > 2;
+      return {
+        ...p,
+        wrapperStyle: {
+          position: 'absolute', left: '50%', top: '50%', width: 322, height: 428,
+          transform: `translate(-50%,-50%) translateX(${x}px) translateZ(${z}px) rotateY(${tilt}deg) scale(${hidden ? 0.5 : scale})`,
+          transition: 'transform .6s cubic-bezier(.22,1,.36,1), opacity .35s ease',
+          opacity: hidden ? 0 : 1,
+          zIndex: 100 - absOff, cursor: 'pointer',
+          pointerEvents: hidden ? 'none' : 'auto',
+        },
+      };
+    });
+  }
+
+  mkProject(p) {
+    return {
+      ...p,
+      tags: ['UX Research', 'Prototyping'],
+      tagsLine: ({
+        dess: 'Product Design · UI/UX Design',
+        scherr: 'Product Design · UI/UX Design',
+        fleet: 'Workshop Design · UX Research',
+        aerospace: 'Workshop Design · Facilitation · UX Research',
+        bethel: 'UI/UX Design',
+        koop: 'UI/UX Design',
+      })[p.id] || 'UX Research · Prototyping',
+      heroSlotId: p.id + '-hero',
+      introSlotId: p.id + '-intro',
+      introSlotId2: p.id + '-intro-2',
+      problemSlotId: p.id + '-problem',
+      process: (p.process || []).map((s, i) => ({
+        label: s.label,
+        body: s.body,
+        hasLabel: !!s.label,
+        postBullets: s.postBullets,
+        hasPostBullets: !!s.postBullets,
+        body2: s.body2,
+        hasBody2: !!s.body2,
+        hasBullets: !!(s.bullets && s.bullets.length),
+        bullets: s.bullets || [],
+        hasSlideshow: !!s.slideshow,
+        hasCaption: !!s.caption,
+        caption: s.caption || '',
+        slideId0: p.id + '-design-1', slideId1: p.id + '-design-2', slideId2: p.id + '-design-3', slideId3: p.id + '-design-4',
+        hasSlot: s.slot !== false && !s.slideshow,
+        slotId: p.id + '-process-' + i,
+        wrapStyle: { margin: i === 0 ? '0 0 26px' : '40px 0 26px' },
+        slotRowStyle: { display: 'flex', gap: 10, alignItems: 'flex-start' },
+        hasSlot2: !!s.slot2,
+        noSlot2: !s.slot2,
+        slotId2: p.id + '-process-' + i + '-b',
+        slotStyle: s.slot2
+          ? { flex: 1, minWidth: 0, height: this.autoSlotHeight(p.id + '-process-' + i + '-b', this.props.researchHeight ?? 520) + 'px', marginBottom: 6, marginTop: 30 }
+          : { width: '100%', height: this.autoSlotHeight(p.id + '-process-' + i, this.props.researchHeight ?? 520) + 'px', marginBottom: 6, marginTop: 30 },
+        slotStyle2: { flex: 1, minWidth: 0, height: this.autoSlotHeight(p.id + '-process-' + i + '-b', this.props.researchHeight ?? 520) + 'px', marginBottom: 6, marginTop: 30 },
+      })),
+      hasImage: !!p.img,
+      noImage: !p.img,
+      imgBgStyle: { width: '100%', height: '100%', backgroundImage: p.img ? `url(${p.img})` : undefined, backgroundSize: 'cover', backgroundPosition: 'center' },
+      dateLabel: p.dateRange || p.date || '',
+      hasDate: !!(p.dateRange || p.date),
+      blurb: p.blurb || '',
+      hasBlurb: !!p.blurb,
+      placeholderLabel: p.title + ' — screenshot placeholder',
+      onClick: () => this.openDetail(p.id),
+    };
+  }
+
+  onPlaylistFileChange(e) {
+    const file = e.target.files[0];
+    if (file) this.setState({ playlistFile: file });
+  }
+  onDropZoneDragOver(e) { e.preventDefault(); this.setState({ dropZoneActive: true }); }
+  onDropZoneDragLeave(e) { e.preventDefault(); this.setState({ dropZoneActive: false }); }
+  onDropZoneDrop(e) {
+    e.preventDefault();
+    const text = e.dataTransfer.getData('text/uri-list') || e.dataTransfer.getData('text/plain');
+    this.setState({ dropZoneActive: false });
+    if (text && text.trim()) this.setState({ playlistLink: text.trim() });
+  }
+  ytTitleFrom(url) {
+    const m = String(url).match(/[?&]v=([\w-]{6,})|youtu\.be\/([\w-]{6,})/);
+    return m ? 'YouTube · ' + (m[1] || m[2]) : 'YouTube link';
+  }
+  clearPlaylistFile(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    this.setState({ playlistFile: null });
+  }
+  submitPlaylist() {
+    const link = (this.state.playlistLink || '').trim();
+    if (!link || this.state.playlistBusy) return;
+    this.setState({ playlistBusy: true });
+    setTimeout(() => {
+      const track = { key: Date.now(), title: this.ytTitleFrom(link), sourceLabel: 'YouTube', src: link };
+      this.setState(s => ({ playlistItems: [...s.playlistItems, track], playlistLink: '', playlistBusy: false }));
+    }, 600);
+  }
+  removePlaylistItem(key) {
+    this.setState(s => ({ playlistItems: s.playlistItems.filter(t => t.key !== key) }));
+  }
+
+  stepProject(dir) {
+    const detail = this.projectsData.find(p => p.id === this.state.detailId);
+    if (!detail) return;
+    const list = this.projectsData.filter(p => p.origin === detail.origin);
+    const idx = list.findIndex(p => p.id === detail.id);
+    const next = list[(idx + dir + list.length) % list.length];
+    this.setState({ detailId: next.id, activeSection: null });
+    this.resetScroll();
+  }
+
+  genSlideId(detail, i) {
+    return (detail ? detail.id : 'x') + '-gen-slide-' + i;
+  }
+  scherrSlideStyle(i) {
+    const on = (this.state.scherrSlide || 0) === i;
+    return { position: 'absolute', inset: 0, opacity: on ? 1 : 0, pointerEvents: on ? 'auto' : 'none', transition: 'opacity .3s ease', zIndex: on ? 2 : 1 };
+  }
+  activeSlideId(detail) {
+    if (!detail) return null;
+    const step = (detail.process || []).find(s => s.hasSlideshow);
+    if (!step) return null;
+    return step['slideId' + (this.state.scherrSlide || 0)];
+  }
+  stepScherr(d) {
+    this.setState(s => ({ scherrSlide: (((s.scherrSlide || 0) + d) % 4 + 4) % 4 }));
+  }
+  renderVals() {
+    const active = this.state.page;
+    const foundDetail = this.state.detailId ? this.projectsData.find(p => p.id === this.state.detailId) : null;
+    const detail = foundDetail ? this.mkProject(foundDetail) : null;
+    const detailIsGeneric = !!(detail && !detail.richCaseStudy);
+    const tabActive = active === 'detail' && detail ? detail.origin : active;
+    const tabClass = (p) => 'jk-tab' + (tabActive === p ? ' jk-tab-active' : '');
+    const sectionLabels = { work: 'Work', forfun: 'For fun', about: 'About', detail: detail ? detail.title : '' };
+
+    return {
+      isWork: active === 'work',
+      isAbout: active === 'about',
+      isForFun: active === 'forfun',
+      isDetail: active === 'detail',
+      sectionLabel: sectionLabels[active] || '',
+      workTabClass: tabClass('work'),
+      forFunTabClass: tabClass('forfun'),
+      aboutTabClass: tabClass('about'),
+      goWork: (e) => { e.preventDefault(); this.goTo('work'); },
+      goHome: () => {
+        this.setState({ page: 'work', detailId: null }, () => {
+          requestAnimationFrame(() => window.scrollTo({ top: 0, behavior: 'smooth' }));
+        });
+      },
+      goAbout: () => this.goTo('about'),
+      goForFun: () => this.goTo('forfun'),
+      workCoverflow: this.buildCoverflow(this.projectsData.filter(p => p.origin === 'work').map(p => this.mkProject(p)), this.state.workCenter),
+      forFunFloating: this.projectsData.filter(p => p.origin === 'forfun').map(p => this.mkProject(p)).map((p, i) => {
+        const statusMap = { sendit: 'Work in progress', wrobe: 'Reworking' };
+        const status = statusMap[p.id];
+        return {
+          ...p,
+          status,
+          hasStatus: !!status,
+          titleStyle: status ? { textDecoration: 'line-through', textDecorationColor: '#8a7d74', color: '#8a7d74' } : { color: '#17171a' },
+          floatStyle: { animation: `${i % 2 === 0 ? 'jk-float-l' : 'jk-float-r'} ${5 + i}s ease-in-out infinite`, animationDelay: (i * 0.7) + 's', animationFillMode: 'backwards', marginTop: i % 2 === 0 ? 0 : 28 },
+        };
+      }),
+      workCenterProject: this.mkProject(this.projectsData.filter(p => p.origin === 'work')[this.state.workCenter]),
+      workDots: this.projectsData.filter(p => p.origin === 'work').map((_, i) => ({
+        onClick: () => this.setState({ workCenter: i }),
+        style: { width: i === this.state.workCenter ? 20 : 8, height: 8, borderRadius: 4, background: i === this.state.workCenter ? '#17171A' : '#78787d', cursor: 'pointer', transition: 'all .2s ease' },
+      })),
+      forFunCenterProject: this.mkProject(this.projectsData.filter(p => p.origin === 'forfun')[this.state.forFunCenter]),
+      navRef: this.navRef,
+      workTabRef: this.workTabRef,
+      forFunTabRef: this.forFunTabRef,
+      aboutTabRef: this.aboutTabRef,
+      indicatorStyle: this.state.indicatorStyle,
+      workStageRef: this.workStageRef,
+      forFunStageRef: this.forFunStageRef,
+      scrollWorkLeft: () => this.shiftCenter('work', -1),
+      scrollWorkRight: () => this.shiftCenter('work', 1),
+      scrollForFunLeft: () => this.shiftCenter('forfun', -1),
+      scrollForFunRight: () => this.shiftCenter('forfun', 1),
+      detail,
+      detailIsGeneric,
+      detailSections: this.genericSections(detail).map((sec, i) => ({
+        domId: 'gen-' + i, heading: sec.heading, lead: sec.lead, hasLead: !!sec.lead, body: sec.body, hasBody: !!sec.body,
+        hasSlot: !!sec.slot,
+        hasSlides: !!sec.slides,
+        slotId: (detail ? detail.id : 'x') + '-gen-' + i,
+        slotStyle: { width: '100%', height: this.autoSlotHeight((detail ? detail.id : 'x') + '-gen-' + i, 520) + 'px', marginTop: 30 },
+      })),
+      detailHasCards: !!(detail && detail.cards && detail.cards.length),
+      detailCards: ((detail && detail.cards) || []).map(c => ({
+        text: c.text,
+        icon: React.createElement('svg', { viewBox: '0 0 24 24', width: 24, height: 24, fill: 'none', stroke: 'currentColor', strokeWidth: 2, strokeLinecap: 'round', strokeLinejoin: 'round' },
+          c.paths.map((d, i) => React.createElement('path', { key: i, d }))),
+      })),
+      detailMetricsTop: [],
+      detailMetricsRest: (detail && detail.metrics ? detail.metrics.slice(0) : []),
+      detailHasMetricsTop: false,
+      detailHasHeadlineStats: !!(detail && detail.headlineStats),
+      detailHasRail: !!detail,
+      detailHasMeta: !!(detail && detail.meta),
+      detailAgencyLabel: (detail && (detail.id === 'bethel' || detail.id === 'koop')) ? 'Client' : 'Agency',
+      headlineStyle: (() => {
+        const len = (detail && detail.headline || '').length;
+        return {
+          fontSize: len > 78 ? 30 : len > 62 ? 33 : 36, lineHeight: 1.25, fontWeight: 700, color: '#17171A',
+          textWrap: 'balance', textAlign: 'center', margin: '24px 0 40px',
+        };
+      })(),
+      detailNoRail: false,
+      sectionNav: this.navDefsFor(detail).map((d, i, arr) => {
+        const on = (this.state.activeSection || (arr[0] && arr[0].id)) === d.id;
+        return {
+          label: d.label,
+          onClick: (e) => { e.preventDefault(); this.setState({ activeSection: d.id }); this.scrollToSection(d.id); },
+          num: String(i + 1).padStart(2, '0'),
+          numStyle: {
+            fontFamily: "'IBM Plex Mono', ui-monospace, monospace", fontSize: 11, letterSpacing: '.08em',
+            color: on ? '#FF7A1A' : '#c3c0bb', transition: 'color .18s',
+          },
+          style: {
+            fontSize: 15, lineHeight: 1.3, color: on ? '#17171A' : '#a5a3a0', fontWeight: on ? 700 : 500,
+            borderBottom: on ? '2px solid #FF7A1A' : '2px solid transparent', paddingBottom: 2,
+            transition: 'color .18s',
+          },
+        };
+      }),
+      detailHasMetricsRest: !!(detail && detail.metrics && detail.metrics.length),
+      detailHasImpactLead: !!(detail && detail.impactLead),
+      detailHasImpactBody: !!(detail && detail.impactBody),
+      detailHasReflectionLead: !!(detail && detail.reflectionLead),
+      detailHasProcessLead: !!(detail && detail.processLead),
+      detailHasDecisionsLead: !!(detail && detail.decisionsLead),
+      detailHasDescriptionLead: !!(detail && detail.descriptionLead),
+      detailHasDescription2: !!(detail && detail.description2),
+      detailHasIntroCaptionLead: !!(detail && detail.introCaptionLead),
+      introRowStyle: { display: 'flex', gap: 10, alignItems: 'flex-start', margin: (detail && detail.introCaption) ? '30px 0 8px' : '60px 0 8px' },
+      introSlotStyle: (detail && detail.id === 'aerospace')
+        ? { flex: 1, minWidth: 0, aspectRatio: '1 / 1', height: 'auto' }
+        : { flex: 1, minWidth: 0, height: this.autoSlotHeight(detail && detail.introSlotId, this.props.introHeight ?? 520) + 'px' },
+      detailHasDescription: !!(detail && detail.description),
+      detailHasIntroCaption: !!(detail && detail.introCaption),
+      detailHasProblemLead: !!(detail && detail.problemLead),
+      detailHasProblemCaption: !!(detail && detail.problemCaption),
+      detailHasIntro2: !!(detail && detail.id === 'aerospace'),
+      detailNoIntro2: !(detail && detail.id === 'aerospace'),
+      introSlotStyle2: { flex: 1, minWidth: 0, aspectRatio: '1 / 1', height: 'auto' },
+      problemSlotStyle: { height: this.autoSlotHeight(detail && detail.problemSlotId, this.props.problemHeight ?? 520) + 'px', marginTop: 30, marginBottom: 8 },
+      processSlotStyle: { width: '100%', height: (this.props.researchHeight ?? 520) + 'px', marginBottom: 6, marginTop: 30 },
+      heroSlotStyle: { width: '100%', aspectRatio: '1100 / 711', height: 'auto', marginBottom: 28 },
+      researchSlotStyle: { height: (this.props.researchHeight ?? 520) + 'px', marginTop: 30, marginBottom: 8 },
+      slideshowFrameStyle: { position: 'relative', height: this.autoSlotHeight(this.activeSlideId(detail), this.props.slideshowHeight ?? 440) + 'px', margin: '30px 0 12px' },
+      scherrSlide0: this.scherrSlideStyle(0),
+      scherrSlide1: this.scherrSlideStyle(1),
+      scherrSlide2: this.scherrSlideStyle(2),
+      scherrSlide3: this.scherrSlideStyle(3),
+      scherrPrev: () => this.stepScherr(-1),
+      scherrNext: () => this.stepScherr(1),
+      scherrDots: [0, 1, 2, 3].map(i => ({
+        onClick: () => this.setState({ scherrSlide: i }),
+        style: { width: (this.state.scherrSlide || 0) === i ? 18 : 7, height: 7, borderRadius: 999, background: (this.state.scherrSlide || 0) === i ? '#fff' : 'rgba(255,255,255,.5)', cursor: 'pointer', transition: 'all .2s ease' },
+      })),
+      genSlideFrameStyle: { position: 'relative', width: '100%', maxWidth: 720, height: this.autoSlotHeight(this.genSlideId(detail, this.state.genSlide || 0), this.props.slideshowHeight ?? 440) + 'px', margin: '30px auto 0' },
+      genSlides: [0, 1, 2, 3].map(i => ({
+        id: this.genSlideId(detail, i),
+        style: { position: 'absolute', inset: 0, opacity: (this.state.genSlide || 0) === i ? 1 : 0, pointerEvents: (this.state.genSlide || 0) === i ? 'auto' : 'none', transition: 'opacity .3s ease', zIndex: (this.state.genSlide || 0) === i ? 2 : 1 },
+      })),
+      genPrev: () => this.setState(s => ({ genSlide: (((s.genSlide || 0) - 1) % 4 + 4) % 4 })),
+      genNext: () => this.setState(s => ({ genSlide: (((s.genSlide || 0) + 1) % 4 + 4) % 4 })),
+      genDots: [0, 1, 2, 3].map(i => ({
+        onClick: () => this.setState({ genSlide: i }),
+        style: { width: (this.state.genSlide || 0) === i ? 18 : 7, height: 7, borderRadius: 999, background: (this.state.genSlide || 0) === i ? '#fff' : 'rgba(255,255,255,.5)', cursor: 'pointer' },
+      })),
+      detailHasExtra: !!(detail && detail.extraImg),
+      detailHeroImgStyle: detail && detail.img ? { width: '100%', aspectRatio: '16/9', backgroundImage: `url(${detail.img})`, backgroundSize: 'cover', backgroundPosition: 'center 20%', borderRadius: 20, boxShadow: '0 5px 14px rgba(0,0,0,.07)', marginBottom: 28 } : undefined,
+      detailExtraImgStyle: detail && detail.extraImg ? { width: '100%', aspectRatio: 'auto', minHeight: 200, backgroundImage: `url(${detail.extraImg})`, backgroundSize: 'cover', backgroundPosition: 'center', borderRadius: 16, marginTop: 32 } : undefined,
+      backHandler: detail && detail.origin === 'forfun' ? () => this.goTo('forfun') : () => this.goTo('work'),
+      backLabel: detail && detail.origin === 'forfun' ? '← Back to for fun' : '← Back to work',
+      otherProjects: this.projectsData
+        .filter(p => p.origin === 'work')
+        .slice()
+        .sort((a, b) => this.projectOrder(a) - this.projectOrder(b))
+        .map((p, i) => {
+          const current = !!(detail && p.id === detail.id);
+          return {
+            title: p.title,
+            blurb: (p.blurb && !/^Add a one-line/.test(p.blurb)) ? p.blurb : '',
+            num: String(i + 1).padStart(2, '0'),
+            current,
+            marker: current ? '●' : '→',
+            rowStyle: {
+              display: 'grid', gridTemplateColumns: '34px 1fr minmax(0,360px) 20px', alignItems: 'center',
+              gap: 18, padding: '18px 0', borderTop: '1px solid rgba(23,23,26,.12)',
+              cursor: current ? 'default' : 'pointer', opacity: current ? 0.55 : 1,
+            },
+            numStyle: {
+              fontFamily: "'IBM Plex Mono', ui-monospace, monospace", fontSize: 11, letterSpacing: '.08em',
+              color: current ? '#FF7A1A' : '#c3c0bb',
+            },
+            titleStyle: { fontSize: 22, fontWeight: 700 },
+            blurbText: current ? 'You are here' : ((p.blurb && !/^Add a one-line/.test(p.blurb)) ? p.blurb : ''),
+            blurbStyle: { fontSize: 13, color: current ? '#FF7A1A' : '#8a8a8e', fontWeight: current ? 600 : 400 },
+            markerStyle: { fontSize: 16, color: current ? '#FF7A1A' : '#FF7A1A', textAlign: 'right' },
+            onClick: (e) => {
+              e.preventDefault();
+              if (current) return;
+              this.setState({ page: 'detail', detailId: p.id, activeSection: null });
+              this.resetScroll();
+            },
+          };
+        }),
+      prevProject: () => this.stepProject(-1),
+      nextProject: () => this.stepProject(1),
+      scrollTop: () => window.scrollTo({ top: 0, behavior: 'smooth' }),
+      scrollOverview: () => this.scrollToId('sec-overview'),
+      scrollApproach: () => this.scrollToId('sec-approach'),
+      scrollOutcome: () => this.scrollToId('sec-outcome'),
+      playerAudioRef: this.playerAudioRef,
+      bgWaveRef: this.bgWaveRef,
+      playerTrack: this.getActiveTracks()[this.state.playerIndex] || { title: 'No track', artist: 'Add a song', src: '' },
+      hasPlayerSrc: !!(this.getActiveTracks()[this.state.playerIndex] && this.getActiveTracks()[this.state.playerIndex].src),
+      togglePlaylistPicker: () => this.setState(s => ({ playlistPickerOpen: !s.playlistPickerOpen })),
+      playlistPickerOpen: this.state.playlistPickerOpen,
+      playlistOptions: [
+        { id: 'main', name: 'Mix Tap #1', swatch: '#5b6fd6', img: 'uploads/IMG_5502.jpg' },
+        { id: 'blank', name: 'Mix Tape #2', swatch: '#4a4a4f', img: null },
+        { id: 'forfun', name: 'Jam Sesh', swatch: '#FF7A1A', img: null },
+      ].map(p => ({
+        ...p,
+        onClick: () => this.switchPlaylist(p.id),
+        tileStyle: { width: 150, borderRadius: 10, background: p.id === this.state.activePlaylistId ? 'rgba(23,23,26,.08)' : 'none', border: p.id === this.state.activePlaylistId ? '1px solid #17171a' : '1px solid transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 10, padding: '6px 8px', textAlign: 'left' },
+        swatchStyle: { width: 34, height: 34, borderRadius: 8, border: '1px solid #17171a', background: p.img ? `url(${p.img})` : p.swatch, backgroundSize: 'cover', backgroundPosition: 'center' },
+      })),
+      playerIcon: this.state.playerPlaying
+        ? React.createElement('svg', { viewBox: '0 0 24 24', width: 16, height: 16, fill: 'currentColor' }, React.createElement('rect', { x: 5, y: 4, width: 5, height: 16, rx: 1 }), React.createElement('rect', { x: 14, y: 4, width: 5, height: 16, rx: 1 }))
+        : React.createElement('svg', { viewBox: '0 0 24 24', width: 16, height: 16, fill: 'currentColor' }, React.createElement('path', { d: 'M6 4l15 8-15 8z' })),
+      playerIconStyle: { display: 'flex', alignItems: 'center', justifyContent: 'center' },
+      playerShuffle: this.state.playerShuffle,
+      toggleShuffle: () => this.toggleShuffle(),
+      shuffleBtnStyle: { width: 26, height: 26, borderRadius: '50%', background: 'none', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', color: this.state.playerShuffle ? '#c05e0e' : '#17171a', cursor: 'pointer' },
+      shuffleBtnStyleLg: { width: 26, height: 26, borderRadius: '50%', background: 'none', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', color: this.state.playerShuffle ? '#c05e0e' : '#17171a', cursor: 'pointer' },
+      playerVolumeOpen: this.state.playerVolumeOpen,
+      toggleVolumePopup: () => this.toggleVolumePopup(),
+      volumeBtnBg: this.state.playerVolumeOpen ? 'rgba(255,122,26,.25)' : 'rgba(32,32,36,.4)',
+      volumeSliderStyle: { WebkitAppearance: 'none', appearance: 'none', width: 80, height: 4, borderRadius: 999, background: `linear-gradient(to right,#17171a ${Math.round(this.state.playerVolume*100)}%,rgba(23,23,26,.35) ${Math.round(this.state.playerVolume*100)}%)`, outline: 'none', cursor: 'pointer', transform: 'rotate(-90deg)', transformOrigin: 'center', accentColor: '#17171a' },
+      onPlaylistFileChange: (e) => this.onPlaylistFileChange(e),
+      onDropZoneDragOver: (e) => this.onDropZoneDragOver(e),
+      onDropZoneDragLeave: (e) => this.onDropZoneDragLeave(e),
+      onDropZoneDrop: (e) => this.onDropZoneDrop(e),
+      playlistLink: this.state.playlistLink || '',
+      onPlaylistLinkChange: (e) => this.setState({ playlistLink: e.target.value }),
+      onPlaylistLinkKeyDown: (e) => { if (e.key === 'Enter') { e.preventDefault(); this.submitPlaylist(); } },
+      playlistHasFile: false,
+      clearPlaylistFile: (e) => this.clearPlaylistFile(e),
+      dropZoneStyle: { display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 8, width: '100%', borderRadius: 999, padding: '6px 6px 6px 16px', background: '#fff', border: '1px solid ' + (this.state.dropZoneActive ? '#FF7A1A' : 'rgba(23,23,26,.2)'), transition: 'border-color .2s ease, background .2s ease' },
+      submitPlaylist: () => this.submitPlaylist(),
+      playlistBusy: this.state.playlistBusy,
+      playlistNotBusy: !this.state.playlistBusy,
+      playlistSubmitDisabled: this.state.playlistBusy || !(this.state.playlistLink || '').trim(),
+      playlistAddBtnStyle: { flex: '0 0 auto', border: 'none', borderRadius: 999, background: '#17171a', color: '#f4f1ea', fontFamily: 'inherit', fontSize: 13, fontWeight: 700, padding: '9px 16px', cursor: this.state.playlistBusy ? 'default' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', opacity: (this.state.playlistBusy || !(this.state.playlistLink || '').trim()) ? 0.45 : 1, transition: 'background .2s ease' },
+      playlistItems: this.state.playlistItems.map(t => ({ ...t, onRemove: () => this.removePlaylistItem(t.key) })),
+      playlistEmpty: this.state.playlistItems.length === 0,
+      playerVolume: this.state.playerVolume,
+      playerVolumePct: Math.round(this.state.playerVolume * 100) + '%',
+      onPlayerVolume: (e) => this.onPlayerVolume(e),
+      playerVinylState: this.state.playerPlaying ? 'running' : 'paused',
+      texFine: false,
+      texPaper: false,
+      texVignette: false,
+      texLinen: false,
+      tonearmTransform: 'rotate(' + (this.state.playerPlaying
+        ? (25 + 27 * (this.state.playerDuration ? Math.min(1, (this.state.playerTime || 0) / this.state.playerDuration) : 0))
+        : 12).toFixed(2) + 'deg)',
+      togglePlayer: () => this.togglePlayer(),
+      prevPlayerTrack: () => this.prevPlayerTrack(),
+      nextPlayerTrack: () => this.nextPlayerTrack(),
+      onPlayerTimeUpdate: () => this.onPlayerTimeUpdateFn(),
+      onPlayerLoadedMetadata: () => this.onPlayerLoadedMetadata(),
+      onPlayerEnded: () => this.onPlayerEnded(),
+      onPlayerSeek: (e) => this.onPlayerSeek(e),
+      playerTime: this.state.playerTime || 0,
+      playerDuration: this.state.playerDuration || 0,
+      playerSeekMax: this.state.playerDuration > 0 ? this.state.playerDuration : 0,
+      playerSeekDisabled: !(this.state.playerDuration > 0),
+      playerSeekPct: (this.state.playerDuration ? (this.state.playerTime / this.state.playerDuration) * 100 : 0) + '%',
+      playerTimeLabel: this.fmtTime(this.state.playerTime),
+      playerDurationLabel: this.fmtTime(this.state.playerDuration),
+      playerExpanded: this.state.playerExpanded,
+      playerCollapsed: !this.state.playerExpanded,
+      openPlayerOverlay: () => this.setState({ playerExpanded: true }),
+      closePlayerOverlay: () => this.setState({ playerExpanded: false }),
+      stopPropagation: (e) => e.stopPropagation(),
+      playerQueue: this.getActiveTracks().map((t, i) => ({
+        title: t.title,
+        artist: t.artist,
+        num: (i + 1).toString().padStart(2, '0'),
+        numColor: i === this.state.playerIndex ? '#c05e0e' : '#6b665f',
+        titleColor: i === this.state.playerIndex ? '#c05e0e' : '#17171a',
+        onClick: () => this.setPlayerIndex(i),
+      })),
+    };
+  }
+}
+
+</script>
+</body>
+</html>
