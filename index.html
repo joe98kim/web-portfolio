@@ -315,7 +315,7 @@ a:hover{color:#FF7A1A}
       </div>
       </sc-if>
 
-      <image-slot id="{{ detail.heroSlotId }}" style="{{ heroSlotStyle }}" shape="rect" radius="0" fit="cover" placeholder="Drop a hero image" data-comment-anchor="db306b3d53-image-slot"></image-slot>
+      <image-slot id="{{ detail.heroSlotId }}" src="{{ detail.heroSrc }}" style="{{ heroSlotStyle }}" shape="rect" radius="0" fit="cover" placeholder="Drop a hero image" data-comment-anchor="db306b3d53-image-slot"></image-slot>
 
       <sc-if value="{{ detail.richCaseStudy }}" hint-placeholder-val="{{ false }}">
       <p style="{{ headlineStyle }}" data-comment-anchor="d63b2bd966-p">{{ detail.headline }}</p>
@@ -1382,6 +1382,7 @@ class Component extends DCLogic {
         koop: 'UI/UX Design',
       })[p.id] || 'UX Research · Prototyping',
       heroSlotId: p.id + '-hero',
+      heroSrc: p.heroImg || '',
       introSlotId: p.id + '-intro',
       introSlotId2: p.id + '-intro-2',
       problemSlotId: p.id + '-problem',
