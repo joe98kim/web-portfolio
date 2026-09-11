@@ -362,12 +362,12 @@ a:hover{color:#FF7A1A}
             <p style="font-size:20px;line-height:1.7;color:#4a4a4c;margin:0">{{ sec.body }}</p>
           </sc-if>
           <sc-if value="{{ sec.hasSlot }}" hint-placeholder-val="{{ false }}">
-            <image-slot data-autoheight="" id="{{ sec.slotId }}" style="{{ sec.slotStyle }}" shape="rect" radius="0" fit="contain" placeholder="Drop an image"></image-slot>
+            <image-slot data-autoheight="" id="{{ sec.slotId }}" src="{{ sec.src }}" style="{{ sec.slotStyle }}" shape="rect" radius="0" fit="contain" placeholder="Drop an image"></image-slot>
           </sc-if>
           <sc-if value="{{ sec.hasSlides }}" hint-placeholder-val="{{ false }}">
             <div style="{{ genSlideFrameStyle }}">
               <sc-for list="{{ genSlides }}" as="sl" hint-placeholder-count="4">
-                <div style="{{ sl.style }}"><image-slot data-autoheight="" id="{{ sl.id }}" style="width:100%;height:100%" shape="rect" radius="0" placeholder="Drop an image"></image-slot></div>
+                <div style="{{ sl.style }}"><image-slot data-autoheight="" id="{{ sl.id }}" src="{{ sl.src }}" style="width:100%;height:100%" shape="rect" radius="0" placeholder="Drop an image"></image-slot></div>
               </sc-for>
               <button type="button" onClick="{{ genPrev }}" aria-label="Previous image" style="position:absolute;left:12px;top:50%;transform:translateY(-50%);width:36px;height:36px;border-radius:50%;background:rgba(23,23,26,.6);color:#fff;border:none;cursor:pointer;font-size:15px;z-index:3">‹</button>
               <button type="button" onClick="{{ genNext }}" aria-label="Next image" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);width:36px;height:36px;border-radius:50%;background:rgba(23,23,26,.6);color:#fff;border:none;cursor:pointer;font-size:15px;z-index:3">›</button>
@@ -417,11 +417,11 @@ a:hover{color:#FF7A1A}
       </sc-if>
       <div style="{{ introRowStyle }}">
         <sc-if value="{{ detailHasIntro2 }}" hint-placeholder-val="{{ false }}">
-          <image-slot id="{{ detail.introSlotId }}" style="{{ introSlotStyle }}" shape="rect" radius="0" fit="cover" placeholder="Drop an image"></image-slot>
-          <image-slot id="{{ detail.introSlotId2 }}" style="{{ introSlotStyle2 }}" shape="rect" radius="0" fit="cover" placeholder="Drop an image"></image-slot>
+          <image-slot id="{{ detail.introSlotId }}" src="{{ detail.introSrc }}" style="{{ introSlotStyle }}" shape="rect" radius="0" fit="cover" placeholder="Drop an image"></image-slot>
+          <image-slot id="{{ detail.introSlotId2 }}" src="{{ detail.introSrc2 }}" style="{{ introSlotStyle2 }}" shape="rect" radius="0" fit="cover" placeholder="Drop an image"></image-slot>
         </sc-if>
         <sc-if value="{{ detailNoIntro2 }}" hint-placeholder-val="{{ true }}">
-          <image-slot data-autoheight="" id="{{ detail.introSlotId }}" style="{{ introSlotStyle }}" shape="rect" radius="0" fit="contain" placeholder="Drop an image"></image-slot>
+          <image-slot data-autoheight="" id="{{ detail.introSlotId }}" src="{{ detail.introSrc }}" style="{{ introSlotStyle }}" shape="rect" radius="0" fit="contain" placeholder="Drop an image"></image-slot>
         </sc-if>
       </div>
 
@@ -432,7 +432,7 @@ a:hover{color:#FF7A1A}
       <p style="font-size:20px;line-height:1.7;color:#4a4a4c;margin:0 0 24px" data-comment-anchor="fd5c9b62f0-p">{{ detail.problem }}</p>
 
 
-      <image-slot data-autoheight="" id="{{ detail.problemSlotId }}" style="{{ problemSlotStyle }}" shape="rect" radius="0" fit="contain" placeholder="Drop an image"></image-slot>
+      <image-slot data-autoheight="" id="{{ detail.problemSlotId }}" src="{{ detail.problemSrc }}" style="{{ problemSlotStyle }}" shape="rect" radius="0" fit="contain" placeholder="Drop an image"></image-slot>
       <sc-if value="{{ detailHasProblemCaption }}" hint-placeholder-val="{{ false }}">
         <p style="font-size:12px;color:#8a8a8e;margin:0">{{ detail.problemCaption }}</p>
       </sc-if>
@@ -459,10 +459,10 @@ a:hover{color:#FF7A1A}
           </sc-if>
           <sc-if value="{{ step.hasSlideshow }}" hint-placeholder-val="{{ false }}">
             <div style="{{ slideshowFrameStyle }}">
-              <div style="{{ scherrSlide0 }}"><image-slot data-autoheight="" id="{{ step.slideId0 }}" style="width:100%;height:100%" shape="rect" radius="0" placeholder="Drop a platform screen"></image-slot></div>
-              <div style="{{ scherrSlide1 }}"><image-slot data-autoheight="" id="{{ step.slideId1 }}" style="width:100%;height:100%" shape="rect" radius="0" placeholder="Drop a platform screen"></image-slot></div>
-              <div style="{{ scherrSlide2 }}"><image-slot data-autoheight="" id="{{ step.slideId2 }}" style="width:100%;height:100%" shape="rect" radius="0" placeholder="Drop a platform screen"></image-slot></div>
-              <div style="{{ scherrSlide3 }}"><image-slot data-autoheight="" id="{{ step.slideId3 }}" style="width:100%;height:100%" shape="rect" radius="0" placeholder="Drop a platform screen"></image-slot></div>
+              <div style="{{ scherrSlide0 }}"><image-slot data-autoheight="" id="{{ step.slideId0 }}" src="{{ step.slideSrc0 }}" style="width:100%;height:100%" shape="rect" radius="0" placeholder="Drop a platform screen"></image-slot></div>
+              <div style="{{ scherrSlide1 }}"><image-slot data-autoheight="" id="{{ step.slideId1 }}" src="{{ step.slideSrc1 }}" style="width:100%;height:100%" shape="rect" radius="0" placeholder="Drop a platform screen"></image-slot></div>
+              <div style="{{ scherrSlide2 }}"><image-slot data-autoheight="" id="{{ step.slideId2 }}" src="{{ step.slideSrc2 }}" style="width:100%;height:100%" shape="rect" radius="0" placeholder="Drop a platform screen"></image-slot></div>
+              <div style="{{ scherrSlide3 }}"><image-slot data-autoheight="" id="{{ step.slideId3 }}" src="{{ step.slideSrc3 }}" style="width:100%;height:100%" shape="rect" radius="0" placeholder="Drop a platform screen"></image-slot></div>
               <button type="button" onClick="{{ scherrPrev }}" aria-label="Previous image" style="position:absolute;left:12px;top:50%;transform:translateY(-50%);width:36px;height:36px;border-radius:50%;background:rgba(23,23,26,.6);color:#fff;border:none;cursor:pointer;font-size:15px;z-index:3">‹</button>
               <button type="button" onClick="{{ scherrNext }}" aria-label="Next image" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);width:36px;height:36px;border-radius:50%;background:rgba(23,23,26,.6);color:#fff;border:none;cursor:pointer;font-size:15px;z-index:3">›</button>
               <div style="position:absolute;bottom:12px;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:7px;z-index:3;background:rgba(23,23,26,.55);padding:7px 10px;border-radius:999px">
@@ -478,13 +478,13 @@ a:hover{color:#FF7A1A}
           <sc-if value="{{ step.hasSlot }}" hint-placeholder-val="{{ false }}">
             <div style="{{ step.slotRowStyle }}">
               <sc-if value="{{ step.hasSlot2 }}" hint-placeholder-val="{{ false }}">
-                <image-slot id="{{ step.slotId }}" style="{{ step.slotStyle }}" shape="rect" radius="0" fit="cover" placeholder="Drop an image"></image-slot>
+                <image-slot id="{{ step.slotId }}" src="{{ step.src }}" style="{{ step.slotStyle }}" shape="rect" radius="0" fit="cover" placeholder="Drop an image"></image-slot>
               </sc-if>
               <sc-if value="{{ step.noSlot2 }}" hint-placeholder-val="{{ true }}">
-                <image-slot data-autoheight="" id="{{ step.slotId }}" style="{{ step.slotStyle }}" shape="rect" radius="0" fit="contain" placeholder="Drop an image"></image-slot>
+                <image-slot data-autoheight="" id="{{ step.slotId }}" src="{{ step.src }}" style="{{ step.slotStyle }}" shape="rect" radius="0" fit="contain" placeholder="Drop an image"></image-slot>
               </sc-if>
               <sc-if value="{{ step.hasSlot2 }}" hint-placeholder-val="{{ false }}">
-                <image-slot data-autoheight="" id="{{ step.slotId2 }}" style="{{ step.slotStyle2 }}" shape="rect" radius="0" fit="contain" placeholder="Drop an image"></image-slot>
+                <image-slot data-autoheight="" id="{{ step.slotId2 }}" src="{{ step.src2 }}" style="{{ step.slotStyle2 }}" shape="rect" radius="0" fit="contain" placeholder="Drop an image"></image-slot>
               </sc-if>
             </div>
             <sc-if value="{{ step.hasCaption }}" hint-placeholder-val="{{ false }}">
@@ -1385,7 +1385,11 @@ class Component extends DCLogic {
       heroSrc: p.heroImg || '',
       introSlotId: p.id + '-intro',
       introSlotId2: p.id + '-intro-2',
+      introSrc: p.introImg || '',
+      introSrc2: p.introImg2 || '',
       problemSlotId: p.id + '-problem',
+      problemSrc: p.problemImg || '',
+      genSlideImgs: p.genSlideImgs || [],
       process: (p.process || []).map((s, i) => ({
         label: s.label,
         body: s.body,
@@ -1400,8 +1404,14 @@ class Component extends DCLogic {
         hasCaption: !!s.caption,
         caption: s.caption || '',
         slideId0: p.id + '-design-1', slideId1: p.id + '-design-2', slideId2: p.id + '-design-3', slideId3: p.id + '-design-4',
+        slideSrc0: (s.slideImgs && s.slideImgs[0]) || '',
+        slideSrc1: (s.slideImgs && s.slideImgs[1]) || '',
+        slideSrc2: (s.slideImgs && s.slideImgs[2]) || '',
+        slideSrc3: (s.slideImgs && s.slideImgs[3]) || '',
         hasSlot: s.slot !== false && !s.slideshow,
         slotId: p.id + '-process-' + i,
+        src: s.img || '',
+        src2: s.img2 || '',
         wrapStyle: { margin: i === 0 ? '0 0 26px' : '40px 0 26px' },
         slotRowStyle: { display: 'flex', gap: 10, alignItems: 'flex-start' },
         hasSlot2: !!s.slot2,
@@ -1546,6 +1556,7 @@ class Component extends DCLogic {
         hasSlot: !!sec.slot,
         hasSlides: !!sec.slides,
         slotId: (detail ? detail.id : 'x') + '-gen-' + i,
+        src: sec.img || '',
         slotStyle: { width: '100%', height: this.autoSlotHeight((detail ? detail.id : 'x') + '-gen-' + i, 520) + 'px', marginTop: 30 },
       })),
       detailHasCards: !!(detail && detail.cards && detail.cards.length),
@@ -1624,6 +1635,7 @@ class Component extends DCLogic {
       genSlideFrameStyle: { position: 'relative', width: '100%', maxWidth: 720, height: this.autoSlotHeight(this.genSlideId(detail, this.state.genSlide || 0), this.props.slideshowHeight ?? 440) + 'px', margin: '30px auto 0' },
       genSlides: [0, 1, 2, 3].map(i => ({
         id: this.genSlideId(detail, i),
+        src: (detail && detail.genSlideImgs && detail.genSlideImgs[i]) || '',
         style: { position: 'absolute', inset: 0, opacity: (this.state.genSlide || 0) === i ? 1 : 0, pointerEvents: (this.state.genSlide || 0) === i ? 'auto' : 'none', transition: 'opacity .3s ease', zIndex: (this.state.genSlide || 0) === i ? 2 : 1 },
       })),
       genPrev: () => this.setState(s => ({ genSlide: (((s.genSlide || 0) - 1) % 4 + 4) % 4 })),
