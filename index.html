@@ -717,7 +717,7 @@ a:hover{color:#FF7A1A}
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props="{&quot;customCursor&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Interaction&quot;}}">
 class Component extends DCLogic {
-  state = { page: 'work', detailId: null, ...(function(){ try { const r = JSON.parse(localStorage.getItem('jk-portfolio-nav') || 'null'); if (r && r.page) return { page: r.page, detailId: r.detailId || null }; } catch (e) {} return {}; })(), indicatorStyle: { position: 'absolute', opacity: 0 }, playerPlaying: false, playerIndex: 0, playerTime: 0, playerDuration: 0, playerExpanded: false, workCenter: 0, forFunCenter: 0, playerShuffle: false, playerVolume: 1, playerVolumeOpen: false, playlistFile: null, playlistItems: (function(){ try { const r = JSON.parse(localStorage.getItem('jk-portfolio-playlist') || 'null'); return Array.isArray(r) ? r : []; } catch (e) { return []; } })(), playlistBusy: false, activePlaylistId: 'main', playlistPickerOpen: false, dropZoneActive: false };
+  state = { page: 'work', detailId: null, ...(function(){ try { const r = JSON.parse(localStorage.getItem('jk-portfolio-nav') || 'null'); if (r && r.page) return { page: r.page, detailId: r.detailId || null }; } catch (e) {} return {}; })(), indicatorStyle: { position: 'absolute', opacity: 0 }, playerPlaying: false, playerIndex: 0, playerTime: 0, playerDuration: 0, playerExpanded: false, workCenter: 0, forFunCenter: 0, playerShuffle: false, playerVolume: 1, playerVolumeOpen: false, playlistFile: null, playlistItems: (function(){ try { const r = JSON.parse(localStorage.getItem('jk-portfolio-playlist') || 'null'); return Array.isArray(r) ? r : []; } catch (e) { return []; } })(), ytMeta: (function(){ try { const r = JSON.parse(localStorage.getItem('jk-portfolio-ytmeta') || 'null'); return (r && typeof r === 'object') ? r : {}; } catch (e) { return {}; } })(), playlistBusy: false, activePlaylistId: 'main', playlistPickerOpen: false, dropZoneActive: false };
   navRef = React.createRef();
   workTabRef = React.createRef();
   forFunTabRef = React.createRef();
@@ -725,22 +725,23 @@ class Component extends DCLogic {
   playerAudioRef = React.createRef();
   bgWaveRef = React.createRef();
   introSlotRef = React.createRef();
-  playerTracks = [
-    { title: 'Alone with You', artist: 'Mac Ayres', src: 'uploads/Mac Ayres - Alone with you.mp3' },
-    { title: 'Alesis', artist: 'Mk.gee', src: 'uploads/Alesis - Mk.gee.mp3' },
-    { title: 'supertight', artist: 'georgee', src: 'uploads/supertight - georgee.mp3' },
-    { title: 'Love It If We Made It', artist: 'The 1975', src: 'uploads/The 1975 - Love It If We Made It.mp3' },
-    { title: 'Angel Appearing in a Small Cafe', artist: 'Chris Trapper', src: 'uploads/Angel Appearing in a Small Cafe - Chris Trapper.mp3' },
-    { title: 'morning comes', artist: 'georgee', src: 'uploads/morning comes - georgee.mp3' },
-    { title: 'In the Blood', artist: 'John Mayer', src: 'uploads/In the Blood - John Mayer.mp3' },
-    { title: 'Track Two', artist: 'Add your song title', src: '' },
-    { title: 'Track Three', artist: 'Add your song title', src: '' },
-    { title: 'Track Four', artist: 'Add your song title', src: '' },
-    { title: 'Track Five', artist: 'Add your song title', src: '' },
-    { title: 'Track Six', artist: 'Add your song title', src: '' },
-    { title: 'Track Seven', artist: 'Add your song title', src: '' },
-    { title: 'Track Eight', artist: 'Add your song title', src: '' },
+  // Mix Tape #1 and #2: curated YouTube playlists (video id only — each
+  // track's real title/artist/art is resolved lazily and cached, same as
+  // Jam Sesh's user-added links, just fetched once up front on mount
+  // instead of at add-time; see ensureYtMeta/hydrateYtTrack).
+  mixtape1 = [
+    { youtubeId: 'gI2nWCToGS8' },
+    { youtubeId: 'GjW-9cUc9E8' },
+    { youtubeId: 'DE_5LN1oIL8' },
+    { youtubeId: 'eo0zidqEqYE' },
+    { youtubeId: 'FB2fwSlyRfE' },
+    { youtubeId: '2E9VJ_IbIik' },
+    { youtubeId: '7yZqSrtFgvc' },
+    { youtubeId: 'er3C8_FlQi4' },
+    { youtubeId: 'XPfmqJOx66s' },
+    { youtubeId: 'L3ZWOlU4R5I' },
   ];
+  mixtape2 = [];
 
   togglePlayer() {
     const track = this.getActiveTracks()[this.state.playerIndex];
@@ -759,9 +760,49 @@ class Component extends DCLogic {
     else { a.play().then(() => this.setState({ playerPlaying: true })).catch(() => {}); }
   }
   getActiveTracks() {
-    if (this.state.activePlaylistId === 'blank') return [];
+    if (this.state.activePlaylistId === 'blank') return this.mixtape2.map(t => this.hydrateYtTrack(t));
     if (this.state.activePlaylistId === 'forfun') return this.state.playlistItems.map(t => ({ title: t.title, artist: t.sourceLabel || 'YouTube', youtubeId: t.youtubeId, art: t.art }));
-    return this.playerTracks;
+    return this.mixtape1.map(t => this.hydrateYtTrack(t));
+  }
+  // Strips any parenthetical part of a fetched YouTube title (e.g. "Song
+  // (Official Video)" -> "Song") — applied everywhere a title comes from
+  // YouTube, not just the curated mixtapes.
+  cleanYtTitle(title) {
+    return String(title || '').replace(/\s*\([^)]*\)/g, '').trim();
+  }
+  // Resolves a curated {youtubeId} entry into a full track, using cached
+  // metadata once ensureYtMeta has fetched it (falls back to an id-based
+  // placeholder title until then, same as Jam Sesh's own fallback).
+  hydrateYtTrack(t) {
+    const meta = (this.state.ytMeta || {})[t.youtubeId];
+    return {
+      title: (meta && meta.title) || this.ytTitleFrom('https://youtu.be/' + t.youtubeId),
+      artist: (meta && meta.artist) || 'YouTube',
+      youtubeId: t.youtubeId,
+      art: 'https://img.youtube.com/vi/' + t.youtubeId + '/hqdefault.jpg',
+    };
+  }
+  // Fetches + caches a curated track's real title/artist once (oEmbed,
+  // same public endpoint Jam Sesh uses) and persists the cache so repeat
+  // visits don't refetch. No-ops if already cached or already in flight.
+  ensureYtMeta(id) {
+    if (!id || (this.state.ytMeta && this.state.ytMeta[id])) return;
+    if (!this._ytMetaFetching) this._ytMetaFetching = new Set();
+    if (this._ytMetaFetching.has(id)) return;
+    this._ytMetaFetching.add(id);
+    fetch('https://www.youtube.com/oembed?url=' + encodeURIComponent('https://www.youtube.com/watch?v=' + id) + '&format=json')
+      .then(r => (r.ok ? r.json() : null))
+      .catch(() => null)
+      .then(meta => {
+        this._ytMetaFetching.delete(id);
+        const entry = { title: this.cleanYtTitle(meta && meta.title), artist: (meta && meta.author_name) || '' };
+        if (!entry.title) return; // fetch failed — leave the id-based placeholder in place, try again next visit
+        this.setState(s => {
+          const next = { ...(s.ytMeta || {}), [id]: entry };
+          try { localStorage.setItem('jk-portfolio-ytmeta', JSON.stringify(next)); } catch (e) {}
+          return { ytMeta: next };
+        });
+      });
   }
   switchPlaylist(id) {
     if (id === this.state.activePlaylistId) { this.setState({ playlistPickerOpen: false }); return; }
@@ -1251,6 +1292,7 @@ class Component extends DCLogic {
     this.initHeadlineHover();
     this.initSectionSpy();
     if (this.playerAudioRef.current) this.playerAudioRef.current.volume = this.state.playerVolume;
+    [...this.mixtape1, ...this.mixtape2].forEach(t => this.ensureYtMeta(t.youtubeId));
   }
   projectOrder(p) {
     const order = ['dess', 'scherr', 'fleet', 'aerospace', 'bethel', 'koop'];
@@ -1581,7 +1623,7 @@ class Component extends DCLogic {
       .then(meta => {
         const track = {
           key: Date.now(),
-          title: (meta && meta.title) || this.ytTitleFrom(link),
+          title: this.cleanYtTitle(meta && meta.title) || this.ytTitleFrom(link),
           sourceLabel: (meta && meta.author_name) || 'YouTube',
           youtubeId: id,
           // YouTube auto-generates this thumbnail for every video at this
