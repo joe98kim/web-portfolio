@@ -1303,6 +1303,18 @@ class Component extends DCLogic {
     this.initSectionSpy();
     if (this.playerAudioRef.current) this.playerAudioRef.current.volume = this.state.playerVolume;
     [...this.mixtape1, ...this.mixtape2].forEach(t => this.ensureYtMeta(t.youtubeId));
+    // Pre-warm the YouTube IFrame API + hidden player on mount instead of
+    // waiting for the first play click — creating the player involves a
+    // script load and an iframe spin-up, and doing that lazily on first
+    // click is what made that first play feel laggy. Also cue (not play)
+    // the current track so it's already buffered by the time Play is hit.
+    this.ensureYtPlayer().then((p) => {
+      const track = this.getActiveTracks()[this.state.playerIndex];
+      if (track && track.youtubeId && this._ytLoadedId !== track.youtubeId) {
+        p.cueVideoById(track.youtubeId);
+        this._ytLoadedId = track.youtubeId;
+      }
+    });
   }
   projectOrder(p) {
     const order = ['dess', 'scherr', 'fleet', 'aerospace', 'bethel', 'koop'];
