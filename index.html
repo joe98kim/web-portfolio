@@ -754,8 +754,6 @@ class Component extends DCLogic {
     }
     const a = this.playerAudioRef.current;
     if (!a) return;
-    if (this.audioCtx && this.audioCtx.state === 'suspended') this.audioCtx.resume();
-    this.connectAnalyser();
     if (this.state.playerPlaying) { a.pause(); this.setState({ playerPlaying: false }); }
     else { a.play().then(() => this.setState({ playerPlaying: true })).catch(() => {}); }
   }
@@ -826,31 +824,6 @@ class Component extends DCLogic {
     this.setState({ playerTime: v });
   }
   onPlayerEnded() { this.nextPlayerTrack(); }
-  // Deterministic per-bar oscillator params for the stylized YouTube
-  // waveform stand-in, seeded from the video id (cached so the same song
-  // always gets the same "personality" and isn't recomputed every frame).
-  ytBarParams(id) {
-    if (!this._ytWaveCache) this._ytWaveCache = {};
-    if (this._ytWaveCache[id]) return this._ytWaveCache[id];
-    let h = 2166136261 >>> 0;
-    const s = String(id || 'x');
-    for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); }
-    let a = h >>> 0;
-    const rand = () => {
-      a |= 0; a = (a + 0x6D2B79F5) | 0;
-      let t = Math.imul(a ^ (a >>> 15), 1 | a);
-      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
-      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-    };
-    const params = Array.from({ length: 64 }, () => ({
-      freq: 1.4 + rand() * 3.6,
-      phase: rand() * Math.PI * 2,
-      freq2: 0.18 + rand() * 0.22,
-      phase2: rand() * Math.PI * 2,
-    }));
-    this._ytWaveCache[id] = params;
-    return params;
-  }
   // ---- YouTube (audio-only via the official IFrame Player) ----
   getYouTubeId(url) {
     const m = String(url).match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|shorts\/|embed\/|live\/))([\w-]{11})/);
@@ -920,16 +893,32 @@ class Component extends DCLogic {
     return m + ':' + s;
   }
 
+  // Floating music doodles: the same note glyphs already used on the For
+  // Fun page's "Let's jam together" section (same path data, reused here
+  // via Path2D so they're pixel-identical), drifting across this strip.
+  // Purely decorative — no real audio analysis, just paced by whether a
+  // track is playing (this.state.playerPlaying), same as the rest of the
+  // player UI (vinyl spin, tonearm angle).
   initBgWave() {
-    const barCount = 64;
-    this.waveBars = Array.from({ length: barCount }, () => ({ v: 0.1, target: 0.1 }));
-    try {
-      this.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-      this.analyser = this.audioCtx.createAnalyser();
-      this.analyser.fftSize = 128;
-      this.freqData = new Uint8Array(this.analyser.frequencyBinCount);
-    } catch (e) { this.analyser = null; }
+    const iconDefs = [
+      { path: 'M9 18V5l12-2v13', circles: [{ cx: 6, cy: 18, r: 3 }, { cx: 18, cy: 16, r: 3 }], stroke: '#FF7A1A' },
+      { path: 'M9 18V5l12-2v13', circles: [{ cx: 6, cy: 18, r: 3 }, { cx: 18, cy: 16, r: 3 }], stroke: '#E8B21F' },
+      { path: 'M9 18V5l12-2v13a3 3 0 1 1-2-2.83V6.28L11 7.5v9.5a3 3 0 1 1-2-2.83Z', fill: '#D8571C' },
+      { path: 'M9 18V6l2-.3v10.6a3 3 0 1 1-2-2.3Z', fill: '#ffffff', glow: true },
+    ].map(def => ({ ...def, path2d: new Path2D(def.path) }));
+    let seed = 99;
+    const rand = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+    this.heroIcons = Array.from({ length: 7 }, (_, i) => ({
+      def: iconDefs[i % iconDefs.length],
+      x: rand(), y: 0.15 + rand() * 0.6,
+      scale: 1 + rand() * 0.9,
+      speed: 0.35 + rand() * 0.55,
+      dir: i % 2 === 0 ? 1 : -1,
+      bobPhase: rand() * Math.PI * 2,
+      bobSpeed: 0.6 + rand() * 0.6,
+    }));
     this._lastWaveCvs = null;
+    let speedMul = 0.3, t = 0;
     const draw = () => {
       const cvs = this.bgWaveRef.current;
       if (cvs) {
@@ -941,88 +930,33 @@ class Component extends DCLogic {
         const ctx = cvs.getContext('2d');
         const w = cvs.width, h = cvs.height;
         ctx.clearRect(0, 0, w, h);
-        // bass left, mid centre, treble right (log frequency, highs tilted up)
-        const half = barCount;
-        const levels = new Array(barCount);
-        const place = (j, v) => { levels[j] = v; };
-        // A YouTube track plays through the IFrame Player, not the <audio>
-        // element the analyser is wired to — there's no accessible audio
-        // data for it, so it always falls through to the idle animation.
-        const activeTrack = this.getActiveTracks()[this.state.playerIndex];
-        if (this.analyser && this.state.playerPlaying && !(activeTrack && activeTrack.youtubeId)) {
-          this.analyser.getByteFrequencyData(this.freqData);
-          const nb = this.freqData.length;
-          const sampleLog = (f) => {
-            const pos = (Math.pow(2, f * 5) - 1) / 31;
-            const x = pos * (nb - 1), i = Math.floor(x), fr = x - i;
-            const a = this.freqData[Math.min(nb - 1, i)] / 255;
-            const b = this.freqData[Math.min(nb - 1, i + 1)] / 255;
-            return Math.min(1.2, (a + (b - a) * fr) * (1 + f * 1.5));
-          };
-          for (let j = 0; j < half; j++) {
-            const bar = this.waveBars[j];
-            const target = sampleLog(half > 1 ? j / (half - 1) : 0);
-            bar.v += (target - bar.v) * (target > bar.v ? 0.6 : 0.3);
-            place(j, bar.v);
-          }
-        } else if (activeTrack && activeTrack.youtubeId && this.state.playerPlaying) {
-          // No real audio data reaches us from the YouTube iframe (see the
-          // comment above), so this is a stylized stand-in: a per-track
-          // oscillator pattern (seeded from the video id, so the same song
-          // always looks the same) driven by actual elapsed playback time
-          // (this.state.playerTime, kept live by startYtProgress()) rather
-          // than randomness — it advances, pauses, and jumps on seek right
-          // along with real playback, without pretending to analyze audio
-          // it has no access to.
-          const t = this.state.playerTime || 0;
-          const params = this.ytBarParams(activeTrack.youtubeId);
-          for (let j = 0; j < half; j++) {
-            const bar = this.waveBars[j];
-            const f = half > 1 ? j / (half - 1) : 0;
-            const p = params[j];
-            const wave = 0.5 + 0.5 * Math.sin(t * p.freq + p.phase);
-            const envelope = 0.6 + 0.4 * Math.sin(t * p.freq2 + p.phase2);
-            const target = Math.min(1.15, (0.15 + wave * 0.7 * envelope) * (1 + f * 0.6));
-            bar.v += (target - bar.v) * (target > bar.v ? 0.55 : 0.3);
-            place(j, bar.v);
-          }
-        } else {
-          for (let j = 0; j < half; j++) {
-            const bar = this.waveBars[j];
-            if (Math.random() < 0.12) bar.target = 0.15 + Math.random() * 0.65;
-            bar.v += (bar.target - bar.v) * 0.22;
-            place(j, bar.v);
-          }
-        }
-        const bw = Math.max(4, Math.floor(w / barCount) - 4);
-        const gap = (w - bw * barCount) / (barCount + 1);
-        const midY = h * 0.5;
-        ctx.fillStyle = 'rgba(20,20,20,0.55)';
-        levels.forEach((lv, i) => {
-          const barH = Math.max(8, lv * h * 0.5);
-          const x = gap + i * (bw + gap);
-          const px = x;
-          const ph = Math.round(barH / 2) * 2;
-          const rr = Math.min(bw / 2, 3);
-          ctx.beginPath();
-          if (ctx.roundRect) ctx.roundRect(px, midY - ph / 2, bw, ph, rr);
-          else ctx.rect(px, midY - ph / 2, bw, ph);
-          ctx.fill();
+        speedMul += ((this.state.playerPlaying ? 1 : 0.3) - speedMul) * 0.04;
+        t += 0.016;
+        this.heroIcons.forEach(ic => {
+          ic.x += 0.00045 * ic.speed * speedMul * ic.dir;
+          if (ic.x > 1.12) ic.x = -0.12; else if (ic.x < -0.12) ic.x = 1.12;
+          const x = ic.x * w;
+          const y = ic.y * h + Math.sin(t * ic.bobSpeed + ic.bobPhase) * h * 0.06;
+          const s = ic.scale * (h / 150) * 1.3;
+          ctx.save();
+          ctx.translate(x, y);
+          ctx.scale(s, s);
+          ctx.globalAlpha = 0.5 + 0.3 * speedMul;
+          if (ic.def.glow) { ctx.shadowColor = 'rgba(23,23,26,.35)'; ctx.shadowBlur = 6; }
+          if (ic.def.fill) { ctx.fillStyle = ic.def.fill; ctx.fill(ic.def.path2d); }
+          if (ic.def.stroke) { ctx.strokeStyle = ic.def.stroke; ctx.lineWidth = 1.8; ctx.stroke(ic.def.path2d); }
+          (ic.def.circles || []).forEach(c => {
+            ctx.beginPath(); ctx.arc(c.cx, c.cy, c.r, 0, Math.PI * 2);
+            if (ic.def.fill) ctx.fill(); else { ctx.strokeStyle = ic.def.stroke; ctx.stroke(); }
+          });
+          ctx.restore();
         });
+        ctx.globalAlpha = 1;
+        ctx.shadowBlur = 0;
       }
       this.bgWaveRaf = requestAnimationFrame(draw);
     };
     draw();
-  }
-
-  connectAnalyser() {
-    const a = this.playerAudioRef.current;
-    if (!a || !this.audioCtx || !this.analyser || this.mediaSourceNode) return;
-    try {
-      this.mediaSourceNode = this.audioCtx.createMediaElementSource(a);
-      this.mediaSourceNode.connect(this.analyser);
-      this.analyser.connect(this.audioCtx.destination);
-    } catch (e) {}
   }
 
   updateIndicator() {
