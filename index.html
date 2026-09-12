@@ -717,7 +717,7 @@ a:hover{color:#FF7A1A}
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props="{&quot;customCursor&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Interaction&quot;}}">
 class Component extends DCLogic {
-  state = { page: 'work', detailId: null, ...(function(){ try { const r = JSON.parse(localStorage.getItem('jk-portfolio-nav') || 'null'); if (r && r.page) return { page: r.page, detailId: r.detailId || null }; } catch (e) {} return {}; })(), indicatorStyle: { position: 'absolute', opacity: 0 }, playerPlaying: false, playerIndex: 0, playerTime: 0, playerDuration: 0, playerExpanded: false, workCenter: 0, forFunCenter: 0, playerShuffle: false, playerVolume: 1, playerVolumeOpen: false, playlistFile: null, playlistItems: (function(){ try { const r = JSON.parse(localStorage.getItem('jk-portfolio-playlist') || 'null'); return Array.isArray(r) ? r : []; } catch (e) { return []; } })(), ytMeta: (function(){ try { const r = JSON.parse(localStorage.getItem('jk-portfolio-ytmeta-v2') || 'null'); return (r && typeof r === 'object') ? r : {}; } catch (e) { return {}; } })(), playlistBusy: false, activePlaylistId: 'main', playlistPickerOpen: false, dropZoneActive: false };
+  state = { page: 'work', detailId: null, ...(function(){ try { const r = JSON.parse(localStorage.getItem('jk-portfolio-nav') || 'null'); if (r && r.page) return { page: r.page, detailId: r.detailId || null }; } catch (e) {} return {}; })(), indicatorStyle: { position: 'absolute', opacity: 0 }, playerPlaying: false, playerIndex: 0, playerTime: 0, playerDuration: 0, playerExpanded: false, workCenter: 0, forFunCenter: 0, playerShuffle: false, playerVolume: 1, playerVolumeOpen: false, playlistFile: null, playlistItems: (function(){ try { const r = JSON.parse(localStorage.getItem('jk-portfolio-playlist') || 'null'); return Array.isArray(r) ? r : []; } catch (e) { return []; } })(), ytMeta: (function(){ try { const r = JSON.parse(localStorage.getItem('jk-portfolio-ytmeta-v3') || 'null'); return (r && typeof r === 'object') ? r : {}; } catch (e) { return {}; } })(), playlistBusy: false, activePlaylistId: 'main', playlistPickerOpen: false, dropZoneActive: false };
   navRef = React.createRef();
   workTabRef = React.createRef();
   forFunTabRef = React.createRef();
@@ -763,6 +763,17 @@ class Component extends DCLogic {
     if (this.state.activePlaylistId === 'blank') return this.mixtape2.map(t => this.hydrateYtTrack(t));
     if (this.state.activePlaylistId === 'forfun') return this.state.playlistItems.map(t => ({ title: t.title, artist: t.sourceLabel || 'YouTube', youtubeId: t.youtubeId, art: t.art }));
     return this.mixtape1.map(t => this.hydrateYtTrack(t));
+  }
+  // Cleans a fetched YouTube channel/author name for display: auto-
+  // generated "Topic" channels are named e.g. "Tame Impala - Topic", so
+  // this drops a trailing "- Topic", any standalone "Topic" word, and any
+  // other " - " separator that shows up in the name.
+  cleanYtArtist(name) {
+    let a = String(name || '').trim();
+    a = a.replace(/\s*[-–—]\s*Topic\s*$/i, '');
+    a = a.replace(/\bTopic\b/gi, '');
+    a = a.replace(/\s+[-–—]\s+/g, ' ');
+    return a.replace(/\s{2,}/g, ' ').trim();
   }
   // Strips any parenthetical part of a fetched YouTube title (e.g. "Song
   // (Official Video)" -> "Song") — applied everywhere a title comes from
@@ -811,11 +822,12 @@ class Component extends DCLogic {
       .catch(() => null)
       .then(meta => {
         this._ytMetaFetching.delete(id);
-        const entry = { title: this.cleanYtTitle(meta && meta.title, meta && meta.author_name), artist: (meta && meta.author_name) || '' };
+        const artist = this.cleanYtArtist(meta && meta.author_name);
+        const entry = { title: this.cleanYtTitle(meta && meta.title, artist), artist };
         if (!entry.title) return; // fetch failed — leave the id-based placeholder in place, try again next visit
         this.setState(s => {
           const next = { ...(s.ytMeta || {}), [id]: entry };
-          try { localStorage.setItem('jk-portfolio-ytmeta-v2', JSON.stringify(next)); } catch (e) {}
+          try { localStorage.setItem('jk-portfolio-ytmeta-v3', JSON.stringify(next)); } catch (e) {}
           return { ytMeta: next };
         });
       });
@@ -1659,10 +1671,11 @@ class Component extends DCLogic {
       .then(r => (r.ok ? r.json() : null))
       .catch(() => null)
       .then(meta => {
+        const artist = this.cleanYtArtist(meta && meta.author_name);
         const track = {
           key: Date.now(),
-          title: this.cleanYtTitle(meta && meta.title, meta && meta.author_name) || this.ytTitleFrom(link),
-          sourceLabel: (meta && meta.author_name) || 'YouTube',
+          title: this.cleanYtTitle(meta && meta.title, artist) || this.ytTitleFrom(link),
+          sourceLabel: artist || 'YouTube',
           youtubeId: id,
           // YouTube auto-generates this thumbnail for every video at this
           // fixed URL — no need to depend on oEmbed succeeding for it.
