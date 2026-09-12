@@ -954,7 +954,7 @@ class Component extends DCLogic {
     const rand = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
     this.heroIcons = Array.from({ length: 12 }, (_, i) => ({
       def: iconDefs[i % iconDefs.length],
-      x: rand(), y: 0.15 + rand() * 0.6,
+      x: rand(), y: 0.28 + rand() * 0.44,
       scale: 1 + rand() * 0.9,
       speed: 0.35 + rand() * 0.55,
       dir: i % 2 === 0 ? 1 : -1,
@@ -976,16 +976,25 @@ class Component extends DCLogic {
         ctx.clearRect(0, 0, w, h);
         speedMul += ((this.state.playerPlaying ? 1 : 0.3) - speedMul) * 0.04;
         t += 0.016;
+        // Icons fade out approaching either edge and fade back in past it,
+        // instead of wrapping while still fully opaque — that fade zone is
+        // wide enough that an icon is already invisible before any part of
+        // it would be clipped by the canvas bounds.
+        const edgeMargin = 0.14;
         this.heroIcons.forEach(ic => {
           ic.x += 0.00045 * ic.speed * speedMul * ic.dir;
-          if (ic.x > 1.12) ic.x = -0.12; else if (ic.x < -0.12) ic.x = 1.12;
+          if (ic.x > 1 + edgeMargin) ic.x = -edgeMargin; else if (ic.x < -edgeMargin) ic.x = 1 + edgeMargin;
           const x = ic.x * w;
           const y = ic.y * h + Math.sin(t * ic.bobSpeed + ic.bobPhase) * h * 0.06;
           const s = ic.scale * (h / 150) * 1.3;
+          let edgeFade = 1;
+          if (ic.x < edgeMargin) edgeFade = Math.max(0, ic.x / edgeMargin);
+          else if (ic.x > 1 - edgeMargin) edgeFade = Math.max(0, (1 - ic.x) / edgeMargin);
+          if (edgeFade <= 0) return;
           ctx.save();
           ctx.translate(x, y);
           ctx.scale(s, s);
-          ctx.globalAlpha = 0.5 + 0.3 * speedMul;
+          ctx.globalAlpha = (0.5 + 0.3 * speedMul) * edgeFade;
           ctx.shadowColor = ic.def.glowColor; ctx.shadowBlur = ic.def.glowBlur;
           if (ic.def.fill) { ctx.fillStyle = ic.def.fill; ctx.fill(ic.def.path2d); }
           if (ic.def.stroke) { ctx.strokeStyle = ic.def.stroke; ctx.lineWidth = 1.8; ctx.stroke(ic.def.path2d); }
