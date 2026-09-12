@@ -1038,7 +1038,7 @@ class Component extends DCLogic {
         { text: 'Implemented UI with vibrant visuals and an integrated online ordering system for a more efficient, branded experience', paths: ['M3 5.5h7v5H3z', 'M14 5.5h7v5h-7z', 'M3 14h7v4.5H3z', 'M14 14h7v4.5h-7z'] },
         { text: 'High-quality food and restaurant photography to create a more appetizing and inviting digital experience.', paths: ['M3.5 8.5h3l1.5-2.5h8L17.5 8.5h3v11h-17z', 'M12 17a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z'] },
       ] },
-    { id: 'sendit', title: 'SendIt', img: null, origin: 'forfun' },
+    { id: 'sendit', title: 'SendIt', img: null, placeholderText: 'SendIt', origin: 'forfun' },
     { id: 'wrobe', title: 'Wrobe', img: 'assets/wrobe.jpg', origin: 'forfun' },
   ];
 
@@ -1457,7 +1457,7 @@ class Component extends DCLogic {
       hasDate: !!(p.dateRange || p.date),
       blurb: p.blurb || '',
       hasBlurb: !!p.blurb,
-      placeholderLabel: p.title + ' — screenshot placeholder',
+      placeholderLabel: p.placeholderText || (p.title + ' — screenshot placeholder'),
       onClick: () => this.openDetail(p.id),
     };
   }
