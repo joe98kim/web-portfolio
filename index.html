@@ -717,7 +717,7 @@ a:hover{color:#FF7A1A}
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props="{&quot;customCursor&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Interaction&quot;}}">
 class Component extends DCLogic {
-  state = { page: 'work', detailId: null, ...(function(){ try { const r = JSON.parse(localStorage.getItem('jk-portfolio-nav') || 'null'); if (r && r.page) return { page: r.page, detailId: r.detailId || null }; } catch (e) {} return {}; })(), indicatorStyle: { position: 'absolute', opacity: 0 }, playerPlaying: false, playerIndex: 0, playerTime: 0, playerDuration: 0, playerExpanded: false, workCenter: 0, forFunCenter: 0, playerShuffle: false, playerVolume: 1, playerVolumeOpen: false, playlistFile: null, playlistItems: (function(){ try { const r = JSON.parse(localStorage.getItem('jk-portfolio-playlist') || 'null'); return Array.isArray(r) ? r : []; } catch (e) { return []; } })(), ytMeta: (function(){ try { const r = JSON.parse(localStorage.getItem('jk-portfolio-ytmeta') || 'null'); return (r && typeof r === 'object') ? r : {}; } catch (e) { return {}; } })(), playlistBusy: false, activePlaylistId: 'main', playlistPickerOpen: false, dropZoneActive: false };
+  state = { page: 'work', detailId: null, ...(function(){ try { const r = JSON.parse(localStorage.getItem('jk-portfolio-nav') || 'null'); if (r && r.page) return { page: r.page, detailId: r.detailId || null }; } catch (e) {} return {}; })(), indicatorStyle: { position: 'absolute', opacity: 0 }, playerPlaying: false, playerIndex: 0, playerTime: 0, playerDuration: 0, playerExpanded: false, workCenter: 0, forFunCenter: 0, playerShuffle: false, playerVolume: 1, playerVolumeOpen: false, playlistFile: null, playlistItems: (function(){ try { const r = JSON.parse(localStorage.getItem('jk-portfolio-playlist') || 'null'); return Array.isArray(r) ? r : []; } catch (e) { return []; } })(), ytMeta: (function(){ try { const r = JSON.parse(localStorage.getItem('jk-portfolio-ytmeta-v2') || 'null'); return (r && typeof r === 'object') ? r : {}; } catch (e) { return {}; } })(), playlistBusy: false, activePlaylistId: 'main', playlistPickerOpen: false, dropZoneActive: false };
   navRef = React.createRef();
   workTabRef = React.createRef();
   forFunTabRef = React.createRef();
@@ -766,9 +766,25 @@ class Component extends DCLogic {
   }
   // Strips any parenthetical part of a fetched YouTube title (e.g. "Song
   // (Official Video)" -> "Song") — applied everywhere a title comes from
-  // YouTube, not just the curated mixtapes.
-  cleanYtTitle(title) {
-    return String(title || '').replace(/\s*\([^)]*\)/g, '').trim();
+  // YouTube, not just the curated mixtapes. Also strips an artist-name
+  // segment and its " - " separator (the common "Artist - Song" YouTube
+  // title convention), using the oEmbed author name when available to
+  // pick the right side of the dash; without a match it defaults to that
+  // convention and drops whatever comes before the first dash.
+  cleanYtTitle(title, artist) {
+    let t = String(title || '').replace(/\s*\([^)]*\)/g, '').trim();
+    const norm = s => String(s || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+    const artistNorm = norm(artist);
+    const dashParts = t.split(/\s+[-–—]\s+/);
+    if (dashParts.length > 1) {
+      const matchIdx = artistNorm ? dashParts.findIndex(p => norm(p).includes(artistNorm)) : -1;
+      t = matchIdx !== -1 ? dashParts.filter((_, i) => i !== matchIdx).join(' - ') : dashParts.slice(1).join(' - ');
+    }
+    if (artistNorm) {
+      const escaped = String(artist).trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      t = t.replace(new RegExp(escaped, 'gi'), '');
+    }
+    return t.replace(/\s{2,}/g, ' ').trim();
   }
   // Resolves a curated {youtubeId} entry into a full track, using cached
   // metadata once ensureYtMeta has fetched it (falls back to an id-based
@@ -795,11 +811,11 @@ class Component extends DCLogic {
       .catch(() => null)
       .then(meta => {
         this._ytMetaFetching.delete(id);
-        const entry = { title: this.cleanYtTitle(meta && meta.title), artist: (meta && meta.author_name) || '' };
+        const entry = { title: this.cleanYtTitle(meta && meta.title, meta && meta.author_name), artist: (meta && meta.author_name) || '' };
         if (!entry.title) return; // fetch failed — leave the id-based placeholder in place, try again next visit
         this.setState(s => {
           const next = { ...(s.ytMeta || {}), [id]: entry };
-          try { localStorage.setItem('jk-portfolio-ytmeta', JSON.stringify(next)); } catch (e) {}
+          try { localStorage.setItem('jk-portfolio-ytmeta-v2', JSON.stringify(next)); } catch (e) {}
           return { ytMeta: next };
         });
       });
@@ -1645,7 +1661,7 @@ class Component extends DCLogic {
       .then(meta => {
         const track = {
           key: Date.now(),
-          title: this.cleanYtTitle(meta && meta.title) || this.ytTitleFrom(link),
+          title: this.cleanYtTitle(meta && meta.title, meta && meta.author_name) || this.ytTitleFrom(link),
           sourceLabel: (meta && meta.author_name) || 'YouTube',
           youtubeId: id,
           // YouTube auto-generates this thumbnail for every video at this
