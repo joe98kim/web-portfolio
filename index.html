@@ -1105,6 +1105,7 @@ class Component extends DCLogic {
     this.updateIndicator();
     this.onPlayerLoadedMetadata();
     this.syncSlotHeights();
+    if (this._attachHeadline) this._attachHeadline();
     if (this.props.customCursor === false) this.teardownCursor();
     else if (prev && prev.customCursor === false) this.initCursor();
   }
@@ -1261,7 +1262,7 @@ class Component extends DCLogic {
   }
   initHeadlineHover() {
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-    const attach = () => {
+    this._attachHeadline = () => {
       const el = document.querySelector('[data-comment-anchor="e8e26dd4f9-p"]');
       if (!el || el.__wordLift) return;
       el.__wordLift = true;
@@ -1278,8 +1279,7 @@ class Component extends DCLogic {
       el.addEventListener('mouseenter', () => spans.forEach(s => { s.style.transform = 'translateY(-9px)'; s.style.color = '#c05e0e'; }));
       el.addEventListener('mouseleave', () => spans.forEach(s => { s.style.transform = 'none'; s.style.color = ''; }));
     };
-    attach();
-    this._headlineTimer = setInterval(attach, 400);
+    this._attachHeadline();
   }
 
   initCursor() {
@@ -1334,7 +1334,6 @@ class Component extends DCLogic {
     if (this._forFunWheelNode && this._forFunWheelHandler) this._forFunWheelNode.removeEventListener('wheel', this._forFunWheelHandler);
     window.removeEventListener('resize', this.boundUpdateIndicator);
     cancelAnimationFrame(this.bgWaveRaf);
-    clearInterval(this._headlineTimer);
     if (this._cursorOn) {
       cancelAnimationFrame(this._cursorRaf);
       window.removeEventListener('mousemove', this._cursorMove);
