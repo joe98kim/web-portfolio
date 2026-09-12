@@ -365,14 +365,14 @@ a:hover{color:#FF7A1A}
             <image-slot data-autoheight="" id="{{ sec.slotId }}" src="{{ sec.src }}" style="{{ sec.slotStyle }}" shape="rect" radius="0" fit="contain" placeholder="Drop an image"></image-slot>
           </sc-if>
           <sc-if value="{{ sec.hasSlides }}" hint-placeholder-val="{{ false }}">
-            <div style="{{ genSlideFrameStyle }}">
-              <sc-for list="{{ genSlides }}" as="sl" hint-placeholder-count="4">
+            <div style="{{ sec.frameStyle }}">
+              <sc-for list="{{ sec.slides }}" as="sl" hint-placeholder-count="4">
                 <div style="{{ sl.style }}"><image-slot data-autoheight="" id="{{ sl.id }}" src="{{ sl.src }}" style="width:100%;height:100%" shape="rect" radius="0" placeholder="Drop an image"></image-slot></div>
               </sc-for>
-              <button type="button" onClick="{{ genPrev }}" aria-label="Previous image" style="position:absolute;left:12px;top:50%;transform:translateY(-50%);width:36px;height:36px;border-radius:50%;background:rgba(23,23,26,.6);color:#fff;border:none;cursor:pointer;font-size:15px;z-index:3">‹</button>
-              <button type="button" onClick="{{ genNext }}" aria-label="Next image" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);width:36px;height:36px;border-radius:50%;background:rgba(23,23,26,.6);color:#fff;border:none;cursor:pointer;font-size:15px;z-index:3">›</button>
+              <button type="button" onClick="{{ sec.onPrev }}" aria-label="Previous image" style="position:absolute;left:12px;top:50%;transform:translateY(-50%);width:36px;height:36px;border-radius:50%;background:rgba(23,23,26,.6);color:#fff;border:none;cursor:pointer;font-size:15px;z-index:3">‹</button>
+              <button type="button" onClick="{{ sec.onNext }}" aria-label="Next image" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);width:36px;height:36px;border-radius:50%;background:rgba(23,23,26,.6);color:#fff;border:none;cursor:pointer;font-size:15px;z-index:3">›</button>
               <div style="position:absolute;bottom:12px;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:7px;z-index:3;background:rgba(23,23,26,.55);padding:7px 10px;border-radius:999px">
-                <sc-for list="{{ genDots }}" as="d" hint-placeholder-count="4">
+                <sc-for list="{{ sec.dots }}" as="d" hint-placeholder-count="4">
                   <div onClick="{{ d.onClick }}" style="{{ d.style }}"></div>
                 </sc-for>
               </div>
@@ -1013,10 +1013,9 @@ class Component extends DCLogic {
       sections: [
         { heading: 'Overview', lead: "Bethel Korean Presbyterian Church's Center for World Missions (CWM) is a nonprofit organization that supports missionaries around the world through community involvement." },
         { heading: 'The Problem', lead: 'The website was unfortunately outdated, suffering from obsolete content, poor information architecture, and dull UI design.' },
-        { heading: 'Process', lead: 'So we went back to the drawing board.', body: 'To address these issues, I conducted a full website audit to identify outdated content and usability pain points. I then gathered stakeholder input through interviews to understand the organization\u2019s goals and user needs. Using this research, I developed wireframes and prototypes to improve the site\u2019s structure, ensuring clear navigation and an engaging user experience. After iterative testing and feedback, I refined the design for accessibility and responsiveness.', slides: true },
+        { heading: 'Process', lead: 'So we went back to the drawing board.', body: 'To address these issues, I conducted a full website audit to identify outdated content and usability pain points. I then gathered stakeholder input through interviews to understand the organization\u2019s goals and user needs. Using this research, I developed wireframes and prototypes to improve the site\u2019s structure, ensuring clear navigation and an engaging user experience. After iterative testing and feedback, I refined the design for accessibility and responsiveness.', slides: true, slideImgs: ['assets/bethel-process-1.png', 'assets/bethel-process-2.png', 'assets/bethel-process-3.png', 'assets/bethel-process-4.png'] },
         { heading: 'Solution', lead: 'By enhancing usability and visual appeal, the new website better represents CWM\u2019s mission and fosters stronger engagement with supporters and missionaries.', body: 'Many users expressed decision fatigue and difficulty visualizing outfit combinations. I then created wireframes and interactive prototypes, testing them with users to refine features. The app was designed with an intuitive interface for cataloging clothing items, outfit planning, and social style inspiration.', slot: true, img: 'assets/bethel-solution.png' },
       ],
-      genSlideImgs: ['assets/bethel-process-1.png', 'assets/bethel-process-2.png', 'assets/bethel-process-3.png', 'assets/bethel-process-4.png'],
       cards: [
         { text: 'A refreshed, modern UI with an inviting and mission-driven aesthetic.', paths: ['M3 5.5h7v5H3z', 'M14 5.5h7v5h-7z', 'M3 14h7v4.5H3z', 'M14 14h7v4.5h-7z'] },
         { text: 'Improved information architecture, making it easier for users to find resources, events, and donation options.', paths: ['M4 10.5 12 4l8 6.5V20a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1z', 'M9.5 21v-6h5v6'] },
@@ -1027,9 +1026,9 @@ class Component extends DCLogic {
       meta: { timeline: 'Oct 2020 – Jan 2021', tools: 'Adobe XD, Photoshop', contributions: 'Lead UI/UX Designer, Photographer', agency: 'The Koop' },
       sections: [
         { heading: 'Overview', lead: 'A redesigned website for The Koop, a popular Korean fried chicken restaurant in State College, Pennsylvania, aimed at enhancing the customer experience and optimizing restaurant operations.' },
-        { heading: 'The Problem', lead: 'The existing website was outdated and lacked essential functionality.', body: 'As the restaurant\u2019s popularity grew, the owner needed an easy-to-navigate website and an online ordering system to keep up with demand. Relying solely on phone and in-person orders was inefficient, leading to longer wait times and reduced productivity.' },
-        { heading: 'Process', lead: 'I researched competitors, gathered staff insights, and designed prototypes to optimize online ordering and navigation.', body: 'To address these issues, I first conducted a competitive analysis of similar restaurant websites to identify best practices for online ordering and menu viewing. Insights were also gathered from the restaurant staff to understand their workflow and pain points. Based on this research, I developed wireframes and prototypes to create a seamless ordering experience. Usability testing was conducted to refine the design, ensuring a smooth and intuitive interface for customers.', slides: true },
-        { heading: 'Solution', lead: 'By improving functionality, visuals, and accessibility, the new website enhances customer engagement, increases efficiency, and supports the restaurant\u2019s growing demand.', slot: true },
+        { heading: 'The Problem', lead: 'The existing website was outdated and lacked essential functionality.', body: 'As the restaurant\u2019s popularity grew, the owner needed an easy-to-navigate website and an online ordering system to keep up with demand. Relying solely on phone and in-person orders was inefficient, leading to longer wait times and reduced productivity.', slot: true },
+        { heading: 'Process', lead: 'I researched competitors, gathered staff insights, and designed prototypes to optimize online ordering and navigation.', body: 'To address these issues, I first conducted a competitive analysis of similar restaurant websites to identify best practices for online ordering and menu viewing. Insights were also gathered from the restaurant staff to understand their workflow and pain points. Based on this research, I developed wireframes and prototypes to create a seamless ordering experience. Usability testing was conducted to refine the design, ensuring a smooth and intuitive interface for customers.', slides: true, slideImgs: ['', '', '', '', '', ''] },
+        { heading: 'Solution', lead: 'By improving functionality, visuals, and accessibility, the new website enhances customer engagement, increases efficiency, and supports the restaurant\u2019s growing demand.', slides: true, slideImgs: ['', '', '', '', '', '', ''] },
       ],
       cards: [
         { text: 'A reorganized menu layout with clear categories and enticing images for easy browsing.', paths: ['M3.5 4.5h17v15h-17z', 'M9.5 4.5v15', 'M9.5 11h11'] },
@@ -1404,7 +1403,6 @@ class Component extends DCLogic {
       introSrc2: p.introImg2 || '',
       problemSlotId: p.id + '-problem',
       problemSrc: p.problemImg || '',
-      genSlideImgs: p.genSlideImgs || [],
       process: (p.process || []).map((s, i) => ({
         label: s.label,
         body: s.body,
@@ -1506,9 +1504,6 @@ class Component extends DCLogic {
     this.resetScroll();
   }
 
-  genSlideId(detail, i) {
-    return (detail ? detail.id : 'x') + '-gen-slide-' + i;
-  }
   scherrSlideStyle(i) {
     const on = (this.state.scherrSlide || 0) === i;
     return { position: 'absolute', inset: 0, opacity: on ? 1 : 0, pointerEvents: on ? 'auto' : 'none', transition: 'opacity .3s ease', zIndex: on ? 2 : 1 };
@@ -1579,14 +1574,34 @@ class Component extends DCLogic {
       scrollForFunRight: () => this.shiftCenter('forfun', 1),
       detail,
       detailIsGeneric,
-      detailSections: this.genericSections(detail).map((sec, i) => ({
-        domId: 'gen-' + i, heading: sec.heading, lead: sec.lead, hasLead: !!sec.lead, body: sec.body, hasBody: !!sec.body,
-        hasSlot: !!sec.slot,
-        hasSlides: !!sec.slides,
-        slotId: (detail ? detail.id : 'x') + '-gen-' + i,
-        src: sec.img || '',
-        slotStyle: { width: '100%', height: this.autoSlotHeight((detail ? detail.id : 'x') + '-gen-' + i, 520) + 'px', marginTop: 30 },
-      })),
+      detailSections: this.genericSections(detail).map((sec, i) => {
+        const slideImgs = sec.slideImgs || [];
+        const n = slideImgs.length || 4;
+        const idxMap = this.state.genSlideIdx || {};
+        const curIdx = idxMap[i] || 0;
+        const baseId = (detail ? detail.id : 'x') + '-gen-' + i;
+        const setIdx = (next) => this.setState(s => ({ genSlideIdx: { ...(s.genSlideIdx || {}), [i]: next } }));
+        return {
+          domId: 'gen-' + i, heading: sec.heading, lead: sec.lead, hasLead: !!sec.lead, body: sec.body, hasBody: !!sec.body,
+          hasSlot: !!sec.slot,
+          hasSlides: !!sec.slides,
+          slotId: baseId,
+          src: sec.img || '',
+          slotStyle: { width: '100%', height: this.autoSlotHeight(baseId, 520) + 'px', marginTop: 30 },
+          frameStyle: { position: 'relative', width: '100%', maxWidth: 720, height: this.autoSlotHeight(baseId + '-slide-' + curIdx, this.props.slideshowHeight ?? 440) + 'px', margin: '30px auto 0' },
+          slides: Array.from({ length: n }, (_, j) => ({
+            id: baseId + '-slide-' + j,
+            src: slideImgs[j] || '',
+            style: { position: 'absolute', inset: 0, opacity: curIdx === j ? 1 : 0, pointerEvents: curIdx === j ? 'auto' : 'none', transition: 'opacity .3s ease', zIndex: curIdx === j ? 2 : 1 },
+          })),
+          onPrev: () => setIdx(((curIdx - 1) % n + n) % n),
+          onNext: () => setIdx(((curIdx + 1) % n + n) % n),
+          dots: Array.from({ length: n }, (_, j) => ({
+            onClick: () => setIdx(j),
+            style: { width: curIdx === j ? 18 : 7, height: 7, borderRadius: 999, background: curIdx === j ? '#fff' : 'rgba(255,255,255,.5)', cursor: 'pointer', transition: 'all .2s ease' },
+          })),
+        };
+      }),
       detailHasCards: !!(detail && detail.cards && detail.cards.length),
       detailCards: ((detail && detail.cards) || []).map(c => ({
         text: c.text,
@@ -1659,18 +1674,6 @@ class Component extends DCLogic {
       scherrDots: [0, 1, 2, 3].map(i => ({
         onClick: () => this.setState({ scherrSlide: i }),
         style: { width: (this.state.scherrSlide || 0) === i ? 18 : 7, height: 7, borderRadius: 999, background: (this.state.scherrSlide || 0) === i ? '#fff' : 'rgba(255,255,255,.5)', cursor: 'pointer', transition: 'all .2s ease' },
-      })),
-      genSlideFrameStyle: { position: 'relative', width: '100%', maxWidth: 720, height: this.autoSlotHeight(this.genSlideId(detail, this.state.genSlide || 0), this.props.slideshowHeight ?? 440) + 'px', margin: '30px auto 0' },
-      genSlides: [0, 1, 2, 3].map(i => ({
-        id: this.genSlideId(detail, i),
-        src: (detail && detail.genSlideImgs && detail.genSlideImgs[i]) || '',
-        style: { position: 'absolute', inset: 0, opacity: (this.state.genSlide || 0) === i ? 1 : 0, pointerEvents: (this.state.genSlide || 0) === i ? 'auto' : 'none', transition: 'opacity .3s ease', zIndex: (this.state.genSlide || 0) === i ? 2 : 1 },
-      })),
-      genPrev: () => this.setState(s => ({ genSlide: (((s.genSlide || 0) - 1) % 4 + 4) % 4 })),
-      genNext: () => this.setState(s => ({ genSlide: (((s.genSlide || 0) + 1) % 4 + 4) % 4 })),
-      genDots: [0, 1, 2, 3].map(i => ({
-        onClick: () => this.setState({ genSlide: i }),
-        style: { width: (this.state.genSlide || 0) === i ? 18 : 7, height: 7, borderRadius: 999, background: (this.state.genSlide || 0) === i ? '#fff' : 'rgba(255,255,255,.5)', cursor: 'pointer' },
       })),
       detailHasExtra: !!(detail && detail.extraImg),
       detailHeroImgStyle: detail && detail.img ? { width: '100%', aspectRatio: '16/9', backgroundImage: `url(${detail.img})`, backgroundSize: 'cover', backgroundPosition: 'center 20%', borderRadius: 20, boxShadow: '0 5px 14px rgba(0,0,0,.07)', marginBottom: 28 } : undefined,
