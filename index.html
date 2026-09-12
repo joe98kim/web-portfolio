@@ -475,6 +475,19 @@ a:hover{color:#FF7A1A}
               <p style="font-size:12px;color:#8a8a8e;margin:0">{{ step.caption }}</p>
             </sc-if>
           </sc-if>
+          <sc-if value="{{ step.hasBannerGrid }}" hint-placeholder-val="{{ false }}">
+            <div style="margin-top:30px">
+              <image-slot data-autoheight="" id="{{ step.bannerId }}" src="{{ step.bannerSrc }}" style="{{ step.bannerStyle }}" shape="rect" radius="0" fit="contain" placeholder="Drop a banner image"></image-slot>
+              <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:12px">
+                <image-slot id="{{ step.gridId0 }}" src="{{ step.gridSrc0 }}" style="width:100%;aspect-ratio:1/1" shape="rounded" radius="8" fit="cover" placeholder="Drop an image"></image-slot>
+                <image-slot id="{{ step.gridId1 }}" src="{{ step.gridSrc1 }}" style="width:100%;aspect-ratio:1/1" shape="rounded" radius="8" fit="cover" placeholder="Drop an image"></image-slot>
+                <image-slot id="{{ step.gridId2 }}" src="{{ step.gridSrc2 }}" style="width:100%;aspect-ratio:1/1" shape="rounded" radius="8" fit="cover" placeholder="Drop an image"></image-slot>
+              </div>
+            </div>
+            <sc-if value="{{ step.hasCaption }}" hint-placeholder-val="{{ false }}">
+              <p style="font-size:12px;color:#8a8a8e;margin:8px 0 0">{{ step.caption }}</p>
+            </sc-if>
+          </sc-if>
           <sc-if value="{{ step.hasSlot }}" hint-placeholder-val="{{ false }}">
             <div style="{{ step.slotRowStyle }}">
               <sc-if value="{{ step.hasSlot2 }}" hint-placeholder-val="{{ false }}">
@@ -979,9 +992,9 @@ class Component extends DCLogic {
       problem: 'Aerospace senior leaders, including several senior VPs, needed clearer strategies and tools to integrate hybrid work, foster collaboration, and keep their teams aligned with mission needs. Rather than hand leadership a top-down policy, the goal was to get 50+ leaders in a room to collaboratively solve this for their own teams.',
       processLead: 'A collaborative workshop followed by months of accountability check-ins.',
       process: [
-        { label: '', body: 'I designed and facilitated a workshop built around collaborative ideation rather than lecture. The goal was for leaders to leave with solutions tailored to their own teams, not a one-size-fits-all mandate.', slot2: true, img: 'assets/aerospace-process-1.jpeg', img2: 'assets/aerospace-process-2.jpeg' },
-        { label: '', body: 'I led the session with 50+ senior leaders, including senior VPs, guiding them through structured ideation on hybrid work, collaboration, and mission alignment.', slot2: true, img: 'assets/aerospace-process-3.jpeg', img2: 'assets/aerospace-process-4.jpg' },
-        { label: '', body: 'Rather than treating the offsite as a one-time event, I ran structured check-ins at 1, 3, and 6 months post-workshop to track whether ideas actually turned into action.', img: 'assets/aerospace-process-5.jpeg' },
+        { label: '', body: 'I designed and facilitated a workshop built around collaborative ideation rather than lecture. The goal was for leaders to leave with solutions tailored to their own teams, not a one-size-fits-all mandate.', img: 'assets/aerospace-process-1.jpeg' },
+        { label: '', body: 'I led the session with 50+ senior leaders, including senior VPs, guiding them through structured ideation on hybrid work, collaboration, and mission alignment.', bannerGrid: true, bannerImg: 'assets/aerospace-process-2.jpeg', gridImgs: ['assets/aerospace-process-3.jpeg', 'assets/aerospace-process-4.jpg', 'assets/aerospace-process-5.jpeg'] },
+        { label: '', body: 'Rather than treating the offsite as a one-time event, I ran structured check-ins at 1, 3, and 6 months post-workshop to track whether ideas actually turned into action.' },
       ],
       decisionsLead: 'Let each team solve the problem their own way instead of issuing one mandate.',
       decisions: 'I chose to let each team design their own solution instead of prescribing a single hybrid-work policy across the department. Leadership teams vary widely in function, and a mandate would likely have seen far lower real adoption than a collaboratively-designed approach did.',
@@ -1409,7 +1422,17 @@ class Component extends DCLogic {
         slideSrc1: (s.slideImgs && s.slideImgs[1]) || '',
         slideSrc2: (s.slideImgs && s.slideImgs[2]) || '',
         slideSrc3: (s.slideImgs && s.slideImgs[3]) || '',
-        hasSlot: s.slot !== false && !s.slideshow,
+        hasBannerGrid: !!s.bannerGrid,
+        bannerId: p.id + '-process-' + i + '-banner',
+        bannerSrc: s.bannerImg || '',
+        bannerStyle: { width: '100%', height: this.autoSlotHeight(p.id + '-process-' + i + '-banner', 260) + 'px' },
+        gridId0: p.id + '-process-' + i + '-g0',
+        gridId1: p.id + '-process-' + i + '-g1',
+        gridId2: p.id + '-process-' + i + '-g2',
+        gridSrc0: (s.gridImgs && s.gridImgs[0]) || '',
+        gridSrc1: (s.gridImgs && s.gridImgs[1]) || '',
+        gridSrc2: (s.gridImgs && s.gridImgs[2]) || '',
+        hasSlot: s.slot !== false && !s.slideshow && !s.bannerGrid,
         slotId: p.id + '-process-' + i,
         src: s.img || '',
         src2: s.img2 || '',
