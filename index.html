@@ -479,9 +479,9 @@ a:hover{color:#FF7A1A}
             <div style="margin-top:30px">
               <image-slot data-autoheight="" id="{{ step.bannerId }}" src="{{ step.bannerSrc }}" style="{{ step.bannerStyle }}" shape="rect" radius="0" fit="contain" placeholder="Drop a banner image"></image-slot>
               <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:12px">
-                <image-slot data-autoheight="" id="{{ step.gridId0 }}" src="{{ step.gridSrc0 }}" style="{{ step.gridStyle0 }}" shape="rounded" radius="8" fit="contain" placeholder="Drop an image"></image-slot>
-                <image-slot data-autoheight="" id="{{ step.gridId1 }}" src="{{ step.gridSrc1 }}" style="{{ step.gridStyle1 }}" shape="rounded" radius="8" fit="contain" placeholder="Drop an image"></image-slot>
-                <image-slot data-autoheight="" id="{{ step.gridId2 }}" src="{{ step.gridSrc2 }}" style="{{ step.gridStyle2 }}" shape="rounded" radius="8" fit="contain" placeholder="Drop an image"></image-slot>
+                <image-slot data-autoheight="" id="{{ step.gridId0 }}" src="{{ step.gridSrc0 }}" style="{{ step.gridStyle0 }}" shape="rect" radius="0" fit="contain" placeholder="Drop an image"></image-slot>
+                <image-slot data-autoheight="" id="{{ step.gridId1 }}" src="{{ step.gridSrc1 }}" style="{{ step.gridStyle1 }}" shape="rect" radius="0" fit="contain" placeholder="Drop an image"></image-slot>
+                <image-slot data-autoheight="" id="{{ step.gridId2 }}" src="{{ step.gridSrc2 }}" style="{{ step.gridStyle2 }}" shape="rect" radius="0" fit="contain" placeholder="Drop an image"></image-slot>
               </div>
             </div>
             <sc-if value="{{ step.hasCaption }}" hint-placeholder-val="{{ false }}">
@@ -994,7 +994,7 @@ class Component extends DCLogic {
       process: [
         { label: '', body: 'I designed and facilitated a workshop built around collaborative ideation rather than lecture. The goal was for leaders to leave with solutions tailored to their own teams, not a one-size-fits-all mandate.', img: 'assets/aerospace-process-1.jpeg' },
         { label: '', body: 'I led the session with 50+ senior leaders, including senior VPs, guiding them through structured ideation on hybrid work, collaboration, and mission alignment.', bannerGrid: true, bannerImg: 'assets/aerospace-process-2.jpeg', gridImgs: ['assets/aerospace-process-3.jpeg', 'assets/aerospace-process-4.jpg', 'assets/aerospace-process-5.jpeg'] },
-        { label: '', body: 'Rather than treating the offsite as a one-time event, I ran structured check-ins at 1, 3, and 6 months post-workshop to track whether ideas actually turned into action.' },
+        { label: '', body: 'Rather than treating the offsite as a one-time event, I ran structured check-ins at 1, 3, and 6 months post-workshop to track whether ideas actually turned into action.', slot: false },
       ],
       decisionsLead: 'Let each team solve the problem their own way instead of issuing one mandate.',
       decisions: 'I chose to let each team design their own solution instead of prescribing a single hybrid-work policy across the department. Leadership teams vary widely in function, and a mandate would likely have seen far lower real adoption than a collaboratively-designed approach did.',
