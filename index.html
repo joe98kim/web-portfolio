@@ -716,7 +716,7 @@ a:hover{color:#FF7A1A}
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props="{&quot;customCursor&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Interaction&quot;}}">
 class Component extends DCLogic {
-  state = { page: 'work', detailId: null, ...(function(){ try { const r = JSON.parse(localStorage.getItem('jk-portfolio-nav') || 'null'); if (r && r.page) return { page: r.page, detailId: r.detailId || null }; } catch (e) {} return {}; })(), indicatorStyle: { position: 'absolute', opacity: 0 }, playerPlaying: false, playerIndex: 0, playerTime: 0, playerDuration: 0, playerExpanded: false, workCenter: 0, forFunCenter: 0, playerShuffle: false, playerVolume: 1, playerVolumeOpen: false, playlistFile: null, playlistItems: [], playlistBusy: false, activePlaylistId: 'main', playlistPickerOpen: false, dropZoneActive: false };
+  state = { page: 'work', detailId: null, ...(function(){ try { const r = JSON.parse(localStorage.getItem('jk-portfolio-nav') || 'null'); if (r && r.page) return { page: r.page, detailId: r.detailId || null }; } catch (e) {} return {}; })(), indicatorStyle: { position: 'absolute', opacity: 0 }, playerPlaying: false, playerIndex: 0, playerTime: 0, playerDuration: 0, playerExpanded: false, workCenter: 0, forFunCenter: 0, playerShuffle: false, playerVolume: 1, playerVolumeOpen: false, playlistFile: null, playlistItems: (function(){ try { const r = JSON.parse(localStorage.getItem('jk-portfolio-playlist') || 'null'); return Array.isArray(r) ? r : []; } catch (e) { return []; } })(), playlistBusy: false, activePlaylistId: 'main', playlistPickerOpen: false, dropZoneActive: false };
   navRef = React.createRef();
   workTabRef = React.createRef();
   forFunTabRef = React.createRef();
@@ -742,6 +742,16 @@ class Component extends DCLogic {
   ];
 
   togglePlayer() {
+    const track = this.getActiveTracks()[this.state.playerIndex];
+    if (track && track.youtubeId) {
+      this.ensureYtPlayer().then((p) => {
+        if (this.state.playerPlaying) { p.pauseVideo(); return; }
+        if (this._ytLoadedId !== track.youtubeId) { p.loadVideoById(track.youtubeId); this._ytLoadedId = track.youtubeId; }
+        p.setVolume(Math.round((this.state.playerVolume ?? 1) * 100));
+        p.playVideo();
+      });
+      return; // playerPlaying flips via onYtStateChange once the API confirms it
+    }
     const a = this.playerAudioRef.current;
     if (!a) return;
     if (this.audioCtx && this.audioCtx.state === 'suspended') this.audioCtx.resume();
@@ -751,21 +761,36 @@ class Component extends DCLogic {
   }
   getActiveTracks() {
     if (this.state.activePlaylistId === 'blank') return [];
-    if (this.state.activePlaylistId === 'forfun') return this.state.playlistItems.map(t => ({ title: t.title, artist: 'Uploaded', src: t.src }));
+    if (this.state.activePlaylistId === 'forfun') return this.state.playlistItems.map(t => ({ title: t.title, artist: t.sourceLabel || 'YouTube', youtubeId: t.youtubeId }));
     return this.playerTracks;
   }
   switchPlaylist(id) {
     if (id === this.state.activePlaylistId) { this.setState({ playlistPickerOpen: false }); return; }
     const a = this.playerAudioRef.current;
     if (a) a.pause();
+    if (this._ytPlayer && this._ytPlayer.pauseVideo) this._ytPlayer.pauseVideo();
+    this.stopYtProgress();
     this.setState({ activePlaylistId: id, playerIndex: 0, playerTime: 0, playerDuration: 0, playerPlaying: false, playlistPickerOpen: false });
   }
   setPlayerIndex(i) {
-    const n = this.getActiveTracks().length;
+    const tracks = this.getActiveTracks();
+    const n = tracks.length;
     if (n === 0) return;
     const next = ((i % n) + n) % n;
+    const track = tracks[next];
     const wasPlaying = this.state.playerPlaying;
-    this.setState({ playerIndex: next, playerTime: 0, playerDuration: 0 }, () => {
+    if (this._ytPlayer && this._ytPlayer.pauseVideo) this._ytPlayer.pauseVideo();
+    this.stopYtProgress();
+    this.setState({ playerIndex: next, playerTime: 0, playerDuration: 0, playerPlaying: false }, () => {
+      if (track && track.youtubeId) {
+        this.ensureYtPlayer().then((p) => {
+          this._ytLoadedId = track.youtubeId;
+          p.setVolume(Math.round((this.state.playerVolume ?? 1) * 100));
+          if (wasPlaying) p.loadVideoById(track.youtubeId);
+          else p.cueVideoById(track.youtubeId);
+        });
+        return;
+      }
       const a = this.playerAudioRef.current;
       if (a) a.load();
       if (wasPlaying) a.play().then(() => this.setState({ playerPlaying: true })).catch(() => {});
@@ -786,14 +811,83 @@ class Component extends DCLogic {
   toggleVolumePopup() { this.setState(s => ({ playerVolumeOpen: !s.playerVolumeOpen })); }
   onPlayerVolume(e) {
     const v = parseFloat(e.target.value);
-    const a = this.playerAudioRef.current;
-    if (a) a.volume = v;
+    const track = this.getActiveTracks()[this.state.playerIndex];
+    if (track && track.youtubeId && this._ytPlayer && this._ytPlayer.setVolume) this._ytPlayer.setVolume(Math.round(v * 100));
+    else { const a = this.playerAudioRef.current; if (a) a.volume = v; }
     this.setState({ playerVolume: v });
   }
   onPlayerTimeUpdateFn() { const a = this.playerAudioRef.current; if (!a) return; const next = { playerTime: a.currentTime }; if (isFinite(a.duration) && a.duration > 0 && a.duration !== this.state.playerDuration) next.playerDuration = a.duration; this.setState(next); }
   onPlayerLoadedMetadata() { const a = this.playerAudioRef.current; if (a && isFinite(a.duration) && a.duration > 0 && a.duration !== this.state.playerDuration) this.setState({ playerDuration: a.duration }); }
-  onPlayerSeek(e) { const v = parseFloat(e.target.value); const a = this.playerAudioRef.current; if (a) a.currentTime = v; this.setState({ playerTime: v }); }
+  onPlayerSeek(e) {
+    const v = parseFloat(e.target.value);
+    const track = this.getActiveTracks()[this.state.playerIndex];
+    if (track && track.youtubeId && this._ytPlayer && this._ytPlayer.seekTo) this._ytPlayer.seekTo(v, true);
+    else { const a = this.playerAudioRef.current; if (a) a.currentTime = v; }
+    this.setState({ playerTime: v });
+  }
   onPlayerEnded() { this.nextPlayerTrack(); }
+  // ---- YouTube (audio-only via the official IFrame Player) ----
+  getYouTubeId(url) {
+    const m = String(url).match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|shorts\/|embed\/|live\/))([\w-]{11})/);
+    return m ? m[1] : null;
+  }
+  ensureYouTubeApi() {
+    if (window.YT && window.YT.Player) return Promise.resolve(window.YT);
+    if (this._ytApiPromise) return this._ytApiPromise;
+    this._ytApiPromise = new Promise((resolve) => {
+      const prev = window.onYouTubeIframeAPIReady;
+      window.onYouTubeIframeAPIReady = () => { if (prev) prev(); resolve(window.YT); };
+      const s = document.createElement('script');
+      s.src = 'https://www.youtube.com/iframe_api';
+      document.head.appendChild(s);
+    });
+    return this._ytApiPromise;
+  }
+  ensureYtPlayer() {
+    if (this._ytPlayer) return Promise.resolve(this._ytPlayer);
+    if (this._ytPlayerPromise) return this._ytPlayerPromise;
+    this._ytPlayerPromise = this.ensureYouTubeApi().then((YT) => new Promise((resolve) => {
+      // Audio-only use: the player exists purely to drive playback, sized
+      // to 1px and pushed off-screen — same off-DOM-render approach the
+      // custom cursor uses elsewhere in this file (a raw node appended to
+      // body, outside this component's own render output).
+      const host = document.createElement('div');
+      host.style.cssText = 'position:fixed;left:-9999px;top:-9999px;width:1px;height:1px;overflow:hidden';
+      document.body.appendChild(host);
+      this._ytPlayer = new YT.Player(host, {
+        height: '1', width: '1',
+        playerVars: { playsinline: 1, controls: 0, disablekb: 1 },
+        events: {
+          onReady: () => resolve(this._ytPlayer),
+          onStateChange: (e) => this.onYtStateChange(e),
+        },
+      });
+    }));
+    return this._ytPlayerPromise;
+  }
+  onYtStateChange(e) {
+    const YT = window.YT;
+    if (!YT) return;
+    if (e.data === YT.PlayerState.PLAYING) { this.setState({ playerPlaying: true }); this.startYtProgress(); }
+    else if (e.data === YT.PlayerState.PAUSED) { this.setState({ playerPlaying: false }); this.stopYtProgress(); }
+    else if (e.data === YT.PlayerState.ENDED) { this.stopYtProgress(); this.nextPlayerTrack(); }
+  }
+  startYtProgress() {
+    this.stopYtProgress();
+    this._ytProgressTimer = setInterval(() => {
+      const p = this._ytPlayer;
+      if (!p || !p.getCurrentTime) return;
+      const t = p.getCurrentTime() || 0;
+      const d = p.getDuration() || 0;
+      if (t !== this.state.playerTime || d !== this.state.playerDuration) this.setState({ playerTime: t, playerDuration: d });
+    }, 250);
+  }
+  stopYtProgress() {
+    if (this._ytProgressTimer) { clearInterval(this._ytProgressTimer); this._ytProgressTimer = null; }
+  }
+  savePlaylist() {
+    try { localStorage.setItem('jk-portfolio-playlist', JSON.stringify(this.state.playlistItems)); } catch (e) {}
+  }
   fmtTime(t) {
     if (!t || isNaN(t)) return '0:00';
     const m = Math.floor(t / 60);
@@ -826,7 +920,11 @@ class Component extends DCLogic {
         const half = barCount;
         const levels = new Array(barCount);
         const place = (j, v) => { levels[j] = v; };
-        if (this.analyser && this.state.playerPlaying) {
+        // A YouTube track plays through the IFrame Player, not the <audio>
+        // element the analyser is wired to — there's no accessible audio
+        // data for it, so it always falls through to the idle animation.
+        const activeTrack = this.getActiveTracks()[this.state.playerIndex];
+        if (this.analyser && this.state.playerPlaying && !(activeTrack && activeTrack.youtubeId)) {
           this.analyser.getByteFrequencyData(this.freqData);
           const nb = this.freqData.length;
           const sampleLog = (f) => {
@@ -1336,6 +1434,8 @@ class Component extends DCLogic {
     if (this._forFunWheelNode && this._forFunWheelHandler) this._forFunWheelNode.removeEventListener('wheel', this._forFunWheelHandler);
     window.removeEventListener('resize', this.boundUpdateIndicator);
     cancelAnimationFrame(this.bgWaveRaf);
+    this.stopYtProgress();
+    if (this._ytPlayer && this._ytPlayer.destroy) this._ytPlayer.destroy();
     if (this._cursorOn) {
       cancelAnimationFrame(this._cursorRaf);
       window.removeEventListener('mousemove', this._cursorMove);
@@ -1486,14 +1586,27 @@ class Component extends DCLogic {
   submitPlaylist() {
     const link = (this.state.playlistLink || '').trim();
     if (!link || this.state.playlistBusy) return;
+    const id = this.getYouTubeId(link);
+    if (!id) return; // not a recognizable YouTube link — nothing to add
     this.setState({ playlistBusy: true });
-    setTimeout(() => {
-      const track = { key: Date.now(), title: this.ytTitleFrom(link), sourceLabel: 'YouTube', src: link };
-      this.setState(s => ({ playlistItems: [...s.playlistItems, track], playlistLink: '', playlistBusy: false }));
-    }, 600);
+    // oEmbed is YouTube's public, no-key, CORS-open endpoint for a video's
+    // real title/author — used instead of the id-only placeholder title
+    // when it's reachable; falls back to that placeholder otherwise.
+    fetch('https://www.youtube.com/oembed?url=' + encodeURIComponent('https://www.youtube.com/watch?v=' + id) + '&format=json')
+      .then(r => (r.ok ? r.json() : null))
+      .catch(() => null)
+      .then(meta => {
+        const track = {
+          key: Date.now(),
+          title: (meta && meta.title) || this.ytTitleFrom(link),
+          sourceLabel: (meta && meta.author_name) || 'YouTube',
+          youtubeId: id,
+        };
+        this.setState(s => ({ playlistItems: [...s.playlistItems, track], playlistLink: '', playlistBusy: false }), () => this.savePlaylist());
+      });
   }
   removePlaylistItem(key) {
-    this.setState(s => ({ playlistItems: s.playlistItems.filter(t => t.key !== key) }));
+    this.setState(s => ({ playlistItems: s.playlistItems.filter(t => t.key !== key) }), () => this.savePlaylist());
   }
 
   stepProject(dir) {
