@@ -210,7 +210,7 @@ a:hover{color:#FF7A1A}
     <div style="padding:40px 32px 140px;display:flex;flex-wrap:wrap;justify-content:center;align-items:flex-start;gap:56px;max-width:1100px;margin:0 auto" data-comment-anchor="de89052804-div">
       <sc-for list="{{ forFunFloating }}" as="p" hint-placeholder-count="2">
         <div style="{{ p.floatStyle }}">
-          <div class="jk-card" onClick="{{ p.onClick }}" style="width:260px;height:260px;cursor:pointer">
+          <div class="jk-card" onClick="{{ p.onClick }}" style="width:260px;height:260px;cursor:{{ p.cursor }}">
             <div class="jk-card-img" style="width:100%;height:100%;border-radius:14px;position:relative;overflow:hidden">
               <sc-if value="{{ p.hasImage }}" hint-placeholder-val="{{ false }}">
                 <div role="img" aria-label="{{ p.title }}" style="{{ p.imgBgStyle }}"></div>
@@ -220,11 +220,13 @@ a:hover{color:#FF7A1A}
                   <span style="font-size:11px;color:#7d7d82;letter-spacing:0.02em;text-align:center;padding:0 20px">{{ p.placeholderLabel }}</span>
                 </div>
               </sc-if>
+              <sc-if value="{{ p.clickable }}" hint-placeholder-val="{{ true }}">
               <div class="jk-card-overlay">
                 <div class="jk-play-btn">
                   <svg viewBox="0 0 24 24" width="20" height="20" fill="#FF7A1A"><path d="M8 5v14l11-7z"></path></svg>
                 </div>
               </div>
+              </sc-if>
             </div>
           </div>
           <div style="text-align:center;padding-top:14px">
@@ -1553,6 +1555,11 @@ class Component extends DCLogic {
           hasStatus: !!status,
           titleStyle: status ? { textDecoration: 'line-through', textDecorationColor: '#8a7d74', color: '#8a7d74' } : { color: '#17171a' },
           floatStyle: { animation: `${i % 2 === 0 ? 'jk-float-l' : 'jk-float-r'} ${5 + i}s ease-in-out infinite`, animationDelay: (i * 0.7) + 's', animationFillMode: 'backwards', marginTop: i % 2 === 0 ? 0 : 28 },
+          // Unclickable for now: neither for-fun project has a finished
+          // detail page yet.
+          onClick: undefined,
+          clickable: false,
+          cursor: 'default',
         };
       }),
       workCenterProject: this.mkProject(this.projectsData.filter(p => p.origin === 'work')[this.state.workCenter]),
