@@ -599,7 +599,7 @@ a:hover{color:#FF7A1A}
     <div style="position:relative;width:56px;height:40px;flex:0 0 56px">
       <div class="jk-vinyl" style="position:absolute;left:0;top:0;width:40px;height:40px;border-radius:50%;border:1px solid #17171a;display:flex;align-items:center;justify-content:center;animation-play-state:{{ playerVinylState }}">
         <div style="position:absolute;inset:6px;border-radius:50%;border:1px solid rgba(23,23,26,.16)"></div>
-        <div style="width:22%;height:22%;border-radius:50%;background:#FF7A1A"></div>
+        <div style="{{ playerLabelStyle }}"></div>
       </div>
       <div style="position:absolute;left:44.5px;top:2.5px;width:5px;height:5px;border-radius:50%;background:#17171a"></div>
       <div style="position:absolute;left:46.25px;top:5px;width:1.5px;height:27px;transform-origin:top center;transition:transform .6s cubic-bezier(.4,0,.2,1);transform:{{ tonearmTransform }}">
@@ -660,7 +660,7 @@ a:hover{color:#FF7A1A}
       <div style="position:relative;width:66px;height:48px;flex:0 0 66px">
         <div class="jk-vinyl" style="position:absolute;left:0;top:0;width:48px;height:48px;border-radius:50%;border:1px solid #17171a;display:flex;align-items:center;justify-content:center;animation-play-state:{{ playerVinylState }}">
           <div style="position:absolute;inset:7px;border-radius:50%;border:1px solid rgba(23,23,26,.16)"></div>
-          <div style="width:22%;height:22%;border-radius:50%;background:#FF7A1A"></div>
+          <div style="{{ playerLabelStyle }}"></div>
         </div>
         <div style="position:absolute;left:53px;top:3px;width:6px;height:6px;border-radius:50%;background:#17171a"></div>
         <div style="position:absolute;left:55px;top:6px;width:2px;height:32px;transform-origin:top center;transition:transform .6s cubic-bezier(.4,0,.2,1);transform:{{ tonearmTransform }}">
@@ -761,7 +761,7 @@ class Component extends DCLogic {
   }
   getActiveTracks() {
     if (this.state.activePlaylistId === 'blank') return [];
-    if (this.state.activePlaylistId === 'forfun') return this.state.playlistItems.map(t => ({ title: t.title, artist: t.sourceLabel || 'YouTube', youtubeId: t.youtubeId }));
+    if (this.state.activePlaylistId === 'forfun') return this.state.playlistItems.map(t => ({ title: t.title, artist: t.sourceLabel || 'YouTube', youtubeId: t.youtubeId, art: t.art }));
     return this.playerTracks;
   }
   switchPlaylist(id) {
@@ -1647,6 +1647,9 @@ class Component extends DCLogic {
           title: (meta && meta.title) || this.ytTitleFrom(link),
           sourceLabel: (meta && meta.author_name) || 'YouTube',
           youtubeId: id,
+          // YouTube auto-generates this thumbnail for every video at this
+          // fixed URL — no need to depend on oEmbed succeeding for it.
+          art: 'https://img.youtube.com/vi/' + id + '/hqdefault.jpg',
         };
         this.setState(s => ({ playlistItems: [...s.playlistItems, track], playlistLink: '', playlistBusy: false }), () => this.savePlaylist());
       });
@@ -1934,6 +1937,9 @@ class Component extends DCLogic {
       playerVolumePct: Math.round(this.state.playerVolume * 100) + '%',
       onPlayerVolume: (e) => this.onPlayerVolume(e),
       playerVinylState: this.state.playerPlaying ? 'running' : 'paused',
+      playerLabelStyle: (this.getActiveTracks()[this.state.playerIndex] || {}).art
+        ? { width: '58%', height: '58%', borderRadius: '50%', backgroundImage: `url(${this.getActiveTracks()[this.state.playerIndex].art})`, backgroundSize: 'cover', backgroundPosition: 'center', boxShadow: 'inset 0 0 0 1px rgba(23,23,26,.25)' }
+        : { width: '22%', height: '22%', borderRadius: '50%', background: '#FF7A1A' },
       texFine: false,
       texPaper: false,
       texVignette: false,
