@@ -479,9 +479,9 @@ a:hover{color:#FF7A1A}
             <div style="margin-top:30px">
               <image-slot data-autoheight="" id="{{ step.bannerId }}" src="{{ step.bannerSrc }}" style="{{ step.bannerStyle }}" shape="rect" radius="0" fit="contain" placeholder="Drop a banner image"></image-slot>
               <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:12px">
-                <image-slot id="{{ step.gridId0 }}" src="{{ step.gridSrc0 }}" style="width:100%;aspect-ratio:1/1" shape="rounded" radius="8" fit="cover" placeholder="Drop an image"></image-slot>
-                <image-slot id="{{ step.gridId1 }}" src="{{ step.gridSrc1 }}" style="width:100%;aspect-ratio:1/1" shape="rounded" radius="8" fit="cover" placeholder="Drop an image"></image-slot>
-                <image-slot id="{{ step.gridId2 }}" src="{{ step.gridSrc2 }}" style="width:100%;aspect-ratio:1/1" shape="rounded" radius="8" fit="cover" placeholder="Drop an image"></image-slot>
+                <image-slot data-autoheight="" id="{{ step.gridId0 }}" src="{{ step.gridSrc0 }}" style="{{ step.gridStyle0 }}" shape="rounded" radius="8" fit="contain" placeholder="Drop an image"></image-slot>
+                <image-slot data-autoheight="" id="{{ step.gridId1 }}" src="{{ step.gridSrc1 }}" style="{{ step.gridStyle1 }}" shape="rounded" radius="8" fit="contain" placeholder="Drop an image"></image-slot>
+                <image-slot data-autoheight="" id="{{ step.gridId2 }}" src="{{ step.gridSrc2 }}" style="{{ step.gridStyle2 }}" shape="rounded" radius="8" fit="contain" placeholder="Drop an image"></image-slot>
               </div>
             </div>
             <sc-if value="{{ step.hasCaption }}" hint-placeholder-val="{{ false }}">
@@ -1432,6 +1432,9 @@ class Component extends DCLogic {
         gridSrc0: (s.gridImgs && s.gridImgs[0]) || '',
         gridSrc1: (s.gridImgs && s.gridImgs[1]) || '',
         gridSrc2: (s.gridImgs && s.gridImgs[2]) || '',
+        gridStyle0: { width: '100%', height: this.autoSlotHeight(p.id + '-process-' + i + '-g0', 160) + 'px' },
+        gridStyle1: { width: '100%', height: this.autoSlotHeight(p.id + '-process-' + i + '-g1', 160) + 'px' },
+        gridStyle2: { width: '100%', height: this.autoSlotHeight(p.id + '-process-' + i + '-g2', 160) + 'px' },
         hasSlot: s.slot !== false && !s.slideshow && !s.bannerGrid,
         slotId: p.id + '-process-' + i,
         src: s.img || '',
