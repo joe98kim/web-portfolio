@@ -573,8 +573,8 @@ a:hover{color:#FF7A1A}
   <div style="position:absolute;right:calc(100% + 10px);top:50%;transform:translateY(-50%);z-index:30">
     <button type="button" onClick="{{ togglePlaylistPicker }}" aria-label="Card stack" style="position:relative;width:64px;height:64px;background:none;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0">
       <div class="jk-cardstack">
-        <div class="jk-cardstack-card jk-cardstack-base" style="background:rgba(244,241,234,.5);backdrop-filter:blur(18px) saturate(120%);-webkit-backdrop-filter:blur(18px) saturate(120%);z-index:1"></div>
-        <div class="jk-cardstack-card jk-cardstack-mid" style="background:#17171a;z-index:2"></div>
+        <div class="jk-cardstack-card jk-cardstack-base" style="background-image:url(assets/mixtape-2.png);background-size:cover;background-position:center;z-index:1"></div>
+        <div class="jk-cardstack-card jk-cardstack-mid" style="background-image:url(assets/jamsesh.jpg);background-size:cover;background-position:center;z-index:2"></div>
         <div class="jk-cardstack-card jk-cardstack-top" style="background-image:url(assets/mixtape-1.jpg);background-size:cover;background-position:center;z-index:3"></div>
       </div>
     </button>
@@ -633,8 +633,8 @@ a:hover{color:#FF7A1A}
   <div style="position:absolute;right:calc(100% + 10px);bottom:-2px;z-index:30">
     <button type="button" onClick="{{ togglePlaylistPicker }}" aria-label="Card stack" style="position:relative;width:64px;height:64px;background:none;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0">
       <div class="jk-cardstack">
-        <div class="jk-cardstack-card jk-cardstack-base" style="background:rgba(244,241,234,.5);backdrop-filter:blur(18px) saturate(120%);-webkit-backdrop-filter:blur(18px) saturate(120%);z-index:1"></div>
-        <div class="jk-cardstack-card jk-cardstack-mid" style="background:#17171a;z-index:2"></div>
+        <div class="jk-cardstack-card jk-cardstack-base" style="background-image:url(assets/mixtape-2.png);background-size:cover;background-position:center;z-index:1"></div>
+        <div class="jk-cardstack-card jk-cardstack-mid" style="background-image:url(assets/jamsesh.jpg);background-size:cover;background-position:center;z-index:2"></div>
         <div class="jk-cardstack-card jk-cardstack-top" style="background-image:url(assets/mixtape-1.jpg);background-size:cover;background-position:center;z-index:3"></div>
       </div>
     </button>
@@ -900,15 +900,17 @@ class Component extends DCLogic {
   // track is playing (this.state.playerPlaying), same as the rest of the
   // player UI (vinyl spin, tonearm angle).
   initBgWave() {
+    // Glow colors match each icon's own drop-shadow on the For Fun page
+    // exactly (same hue, same alpha) rather than one shared shadow tint.
     const iconDefs = [
-      { path: 'M9 18V5l12-2v13', circles: [{ cx: 6, cy: 18, r: 3 }, { cx: 18, cy: 16, r: 3 }], stroke: '#FF7A1A' },
-      { path: 'M9 18V5l12-2v13', circles: [{ cx: 6, cy: 18, r: 3 }, { cx: 18, cy: 16, r: 3 }], stroke: '#E8B21F' },
-      { path: 'M9 18V5l12-2v13a3 3 0 1 1-2-2.83V6.28L11 7.5v9.5a3 3 0 1 1-2-2.83Z', fill: '#D8571C' },
-      { path: 'M9 18V6l2-.3v10.6a3 3 0 1 1-2-2.3Z', fill: '#ffffff', glow: true },
+      { path: 'M9 18V5l12-2v13', circles: [{ cx: 6, cy: 18, r: 3 }, { cx: 18, cy: 16, r: 3 }], stroke: '#FF7A1A', glowColor: 'rgba(255,122,26,.7)', glowBlur: 6 },
+      { path: 'M9 18V5l12-2v13', circles: [{ cx: 6, cy: 18, r: 3 }, { cx: 18, cy: 16, r: 3 }], stroke: '#E8B21F', glowColor: 'rgba(232,178,31,.6)', glowBlur: 6 },
+      { path: 'M9 18V5l12-2v13a3 3 0 1 1-2-2.83V6.28L11 7.5v9.5a3 3 0 1 1-2-2.83Z', fill: '#D8571C', glowColor: 'rgba(216,87,28,.7)', glowBlur: 6 },
+      { path: 'M9 18V6l2-.3v10.6a3 3 0 1 1-2-2.3Z', fill: '#ffffff', glowColor: 'rgba(255,255,255,.6)', glowBlur: 5 },
     ].map(def => ({ ...def, path2d: new Path2D(def.path) }));
     let seed = 99;
     const rand = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
-    this.heroIcons = Array.from({ length: 7 }, (_, i) => ({
+    this.heroIcons = Array.from({ length: 12 }, (_, i) => ({
       def: iconDefs[i % iconDefs.length],
       x: rand(), y: 0.15 + rand() * 0.6,
       scale: 1 + rand() * 0.9,
@@ -942,7 +944,7 @@ class Component extends DCLogic {
           ctx.translate(x, y);
           ctx.scale(s, s);
           ctx.globalAlpha = 0.5 + 0.3 * speedMul;
-          if (ic.def.glow) { ctx.shadowColor = 'rgba(23,23,26,.35)'; ctx.shadowBlur = 6; }
+          ctx.shadowColor = ic.def.glowColor; ctx.shadowBlur = ic.def.glowBlur;
           if (ic.def.fill) { ctx.fillStyle = ic.def.fill; ctx.fill(ic.def.path2d); }
           if (ic.def.stroke) { ctx.strokeStyle = ic.def.stroke; ctx.lineWidth = 1.8; ctx.stroke(ic.def.path2d); }
           (ic.def.circles || []).forEach(c => {
