@@ -575,7 +575,7 @@ a:hover{color:#FF7A1A}
       <div class="jk-cardstack">
         <div class="jk-cardstack-card jk-cardstack-base" style="background:rgba(244,241,234,.5);backdrop-filter:blur(18px) saturate(120%);-webkit-backdrop-filter:blur(18px) saturate(120%);z-index:1"></div>
         <div class="jk-cardstack-card jk-cardstack-mid" style="background:#17171a;z-index:2"></div>
-        <div class="jk-cardstack-card jk-cardstack-top" style="background-image:url(uploads/IMG_5502.jpg);background-size:cover;background-position:center;z-index:3"></div>
+        <div class="jk-cardstack-card jk-cardstack-top" style="background-image:url(assets/mixtape-1.jpg);background-size:cover;background-position:center;z-index:3"></div>
       </div>
     </button>
     <sc-if value="{{ playlistPickerOpen }}" hint-placeholder-val="{{ false }}">
@@ -635,7 +635,7 @@ a:hover{color:#FF7A1A}
       <div class="jk-cardstack">
         <div class="jk-cardstack-card jk-cardstack-base" style="background:rgba(244,241,234,.5);backdrop-filter:blur(18px) saturate(120%);-webkit-backdrop-filter:blur(18px) saturate(120%);z-index:1"></div>
         <div class="jk-cardstack-card jk-cardstack-mid" style="background:#17171a;z-index:2"></div>
-        <div class="jk-cardstack-card jk-cardstack-top" style="background-image:url(uploads/IMG_5502.jpg);background-size:cover;background-position:center;z-index:3"></div>
+        <div class="jk-cardstack-card jk-cardstack-top" style="background-image:url(assets/mixtape-1.jpg);background-size:cover;background-position:center;z-index:3"></div>
       </div>
     </button>
     <sc-if value="{{ playlistPickerOpen }}" hint-placeholder-val="{{ false }}">
@@ -1895,9 +1895,9 @@ class Component extends DCLogic {
       togglePlaylistPicker: () => this.setState(s => ({ playlistPickerOpen: !s.playlistPickerOpen })),
       playlistPickerOpen: this.state.playlistPickerOpen,
       playlistOptions: [
-        { id: 'main', name: 'Mix Tap #1', swatch: '#5b6fd6', img: 'uploads/IMG_5502.jpg' },
-        { id: 'blank', name: 'Mix Tape #2', swatch: '#4a4a4f', img: null },
-        { id: 'forfun', name: 'Jam Sesh', swatch: '#FF7A1A', img: null },
+        { id: 'main', name: 'Mix Tap #1', swatch: '#5b6fd6', img: 'assets/mixtape-1.jpg' },
+        { id: 'blank', name: 'Mix Tape #2', swatch: '#4a4a4f', img: 'assets/mixtape-2.png' },
+        { id: 'forfun', name: 'Jam Sesh', swatch: '#FF7A1A', img: 'assets/jamsesh.jpg' },
       ].map(p => ({
         ...p,
         onClick: () => this.switchPlaylist(p.id),
