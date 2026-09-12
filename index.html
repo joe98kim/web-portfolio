@@ -954,7 +954,7 @@ class Component extends DCLogic {
     const rand = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
     this.heroIcons = Array.from({ length: 12 }, (_, i) => ({
       def: iconDefs[i % iconDefs.length],
-      x: rand(), y: 0.28 + rand() * 0.44,
+      x: rand(), y: 0.2 + rand() * 0.6,
       scale: 1 + rand() * 0.9,
       speed: 0.35 + rand() * 0.55,
       dir: i % 2 === 0 ? 1 : -1,
@@ -994,6 +994,7 @@ class Component extends DCLogic {
           ctx.save();
           ctx.translate(x, y);
           ctx.scale(s, s);
+          ctx.translate(-12, -12);
           ctx.globalAlpha = (0.5 + 0.3 * speedMul) * edgeFade;
           ctx.shadowColor = ic.def.glowColor; ctx.shadowBlur = ic.def.glowBlur;
           if (ic.def.fill) { ctx.fillStyle = ic.def.fill; ctx.fill(ic.def.path2d); }
