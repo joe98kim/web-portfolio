@@ -717,7 +717,7 @@ a:hover{color:#FF7A1A}
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props="{&quot;customCursor&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Interaction&quot;}}">
 class Component extends DCLogic {
-  state = { page: 'work', detailId: null, ...(function(){ try { const r = JSON.parse(localStorage.getItem('jk-portfolio-nav') || 'null'); if (r && r.page) return { page: r.page, detailId: r.detailId || null }; } catch (e) {} return {}; })(), indicatorStyle: { position: 'absolute', opacity: 0 }, playerPlaying: false, playerIndex: 0, playerTime: 0, playerDuration: 0, playerExpanded: false, workCenter: 0, forFunCenter: 0, playerShuffle: false, playerVolume: 1, playerVolumeOpen: false, playlistFile: null, playlistItems: (function(){ try { const r = JSON.parse(localStorage.getItem('jk-portfolio-playlist') || 'null'); return Array.isArray(r) ? r : []; } catch (e) { return []; } })(), ytMeta: (function(){ try { const r = JSON.parse(localStorage.getItem('jk-portfolio-ytmeta-v3') || 'null'); return (r && typeof r === 'object') ? r : {}; } catch (e) { return {}; } })(), playlistBusy: false, activePlaylistId: 'main', playlistPickerOpen: false, dropZoneActive: false };
+  state = { page: 'work', detailId: null, ...(function(){ try { const r = JSON.parse(localStorage.getItem('jk-portfolio-nav') || 'null'); if (r && r.page) return { page: r.page, detailId: r.detailId || null }; } catch (e) {} return {}; })(), indicatorStyle: { position: 'absolute', opacity: 0 }, playerPlaying: false, playerIndex: 0, playerTime: 0, playerDuration: 0, playerExpanded: false, workCenter: 0, forFunCenter: 0, playerShuffle: false, playerVolume: 1, playerVolumeOpen: false, playlistFile: null, playlistItems: (function(){ try { const r = JSON.parse(localStorage.getItem('jk-portfolio-playlist') || 'null'); return Array.isArray(r) ? r : []; } catch (e) { return []; } })(), ytMeta: (function(){ try { const r = JSON.parse(localStorage.getItem('jk-portfolio-ytmeta-v4') || 'null'); return (r && typeof r === 'object') ? r : {}; } catch (e) { return {}; } })(), playlistBusy: false, activePlaylistId: 'main', playlistPickerOpen: false, dropZoneActive: false };
   navRef = React.createRef();
   workTabRef = React.createRef();
   forFunTabRef = React.createRef();
@@ -786,7 +786,10 @@ class Component extends DCLogic {
     let t = String(title || '').replace(/\s*\([^)]*\)/g, '').trim();
     const norm = s => String(s || '').toLowerCase().replace(/[^a-z0-9]/g, '');
     const artistNorm = norm(artist);
-    const dashParts = t.split(/\s+[-–—]\s+/);
+    // Requires whitespace on at least one side of the dash (not both) so
+    // "AJR- Good Advice" and "AJR -Good Advice" still split, while a
+    // mid-word hyphen like "Self-Destruct" (no space either side) doesn't.
+    const dashParts = t.split(/\s*[-–—]\s+|\s+[-–—]\s*/);
     if (dashParts.length > 1) {
       const matchIdx = artistNorm ? dashParts.findIndex(p => norm(p).includes(artistNorm)) : -1;
       t = matchIdx !== -1 ? dashParts.filter((_, i) => i !== matchIdx).join(' - ') : dashParts.slice(1).join(' - ');
@@ -795,6 +798,9 @@ class Component extends DCLogic {
       const escaped = String(artist).trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
       t = t.replace(new RegExp(escaped, 'gi'), '');
     }
+    // Safety net: clean up any separator left dangling at either edge
+    // (e.g. an artist name removed without a clean dash-split around it).
+    t = t.replace(/^\s*[-–—:]\s*/, '').replace(/\s*[-–—:]\s*$/, '');
     return t.replace(/\s{2,}/g, ' ').trim();
   }
   // Resolves a curated {youtubeId} entry into a full track, using cached
@@ -827,7 +833,7 @@ class Component extends DCLogic {
         if (!entry.title) return; // fetch failed — leave the id-based placeholder in place, try again next visit
         this.setState(s => {
           const next = { ...(s.ytMeta || {}), [id]: entry };
-          try { localStorage.setItem('jk-portfolio-ytmeta-v3', JSON.stringify(next)); } catch (e) {}
+          try { localStorage.setItem('jk-portfolio-ytmeta-v4', JSON.stringify(next)); } catch (e) {}
           return { ytMeta: next };
         });
       });
