@@ -603,6 +603,10 @@
       this._img.addEventListener('load', () => {
         this._loadPending = false;
         this._releaseMask(true);
+        // _render() already set the align="top"/"bottom" sentinel (see
+        // there) before geometry existed to resolve it — now that the
+        // image has loaded, re-clamp so it settles on the real bound.
+        if (this.getAttribute('align')) this._clampView();
         this._applyView();
       });
       this._img.addEventListener('error', () => {
@@ -1100,10 +1104,20 @@
       const url = this._userUrl || srcAttr;
       // Don't clobber an in-flight reframe with a store-triggered re-render.
       if (!this.hasAttribute('data-reframe')) {
+        // align="top"/"bottom", src-authored image, no user-dropped crop yet:
+        // default to the pan extreme instead of centered. A sentinel here —
+        // the clampView() call below (already run every render for a filled
+        // slot) pins it to the exact top/bottom-aligned bound using
+        // whatever geometry is currently known; harmless pre-load (geom
+        // isn't ready, so clampView no-ops and applyView's no-geom fallback
+        // ignores the view entirely) and re-resolves correctly on every
+        // subsequent render (e.g. a container resize).
+        const align = !stored && this.getAttribute('align');
+        const alignY = align === 'top' ? 9999 : align === 'bottom' ? -9999 : 0;
         this._view = {
           s: stored && Number.isFinite(stored.s) ? clampS(stored.s) : 1,
           x: stored && Number.isFinite(stored.x) ? stored.x : 0,
-          y: stored && Number.isFinite(stored.y) ? stored.y : 0,
+          y: stored && Number.isFinite(stored.y) ? stored.y : alignY,
         };
       }
       this._cap.textContent = this.getAttribute('placeholder') || 'Drop an image';

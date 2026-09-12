@@ -315,7 +315,7 @@ a:hover{color:#FF7A1A}
       </div>
       </sc-if>
 
-      <image-slot id="{{ detail.heroSlotId }}" src="{{ detail.heroSrc }}" style="{{ heroSlotStyle }}" shape="rect" radius="0" fit="cover" placeholder="Drop a hero image" data-comment-anchor="db306b3d53-image-slot"></image-slot>
+      <image-slot id="{{ detail.heroSlotId }}" src="{{ detail.heroSrc }}" align="{{ detail.heroAlign }}" style="{{ heroSlotStyle }}" shape="rect" radius="0" fit="cover" placeholder="Drop a hero image" data-comment-anchor="db306b3d53-image-slot"></image-slot>
 
       <sc-if value="{{ detail.richCaseStudy }}" hint-placeholder-val="{{ false }}">
       <p style="{{ headlineStyle }}" data-comment-anchor="d63b2bd966-p">{{ detail.headline }}</p>
@@ -894,7 +894,7 @@ class Component extends DCLogic {
   }
 
   projectsData = [
-    { id: 'dess', title: 'DESS', img: 'assets/dess.jpg', heroImg: 'assets/dess-hero.jpg', origin: 'work', richCaseStudy: true, date: 'aug 2026', dateRange: 'Aug 2026', blurb: 'A 2-week proof-of-concept moving seized evidence from cutter to analyst.',
+    { id: 'dess', title: 'DESS', img: 'assets/dess.jpg', imgPosition: 'top', heroImg: 'assets/dess-hero.jpg', heroAlign: 'top', origin: 'work', richCaseStudy: true, date: 'aug 2026', dateRange: 'Aug 2026', blurb: 'A 2-week proof-of-concept moving seized evidence from cutter to analyst.',
       headline: 'Designing a proof-of-concept in 2 weeks that turned a weeks-long process into a minutes-long one',
       descriptionLead: '[Add a one-line overview subheading.]', description: '[Add the overview paragraph here.]',
       metrics: ['2-week sprint', 'Days/weeks → minutes (projected)', 'Accepted for deployment'],
@@ -1396,6 +1396,7 @@ class Component extends DCLogic {
       })[p.id] || 'UX Research · Prototyping',
       heroSlotId: p.id + '-hero',
       heroSrc: p.heroImg || '',
+      heroAlign: p.heroAlign || '',
       introSlotId: p.id + '-intro',
       introSlotId2: p.id + '-intro-2',
       introSrc: p.introImg || '',
@@ -1449,7 +1450,7 @@ class Component extends DCLogic {
       })),
       hasImage: !!p.img,
       noImage: !p.img,
-      imgBgStyle: { width: '100%', height: '100%', backgroundImage: p.img ? `url(${p.img})` : undefined, backgroundSize: 'cover', backgroundPosition: 'center' },
+      imgBgStyle: { width: '100%', height: '100%', backgroundImage: p.img ? `url(${p.img})` : undefined, backgroundSize: 'cover', backgroundPosition: p.imgPosition || 'center' },
       dateLabel: p.dateRange || p.date || '',
       hasDate: !!(p.dateRange || p.date),
       blurb: p.blurb || '',
