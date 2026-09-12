@@ -843,9 +843,9 @@ class Component extends DCLogic {
       return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
     };
     const params = Array.from({ length: 64 }, () => ({
-      freq: 0.6 + rand() * 1.8,
+      freq: 1.4 + rand() * 3.6,
       phase: rand() * Math.PI * 2,
-      freq2: 0.08 + rand() * 0.1,
+      freq2: 0.18 + rand() * 0.22,
       phase2: rand() * Math.PI * 2,
     }));
     this._ytWaveCache[id] = params;
@@ -962,7 +962,7 @@ class Component extends DCLogic {
           for (let j = 0; j < half; j++) {
             const bar = this.waveBars[j];
             const target = sampleLog(half > 1 ? j / (half - 1) : 0);
-            bar.v += (target - bar.v) * (target > bar.v ? 0.5 : 0.16);
+            bar.v += (target - bar.v) * (target > bar.v ? 0.6 : 0.3);
             place(j, bar.v);
           }
         } else if (activeTrack && activeTrack.youtubeId && this.state.playerPlaying) {
@@ -982,15 +982,15 @@ class Component extends DCLogic {
             const p = params[j];
             const wave = 0.5 + 0.5 * Math.sin(t * p.freq + p.phase);
             const envelope = 0.6 + 0.4 * Math.sin(t * p.freq2 + p.phase2);
-            const target = Math.min(1.1, (0.18 + wave * 0.55 * envelope) * (1 + f * 0.6));
-            bar.v += (target - bar.v) * (target > bar.v ? 0.35 : 0.14);
+            const target = Math.min(1.15, (0.15 + wave * 0.7 * envelope) * (1 + f * 0.6));
+            bar.v += (target - bar.v) * (target > bar.v ? 0.55 : 0.3);
             place(j, bar.v);
           }
         } else {
           for (let j = 0; j < half; j++) {
             const bar = this.waveBars[j];
-            if (Math.random() < 0.05) bar.target = 0.2 + Math.random() * 0.45;
-            bar.v += (bar.target - bar.v) * 0.12;
+            if (Math.random() < 0.12) bar.target = 0.15 + Math.random() * 0.65;
+            bar.v += (bar.target - bar.v) * 0.22;
             place(j, bar.v);
           }
         }
@@ -1001,8 +1001,8 @@ class Component extends DCLogic {
         levels.forEach((lv, i) => {
           const barH = Math.max(8, lv * h * 0.5);
           const x = gap + i * (bw + gap);
-          const px = Math.round(x / 3) * 3;
-          const ph = Math.round(barH / 6) * 6;
+          const px = x;
+          const ph = Math.round(barH / 2) * 2;
           const rr = Math.min(bw / 2, 3);
           ctx.beginPath();
           if (ctx.roundRect) ctx.roundRect(px, midY - ph / 2, bw, ph, rr);
