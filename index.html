@@ -94,6 +94,14 @@ a:hover{color:#FF7A1A}
   .jk-stats-grid [style*="font-size:15px"]{font-size:9px !important}
 }
 @media (max-width:560px){
+  /* Generic-case-study icon+text cards (Bethel/Koop): 2x2 on desktop is
+     fine, but on mobile these should share one horizontal row like the
+     meta/stat grids above, not stack into 2 tall rows — shrink icon,
+     text, and padding to fit. */
+  .jk-detail-cards{grid-template-columns:repeat(auto-fit,minmax(85px,1fr)) !important;gap:8px !important}
+  .jk-detail-cards > div{padding:10px 8px !important;gap:6px !important;flex-direction:column !important;text-align:center}
+  .jk-detail-cards [style*="font-size:15.5px"]{font-size:10px !important;line-height:1.35 !important}
+  .jk-detail-cards svg{zoom:.55}
   /* The music player's card-stack shortcut and volume button are floated
      to either side of the pill with `calc(100% + 10px)` offsets that
      don't account for viewport width, so on a narrow phone they render
@@ -402,7 +410,7 @@ a:hover{color:#FF7A1A}
 
       <sc-if value="{{ detailIsGeneric }}" hint-placeholder-val="{{ false }}">
       <sc-if value="{{ detailHasCards }}" hint-placeholder-val="{{ false }}">
-        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin:0 0 48px">
+        <div class="jk-detail-cards" style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin:0 0 48px">
           <sc-for list="{{ detailCards }}" as="card" hint-placeholder-count="4">
             <div style="display:flex;align-items:center;gap:16px;border:1px solid #17171a;border-radius:14px;padding:18px 20px">
               <span style="flex:0 0 auto;color:#FF7A1A;display:flex;align-items:center;justify-content:center">{{ card.icon }}</span>
@@ -440,7 +448,7 @@ a:hover{color:#FF7A1A}
         </div>
       </sc-for>
       <sc-if value="{{ detailHasCards }}" hint-placeholder-val="{{ false }}">
-        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin:0">
+        <div class="jk-detail-cards" style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin:0">
           <sc-for list="{{ detailCards }}" as="card" hint-placeholder-count="4">
             <div style="display:flex;align-items:center;gap:16px;border:1px solid #17171a;border-radius:14px;padding:18px 20px">
               <span style="flex:0 0 auto;color:#FF7A1A;display:flex;align-items:center;justify-content:center">{{ card.icon }}</span>
