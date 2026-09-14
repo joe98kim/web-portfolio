@@ -792,7 +792,7 @@ a:hover{color:#FF7A1A}
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props="{&quot;customCursor&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Interaction&quot;}}">
 class Component extends DCLogic {
-  state = { page: 'work', detailId: null, ...(function(){ try { const r = JSON.parse(localStorage.getItem('jk-portfolio-nav') || 'null'); if (r && r.page) return { page: r.page, detailId: r.detailId || null }; } catch (e) {} return {}; })(), indicatorStyle: { position: 'absolute', opacity: 0 }, playerPlaying: false, playerIndex: 0, playerTime: 0, playerDuration: 0, playerExpanded: false, workCenter: 0, forFunCenter: 0, playerShuffle: false, playerVolume: 1, playerVolumeOpen: false, playlistFile: null, playlistItems: (function(){ try { const r = JSON.parse(localStorage.getItem('jk-portfolio-playlist') || 'null'); return Array.isArray(r) ? r : []; } catch (e) { return []; } })(), ytMeta: (function(){ try { const r = JSON.parse(localStorage.getItem('jk-portfolio-ytmeta-v4') || 'null'); return (r && typeof r === 'object') ? r : {}; } catch (e) { return {}; } })(), playlistBusy: false, activePlaylistId: 'main', playlistPickerOpen: false, dropZoneActive: false, viewportW: (typeof window !== 'undefined' ? window.innerWidth : 1200) };
+  state = { page: 'work', detailId: null, indicatorStyle: { position: 'absolute', opacity: 0 }, playerPlaying: false, playerIndex: 0, playerTime: 0, playerDuration: 0, playerExpanded: false, workCenter: 0, forFunCenter: 0, playerShuffle: false, playerVolume: 1, playerVolumeOpen: false, playlistFile: null, playlistItems: (function(){ try { const r = JSON.parse(localStorage.getItem('jk-portfolio-playlist') || 'null'); return Array.isArray(r) ? r : []; } catch (e) { return []; } })(), ytMeta: (function(){ try { const r = JSON.parse(localStorage.getItem('jk-portfolio-ytmeta-v4') || 'null'); return (r && typeof r === 'object') ? r : {}; } catch (e) { return {}; } })(), playlistBusy: false, activePlaylistId: 'main', playlistPickerOpen: false, dropZoneActive: false, viewportW: (typeof window !== 'undefined' ? window.innerWidth : 1200) };
   navRef = React.createRef();
   workTabRef = React.createRef();
   forFunTabRef = React.createRef();
@@ -1394,11 +1394,6 @@ class Component extends DCLogic {
     });
   }
   componentDidUpdate(prev) {
-    const navKey = this.state.page + '|' + (this.state.detailId || '');
-    if (this._navKey !== navKey) {
-      this._navKey = navKey;
-      try { localStorage.setItem('jk-portfolio-nav', JSON.stringify({ page: this.state.page, detailId: this.state.detailId })); } catch (e) {}
-    }
     this.syncWheelListeners();
     this.updateIndicator();
     this.onPlayerLoadedMetadata();
