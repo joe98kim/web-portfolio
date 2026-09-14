@@ -418,7 +418,6 @@ a:hover{color:#FF7A1A}
           <p style="font-size:20px;line-height:1.7;color:#4a4a4c;margin:0">{{ detail.introCaption }}</p>
         </div>
       </sc-if>
-      <sc-if value="{{ detailHasIntroSlot }}" hint-placeholder-val="{{ true }}">
       <div style="{{ introRowStyle }}">
         <sc-if value="{{ detailHasIntro2 }}" hint-placeholder-val="{{ false }}">
           <image-slot id="{{ detail.introSlotId }}" src="{{ detail.introSrc }}" style="{{ introSlotStyle }}" shape="rect" radius="0" fit="cover" placeholder="Drop an image"></image-slot>
@@ -428,7 +427,6 @@ a:hover{color:#FF7A1A}
           <image-slot data-autoheight="" id="{{ detail.introSlotId }}" src="{{ detail.introSrc }}" style="{{ introSlotStyle }}" shape="rect" radius="0" fit="contain" placeholder="Drop an image"></image-slot>
         </sc-if>
       </div>
-      </sc-if>
 
       <h3 style="font-size:13px;font-weight:700;color:#FF7A1A;letter-spacing:.08em;text-transform:uppercase;margin:60px 0 14px" id="cs-problem">The Problem</h3>
       <sc-if value="{{ detailHasProblemLead }}" hint-placeholder-val="{{ false }}">
@@ -437,9 +435,7 @@ a:hover{color:#FF7A1A}
       <p style="font-size:20px;line-height:1.7;color:#4a4a4c;margin:0 0 24px" data-comment-anchor="fd5c9b62f0-p">{{ detail.problem }}</p>
 
 
-      <sc-if value="{{ detailHasProblemSlot }}" hint-placeholder-val="{{ true }}">
       <image-slot data-autoheight="" id="{{ detail.problemSlotId }}" src="{{ detail.problemSrc }}" style="{{ problemSlotStyle }}" shape="rect" radius="0" fit="contain" placeholder="Drop an image"></image-slot>
-      </sc-if>
       <sc-if value="{{ detailHasProblemCaption }}" hint-placeholder-val="{{ false }}">
         <p style="font-size:12px;color:#8a8a8e;margin:0">{{ detail.problemCaption }}</p>
       </sc-if>
@@ -1069,7 +1065,7 @@ class Component extends DCLogic {
   }
 
   projectsData = [
-    { id: 'dess', title: 'DESS', img: 'assets/dess.jpg', imgPosition: 'top', heroImg: 'assets/dess-hero.jpg', heroAlign: 'top', noIntroSlot: true, noProblemSlot: true, origin: 'work', richCaseStudy: true, date: 'aug 2026', dateRange: 'Aug 2026', blurb: 'A proof-of-concept app for logging and cataloguing physical devices seized during Coast Guard interdictions.',
+    { id: 'dess', title: 'DESS', img: 'assets/dess.jpg', imgPosition: 'top', heroImg: 'assets/dess-hero.jpg', heroAlign: 'top', origin: 'work', richCaseStudy: true, date: 'aug 2026', dateRange: 'Aug 2026', blurb: 'A proof-of-concept app for logging and cataloguing physical devices seized during Coast Guard interdictions.',
       headline: 'Designing a proof-of-concept in 2 weeks that turned a weeks-long process into a minutes-long one',
       descriptionLead: 'A proof-of-concept app for logging and cataloguing physical devices seized during Coast Guard interdictions.', description: 'DESS is a proof-of-concept tool that replaces paper logs and spreadsheets for tracking devices seized during Coast Guard maritime interdictions. I used Claude to turn workshop research into working wireframes fast enough to hit a hard 2-week deadline, then presented the workflow to Coast Guard and SAIC stakeholders.',
       metrics: ['2-week sprint', 'Days/weeks → minutes (projected)', 'Accepted for deployment'],
@@ -1875,8 +1871,6 @@ class Component extends DCLogic {
       detailHasProblemCaption: !!(detail && detail.problemCaption),
       detailHasIntro2: !!(detail && detail.id === 'aerospace'),
       detailNoIntro2: !(detail && detail.id === 'aerospace'),
-      detailHasIntroSlot: !(detail && detail.noIntroSlot),
-      detailHasProblemSlot: !(detail && detail.noProblemSlot),
       introSlotStyle2: { flex: 1, minWidth: 0, aspectRatio: '1 / 1', height: 'auto' },
       problemSlotStyle: { height: this.autoSlotHeight(detail && detail.problemSlotId, this.props.problemHeight ?? 520) + 'px', marginTop: 30, marginBottom: 8 },
       processSlotStyle: { width: '100%', height: (this.props.researchHeight ?? 520) + 'px', marginBottom: 6, marginTop: 30 },
