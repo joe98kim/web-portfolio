@@ -1854,19 +1854,33 @@ class Component extends DCLogic {
             ? window.firebase.firestore.FieldValue.serverTimestamp()
             : Date.now(),
         };
-        if (this._db) {
-          this._db.collection('playlist').add(track)
-            .then(() => this.setState({ playlistLink: '', playlistBusy: false }))
-            .catch(() => this.setState({ playlistBusy: false }));
-        } else {
-          // Firestore didn't load (offline, ad-blocker, etc.) — fall back to
-          // a local-only add so the feature still works for this visitor.
-          this.setState(s => ({ playlistItems: [...s.playlistItems, { ...track, key: Date.now(), createdAt: Date.now() }], playlistLink: '', playlistBusy: false }));
-        }
+        const addLocally = () => this.setState(s => ({ playlistItems: [...s.playlistItems, { ...track, key: Date.now(), createdAt: Date.now() }], playlistLink: '', playlistBusy: false }));
+        if (!this._db) { addLocally(); return; } // Firestore never loaded (offline, blocked, etc.)
+        // Guard against the Add button spinning forever: a blocked/unreachable
+        // Firestore connection can leave .add()'s promise neither resolved
+        // nor rejected for a long time, rather than failing fast. Race it
+        // against a timeout so the UI always recovers either way, and fall
+        // back to a local-only add rather than just clearing the spinner.
+        let settled = false;
+        const timer = setTimeout(() => {
+          if (settled) return;
+          settled = true;
+          console.error('Jam Sesh: Firestore add timed out — check Firestore rules/connectivity.');
+          addLocally();
+        }, 8000);
+        this._db.collection('playlist').add(track)
+          .then(() => { if (settled) return; settled = true; clearTimeout(timer); this.setState({ playlistLink: '', playlistBusy: false }); })
+          .catch((err) => {
+            if (settled) return;
+            settled = true;
+            clearTimeout(timer);
+            console.error('Jam Sesh: Firestore add failed —', err && err.message);
+            addLocally();
+          });
       });
   }
   removePlaylistItem(key) {
-    if (this._db) { this._db.collection('playlist').doc(key).delete().catch(() => {}); return; }
+    if (this._db) { this._db.collection('playlist').doc(key).delete().catch((err) => console.error('Jam Sesh: Firestore delete failed —', err && err.message)); return; }
     this.setState(s => ({ playlistItems: s.playlistItems.filter(t => t.key !== key) }));
   }
 
