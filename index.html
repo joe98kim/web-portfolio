@@ -1880,7 +1880,7 @@ class Component extends DCLogic {
           addLocally();
         }, 8000);
         this._db.collection('playlist').add(track)
-          .then(() => { if (settled) return; settled = true; clearTimeout(timer); this.setState({ playlistLink: '', playlistBusy: false }); })
+          .then((doc) => { if (settled) return; settled = true; clearTimeout(timer); console.log('Jam Sesh: added to Firestore —', doc.id); this.setState({ playlistLink: '', playlistBusy: false }); })
           .catch((err) => {
             if (settled) return;
             settled = true;
