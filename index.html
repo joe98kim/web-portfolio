@@ -3,6 +3,15 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<script>
+  // Other half of the 404.html SPA-routing redirect: unpack the real path
+  // it stashed in ?p= and restore it via replaceState, before support.js
+  // (and the app's own initial-page-from-URL logic) ever runs.
+  (function() {
+    var m = location.search.match(/[?&]p=([^&]*)/);
+    if (m) history.replaceState(null, '', decodeURIComponent(m[1]) || '/');
+  })();
+</script>
 <script src="./support.js"></script>
 </head>
 <body>
@@ -798,7 +807,22 @@ a:hover{color:#FF7A1A}
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props="{&quot;customCursor&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Interaction&quot;}}">
 class Component extends DCLogic {
-  state = { page: 'work', detailId: null, indicatorStyle: { position: 'absolute', opacity: 0 }, playerPlaying: false, playerIndex: 0, playerTime: 0, playerDuration: 0, playerExpanded: false, workCenter: 0, forFunCenter: 0, playerShuffle: false, playerVolume: 1, playerVolumeOpen: false, playlistFile: null, playlistItems: [], ytMeta: (function(){ try { const r = JSON.parse(localStorage.getItem('jk-portfolio-ytmeta-v5') || 'null'); return (r && typeof r === 'object') ? r : {}; } catch (e) { return {}; } })(), playlistBusy: false, activePlaylistId: 'main', playlistPickerOpen: false, dropZoneActive: false, viewportW: (typeof window !== 'undefined' ? window.innerWidth : 1200) };
+  state = { page: 'work', detailId: null, ...(function(){
+    // Real URL path wins on load (a direct visit or a refresh on
+    // /about, /work/dess, etc.) — a bare '/' stays on the Work/home
+    // default. Can't validate a /work/<id> id against projectsData here
+    // (that class field isn't initialized yet at this point in
+    // construction) so it's taken as-is; componentDidMount corrects an
+    // unrecognized one back to Work once projectsData does exist.
+    try {
+      const path = (typeof window !== 'undefined' && window.location.pathname) || '/';
+      const parts = path.split('/').filter(Boolean);
+      if (parts[0] === 'about' && parts.length === 1) return { page: 'about', detailId: null };
+      if (parts[0] === 'for-fun' && parts.length === 1) return { page: 'forfun', detailId: null };
+      if ((parts[0] === 'work' || parts[0] === 'for-fun') && parts[1]) return { page: 'detail', detailId: parts[1] };
+    } catch (e) {}
+    return {};
+  })(), indicatorStyle: { position: 'absolute', opacity: 0 }, playerPlaying: false, playerIndex: 0, playerTime: 0, playerDuration: 0, playerExpanded: false, workCenter: 0, forFunCenter: 0, playerShuffle: false, playerVolume: 1, playerVolumeOpen: false, playlistFile: null, playlistItems: [], ytMeta: (function(){ try { const r = JSON.parse(localStorage.getItem('jk-portfolio-ytmeta-v5') || 'null'); return (r && typeof r === 'object') ? r : {}; } catch (e) { return {}; } })(), playlistBusy: false, activePlaylistId: 'main', playlistPickerOpen: false, dropZoneActive: false, viewportW: (typeof window !== 'undefined' ? window.innerWidth : 1200) };
   navRef = React.createRef();
   workTabRef = React.createRef();
   forFunTabRef = React.createRef();
@@ -1339,8 +1363,39 @@ class Component extends DCLogic {
     { id: 'wrobe', title: 'Wrobe', img: 'assets/wrobe.jpg', origin: 'forfun' },
   ];
 
+  // ---- URL routing (real paths instead of one static "/" for the whole
+  // site) — /about, /for-fun, /work/<id>, /for-fun/<id>. GitHub Pages is
+  // static hosting with no server-side rewrites, so a direct load or
+  // refresh on one of these paths relies on 404.html redirecting back to
+  // "/?p=<path>" and the bootstrap script in <head> restoring the real
+  // path via replaceState before this component ever constructs.
+  pathForPage(page, detailId) {
+    if (page === 'about') return '/about';
+    if (page === 'forfun') return '/for-fun';
+    if (page === 'detail' && detailId) {
+      const d = this.projectsData.find(p => p.id === detailId);
+      return (d && d.origin === 'forfun' ? '/for-fun/' : '/work/') + detailId;
+    }
+    return '/';
+  }
+  parsePath(pathname) {
+    const parts = (pathname || '/').split('/').filter(Boolean);
+    if (parts[0] === 'about' && parts.length === 1) return { page: 'about', detailId: null };
+    if (parts[0] === 'for-fun' && parts.length === 1) return { page: 'forfun', detailId: null };
+    if ((parts[0] === 'work' || parts[0] === 'for-fun') && parts[1] && this.projectsData.some(p => p.id === parts[1])) {
+      return { page: 'detail', detailId: parts[1] };
+    }
+    return { page: 'work', detailId: null };
+  }
+  navigateTo(page, detailId, replace) {
+    if (typeof window === 'undefined') return;
+    const path = this.pathForPage(page, detailId);
+    if (window.location.pathname === path) return;
+    (replace ? window.history.replaceState : window.history.pushState).call(window.history, null, '', path);
+  }
   goTo(page) {
     const alreadyThere = this.state.page === page;
+    this.navigateTo(page, null);
     this.setState({ page, detailId: null }, () => {
       requestAnimationFrame(() => {
         const target = page === 'work' ? document.documentElement.scrollHeight - window.innerHeight : 0;
@@ -1360,7 +1415,7 @@ class Component extends DCLogic {
     requestAnimationFrame(apply);
     setTimeout(apply, 60);
   }
-  openDetail(id) { this.setState({ page: 'detail', detailId: id, activeSection: null }); this.resetScroll(); }
+  openDetail(id) { this.navigateTo('detail', id); this.setState({ page: 'detail', detailId: id, activeSection: null }); this.resetScroll(); }
   scrollToId(id) { const el = document.getElementById(id); if (el) window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - 100, behavior: 'smooth' }); }
 
   shiftCenter(kind, dir) {
@@ -1487,6 +1542,18 @@ class Component extends DCLogic {
     return Math.round(rec.width * rec.aspect);
   }
   componentDidMount() {
+    // The initial-state URL parse (in the state field initializer, before
+    // projectsData exists yet) couldn't validate a /work/<id> or
+    // /for-fun/<id> path's id against real projects — catch a stale/bad
+    // one here instead of rendering a broken detail page.
+    if (this.state.page === 'detail' && this.state.detailId && !this.projectsData.some(p => p.id === this.state.detailId)) {
+      this.navigateTo('work', null, true);
+      this.setState({ page: 'work', detailId: null });
+    }
+    // Sync state with the URL on browser back/forward — history.pushState
+    // in navigateTo() only changes the address bar, it doesn't itself
+    // trigger a popstate, so this is what actually makes Back work.
+    window.addEventListener('popstate', () => { this.setState(this.parsePath(window.location.pathname)); this.resetScroll(); });
     this.initFirestore();
     this.syncWheelListeners();
     this.onPlayerLoadedMetadata();
@@ -1941,6 +2008,7 @@ class Component extends DCLogic {
       aboutTabClass: tabClass('about'),
       goWork: (e) => { e.preventDefault(); this.goTo('work'); },
       goHome: () => {
+        this.navigateTo('work', null);
         this.setState({ page: 'work', detailId: null }, () => {
           requestAnimationFrame(() => window.scrollTo({ top: 0, behavior: 'smooth' }));
         });
@@ -2120,8 +2188,7 @@ class Component extends DCLogic {
             onClick: (e) => {
               e.preventDefault();
               if (current) return;
-              this.setState({ page: 'detail', detailId: p.id, activeSection: null });
-              this.resetScroll();
+              this.openDetail(p.id);
             },
           };
         }),
