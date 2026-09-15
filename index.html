@@ -1049,7 +1049,14 @@ class Component extends DCLogic {
   // just the adder's own browser (the old localStorage-only version).
   initFirestore() {
     try {
-      if (!window.firebase || !window.firebase.firestore) return;
+      if (!window.firebase || !window.firebase.firestore) {
+        // Most likely cause: the firebasejs CDN scripts (gstatic.com) got
+        // blocked by an ad-blocker or browser privacy feature, so
+        // window.firebase never exists — every add silently falls back to
+        // local-only from here on, with nothing else logged to explain why.
+        console.warn('Jam Sesh: Firebase SDK never loaded (window.firebase is missing) — playlist adds will be local-only this session. Check the Network tab for a blocked request to gstatic.com/firebasejs.');
+        return;
+      }
       if (!window.firebase.apps.length) {
         window.firebase.initializeApp({
           apiKey: 'AIzaSyBd6DaNm4CgVhVOM9mgsE1xIQ8uCbVuTeI',
@@ -1065,8 +1072,9 @@ class Component extends DCLogic {
       // open tab, not just refreshed on next load.
       this._db.collection('playlist').orderBy('createdAt', 'asc').onSnapshot(
         (snap) => this.setState({ playlistItems: snap.docs.map(d => ({ key: d.id, ...d.data() })) }),
-        () => {} // offline / rules issue — leave whatever's already in state
+        (err) => console.error('Jam Sesh: Firestore read failed —', err && err.message) // leave whatever's already in state
       );
+      console.log('Jam Sesh: Firestore connected —', window.firebase.app().options.projectId);
     } catch (e) {}
   }
   fmtTime(t) {
