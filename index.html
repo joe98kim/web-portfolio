@@ -2007,15 +2007,14 @@ class Component extends DCLogic {
       forFunTabClass: tabClass('forfun'),
       aboutTabClass: tabClass('about'),
       goWork: (e) => { e.preventDefault(); this.goTo('work'); },
-      goHome: (e) => {
-        e.preventDefault();
+      goHome: () => {
         this.navigateTo('work', null);
         this.setState({ page: 'work', detailId: null }, () => {
           requestAnimationFrame(() => window.scrollTo({ top: 0, behavior: 'smooth' }));
         });
       },
-      goAbout: (e) => { e.preventDefault(); this.goTo('about'); },
-      goForFun: (e) => { e.preventDefault(); this.goTo('forfun'); },
+      goAbout: () => this.goTo('about'),
+      goForFun: () => this.goTo('forfun'),
       workCoverflow: this.buildCoverflow(this.projectsData.filter(p => p.origin === 'work').map(p => this.mkProject(p)), this.state.workCenter),
       coverflowStageStyle: { position: 'relative', zIndex: 2, height: Math.round(590 * this.coverflowScale()) + 'px', perspective: Math.round(2600 * this.coverflowScale()) + 'px', transformStyle: 'preserve-3d', maxWidth: 1120, margin: '0 auto' },
       forFunFloating: this.projectsData.filter(p => p.origin === 'forfun').map(p => this.mkProject(p)).map((p, i) => {
@@ -2159,7 +2158,7 @@ class Component extends DCLogic {
       detailHasExtra: !!(detail && detail.extraImg),
       detailHeroImgStyle: detail && detail.img ? { width: '100%', aspectRatio: '16/9', backgroundImage: `url(${detail.img})`, backgroundSize: 'cover', backgroundPosition: 'center 20%', borderRadius: 20, boxShadow: '0 5px 14px rgba(0,0,0,.07)', marginBottom: 28 } : undefined,
       detailExtraImgStyle: detail && detail.extraImg ? { width: '100%', aspectRatio: 'auto', minHeight: 200, backgroundImage: `url(${detail.extraImg})`, backgroundSize: 'cover', backgroundPosition: 'center', borderRadius: 16, marginTop: 32 } : undefined,
-      backHandler: (e) => { e.preventDefault(); this.goTo(detail && detail.origin === 'forfun' ? 'forfun' : 'work'); },
+      backHandler: detail && detail.origin === 'forfun' ? () => this.goTo('forfun') : () => this.goTo('work'),
       backLabel: detail && detail.origin === 'forfun' ? '← Back to for fun' : '← Back to work',
       otherProjects: this.projectsData
         .filter(p => p.origin === 'work')
