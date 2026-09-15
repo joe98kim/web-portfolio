@@ -10,6 +10,12 @@
 <helmet data-dc-atomics="">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;family=IBM+Plex+Mono:wght@400;500;600&amp;display=swap">
 <script src="./image-slot.js"></script>
+<!-- Firebase compat SDK: backs the shared, cross-visitor Jam Sesh playlist
+     (Firestore). Compat build (not the modular ESM one) so it's usable as
+     a plain global `firebase` from this page's non-module script, same as
+     every other library here. -->
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore-compat.js"></script>
 <style>
 *,*::before,*::after{box-sizing:border-box}
 html{scrollbar-gutter:stable;overflow-x:hidden}
@@ -792,7 +798,7 @@ a:hover{color:#FF7A1A}
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props="{&quot;customCursor&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Interaction&quot;}}">
 class Component extends DCLogic {
-  state = { page: 'work', detailId: null, indicatorStyle: { position: 'absolute', opacity: 0 }, playerPlaying: false, playerIndex: 0, playerTime: 0, playerDuration: 0, playerExpanded: false, workCenter: 0, forFunCenter: 0, playerShuffle: false, playerVolume: 1, playerVolumeOpen: false, playlistFile: null, playlistItems: (function(){ try { const r = JSON.parse(localStorage.getItem('jk-portfolio-playlist') || 'null'); return Array.isArray(r) ? r : []; } catch (e) { return []; } })(), ytMeta: (function(){ try { const r = JSON.parse(localStorage.getItem('jk-portfolio-ytmeta-v4') || 'null'); return (r && typeof r === 'object') ? r : {}; } catch (e) { return {}; } })(), playlistBusy: false, activePlaylistId: 'main', playlistPickerOpen: false, dropZoneActive: false, viewportW: (typeof window !== 'undefined' ? window.innerWidth : 1200) };
+  state = { page: 'work', detailId: null, indicatorStyle: { position: 'absolute', opacity: 0 }, playerPlaying: false, playerIndex: 0, playerTime: 0, playerDuration: 0, playerExpanded: false, workCenter: 0, forFunCenter: 0, playerShuffle: false, playerVolume: 1, playerVolumeOpen: false, playlistFile: null, playlistItems: [], ytMeta: (function(){ try { const r = JSON.parse(localStorage.getItem('jk-portfolio-ytmeta-v4') || 'null'); return (r && typeof r === 'object') ? r : {}; } catch (e) { return {}; } })(), playlistBusy: false, activePlaylistId: 'main', playlistPickerOpen: false, dropZoneActive: false, viewportW: (typeof window !== 'undefined' ? window.innerWidth : 1200) };
   navRef = React.createRef();
   workTabRef = React.createRef();
   forFunTabRef = React.createRef();
@@ -1034,8 +1040,31 @@ class Component extends DCLogic {
   stopYtProgress() {
     if (this._ytProgressTimer) { clearInterval(this._ytProgressTimer); this._ytProgressTimer = null; }
   }
-  savePlaylist() {
-    try { localStorage.setItem('jk-portfolio-playlist', JSON.stringify(this.state.playlistItems)); } catch (e) {}
+  // ---- Shared Jam Sesh playlist (Firestore) ----
+  // Every visitor reads/writes the same 'playlist' collection, so an added
+  // track is visible to everyone, on any device, instead of being stuck in
+  // just the adder's own browser (the old localStorage-only version).
+  initFirestore() {
+    try {
+      if (!window.firebase || !window.firebase.firestore) return;
+      if (!window.firebase.apps.length) {
+        window.firebase.initializeApp({
+          apiKey: 'AIzaSyBd6DaNm4CgVhVOM9mgsE1xIQ8uCbVuTeI',
+          authDomain: 'joe-portfolio-8e2ad.firebaseapp.com',
+          projectId: 'joe-portfolio-8e2ad',
+          storageBucket: 'joe-portfolio-8e2ad.firebasestorage.app',
+          messagingSenderId: '380850433152',
+          appId: '1:380850433152:web:e475ee68e90515c2b24a65',
+        });
+      }
+      this._db = window.firebase.firestore();
+      // Realtime listener: any visitor's add/remove pushes to everyone's
+      // open tab, not just refreshed on next load.
+      this._db.collection('playlist').orderBy('createdAt', 'asc').onSnapshot(
+        (snap) => this.setState({ playlistItems: snap.docs.map(d => ({ key: d.id, ...d.data() })) }),
+        () => {} // offline / rules issue — leave whatever's already in state
+      );
+    } catch (e) {}
   }
   fmtTime(t) {
     if (!t || isNaN(t)) return '0:00';
@@ -1447,6 +1476,7 @@ class Component extends DCLogic {
     return Math.round(rec.width * rec.aspect);
   }
   componentDidMount() {
+    this.initFirestore();
     this.syncWheelListeners();
     this.onPlayerLoadedMetadata();
     requestAnimationFrame(() => this.onPlayerLoadedMetadata());
@@ -1814,19 +1844,30 @@ class Component extends DCLogic {
       .then(meta => {
         const artist = this.cleanYtArtist(meta && meta.author_name);
         const track = {
-          key: Date.now(),
           title: this.cleanYtTitle(meta && meta.title, artist) || this.ytTitleFrom(link),
           sourceLabel: artist || 'YouTube',
           youtubeId: id,
           // YouTube auto-generates this thumbnail for every video at this
           // fixed URL — no need to depend on oEmbed succeeding for it.
           art: 'https://img.youtube.com/vi/' + id + '/hqdefault.jpg',
+          createdAt: window.firebase && window.firebase.firestore
+            ? window.firebase.firestore.FieldValue.serverTimestamp()
+            : Date.now(),
         };
-        this.setState(s => ({ playlistItems: [...s.playlistItems, track], playlistLink: '', playlistBusy: false }), () => this.savePlaylist());
+        if (this._db) {
+          this._db.collection('playlist').add(track)
+            .then(() => this.setState({ playlistLink: '', playlistBusy: false }))
+            .catch(() => this.setState({ playlistBusy: false }));
+        } else {
+          // Firestore didn't load (offline, ad-blocker, etc.) — fall back to
+          // a local-only add so the feature still works for this visitor.
+          this.setState(s => ({ playlistItems: [...s.playlistItems, { ...track, key: Date.now(), createdAt: Date.now() }], playlistLink: '', playlistBusy: false }));
+        }
       });
   }
   removePlaylistItem(key) {
-    this.setState(s => ({ playlistItems: s.playlistItems.filter(t => t.key !== key) }), () => this.savePlaylist());
+    if (this._db) { this._db.collection('playlist').doc(key).delete().catch(() => {}); return; }
+    this.setState(s => ({ playlistItems: s.playlistItems.filter(t => t.key !== key) }));
   }
 
   stepProject(dir) {
