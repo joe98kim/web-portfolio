@@ -1861,11 +1861,14 @@ class Component extends DCLogic {
           // YouTube auto-generates this thumbnail for every video at this
           // fixed URL — no need to depend on oEmbed succeeding for it.
           art: 'https://img.youtube.com/vi/' + id + '/hqdefault.jpg',
-          createdAt: window.firebase && window.firebase.firestore
-            ? window.firebase.firestore.FieldValue.serverTimestamp()
-            : Date.now(),
+          // A plain client timestamp, not FieldValue.serverTimestamp() —
+          // that sentinel value was failing Firestore's own client-side
+          // validation ("Unsupported field value: a custom jc object") for
+          // reasons not worth chasing further; a plain number orders the
+          // list exactly as well for this use case.
+          createdAt: Date.now(),
         };
-        const addLocally = () => this.setState(s => ({ playlistItems: [...s.playlistItems, { ...track, key: Date.now(), createdAt: Date.now() }], playlistLink: '', playlistBusy: false }));
+        const addLocally = () => this.setState(s => ({ playlistItems: [...s.playlistItems, { ...track, key: Date.now() }], playlistLink: '', playlistBusy: false }));
         if (!this._db) { addLocally(); return; } // Firestore never loaded (offline, blocked, etc.)
         // Guard against the Add button spinning forever: a blocked/unreachable
         // Firestore connection can leave .add()'s promise neither resolved
