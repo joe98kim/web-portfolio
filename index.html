@@ -344,7 +344,7 @@ a:hover{color:#FF7A1A}
     <div class="jk-case-rail" style="position:sticky;top:96px;flex:0 0 210px;width:210px;display:flex;flex-direction:column">
       <a href="#" onClick="{{ backHandler }}" style="font-family:'IBM Plex Mono',ui-monospace,monospace;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:#9a9a9f;padding:0;margin-bottom:18px;align-self:flex-start" style-hover="color:#17171A">{{ backLabel }}</a>
       <sc-for list="{{ sectionNav }}" as="sec" hint-placeholder-count="6">
-        <a href="#" onClick="{{ sec.onClick }}" style="display:flex;align-items:baseline;gap:10px;margin-bottom:14px"><span style="{{ sec.numStyle }}">{{ sec.num }}</span><span style="{{ sec.style }}">{{ sec.label }}</span></a>
+        <a href="#" onClick="{{ sec.onClick }}" style="display:flex;align-items:baseline;margin-bottom:14px"><span style="{{ sec.style }}">{{ sec.label }}</span></a>
       </sc-for>
     </div>
     </sc-if>
@@ -1124,7 +1124,7 @@ class Component extends DCLogic {
       descriptionLead: 'A proof-of-concept app for logging and cataloguing physical materials seized during Coast Guard interdictions.', description: 'DESS is a proof-of-concept tool that replaces paper logs and spreadsheets for tracking materials seized during Coast Guard maritime interdictions. I used Claude to turn workshop research into working wireframes fast enough to hit a hard 2-week deadline, then presented the workflow to Coast Guard and SAIC stakeholders.',
       metrics: ['2-week sprint', 'Days/weeks → minutes (projected)', 'Accepted for deployment'],
       headlineStats: [{ value: '2 weeks', label: 'concept to accepted' }, { value: 'Minutes', label: 'down from days' }, { value: '100%', label: 'accepted for deployment' }],
-      meta: { timeline: '2-week proof-of-concept sprint', tools: 'Figma', contributions: 'Sole UX Designer', agency: 'U.S. Coast Guard · SAIC' },
+      meta: { timeline: 'Aug 2026', tools: 'Figma, Claude', contributions: 'Sole UX Designer', agency: 'U.S. Coast Guard · SAIC' },
       problemLead: 'Paper logs and spreadsheets made it slow to log and locate seized materials.',
       problem: 'During maritime interdictions, the Coast Guard seizes physical materials that need to be logged and tracked, but the existing process relied on paper logs and spreadsheets, often taking days or weeks to log an item or locate it later. With hundreds of case files already in the system and more generated continuously, that delay represented a real operational bottleneck for the Law Enforcement and Intelligence community.',
       processLead: 'Scoped the workflow, then used Claude to turn workshop research into wireframes fast enough to hit a 2-week deadline.',
@@ -1233,7 +1233,7 @@ class Component extends DCLogic {
       reflectionLead: 'Long-term follow-through is what proved real impact, not just a well-received event.',
       reflection: "The 1/3/6-month check-ins were the most valuable part of this project. Without them, I'd only know how the room felt on the day, not whether anything actually changed. That follow-through is what turned this from \"a well-received workshop\" into a measurable shift in how teams operate.",
     },
-    { id: 'bethel', title: 'Bethel CWM', img: 'assets/bethel-cwm.jpg', heroImg: 'assets/bethel-cwm.jpg', origin: 'work', date: 'jul 2021', dateRange: 'Feb – Jul 2021', blurb: 'Redesigning a website for a nonprofit organization Center for World Missions (CWM) that encourages local community involvement by providing support to missionaries worldwide.',
+    { id: 'bethel', title: 'Bethel CWM', img: 'assets/bethel-cwm.jpg', heroImg: 'assets/bethel-cwm.jpg', origin: 'work', date: 'jul 2021', dateRange: 'Feb – Jul 2021', blurb: 'Turning an outdated nonprofit site into an easier way to support missionaries worldwide.',
       meta: { timeline: 'Feb – Jul 2021', tools: 'Figma', contributions: 'UI/UX Designer', agency: 'Bethel CWM' },
       sections: [
         { heading: 'Overview', lead: "Bethel Korean Presbyterian Church's Center for World Missions (CWM) is a nonprofit organization that supports missionaries around the world through community involvement." },
@@ -1247,7 +1247,7 @@ class Component extends DCLogic {
         { text: 'Streamlined navigation with clear calls to action for community involvement.', paths: ['M12 21V11', 'M12 11 5 4', 'M12 11l7-7', 'M5 4h4.5M5 4v4.5', 'M19 4h-4.5M19 4v4.5'] },
         { text: 'Added an interactive map with missionary bios helps users track locations, stay updated, and offer support.', paths: ['M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18z', 'M3.5 9h17', 'M3.5 15h17', 'M12 3c2.5 2.5 3.8 5.6 3.8 9s-1.3 6.5-3.8 9c-2.5-2.5-3.8-5.6-3.8-9S9.5 5.5 12 3z'] },
       ] },
-    { id: 'koop', title: 'The Koop', img: 'assets/the-koop.jpg', heroImg: 'assets/the-koop.jpg', origin: 'work', date: 'jan 2021', dateRange: 'Oct 2020 – Jan 2021', blurb: 'Redesigning a website for The Koop, a popular Korean fried chicken restaurant located in State College, Pennsylvania.',
+    { id: 'koop', title: 'The Koop', img: 'assets/the-koop.jpg', heroImg: 'assets/the-koop.jpg', origin: 'work', date: 'jan 2021', dateRange: 'Oct 2020 – Jan 2021', blurb: 'Bringing online ordering to a growing Korean fried chicken restaurant.',
       meta: { timeline: 'Oct 2020 – Jan 2021', tools: 'Adobe XD, Photoshop', contributions: 'Lead UI/UX Designer, Photographer', agency: 'The Koop' },
       sections: [
         { heading: 'Overview', lead: 'A redesigned website for The Koop, a popular Korean fried chicken restaurant in State College, Pennsylvania, aimed at enhancing the customer experience and optimizing restaurant operations.' },
@@ -1295,16 +1295,23 @@ class Component extends DCLogic {
     this.setState(s => ({ [key]: ((s[key] + dir) % n + n) % n }));
   }
 
-  lastWheelAt = 0;
+  wheelLocked = false;
+  wheelUnlockTimer = null;
   workStageRef = React.createRef();
   forFunStageRef = React.createRef();
   onWheelKind(kind, e) {
     e.preventDefault();
-    const now = Date.now();
-    if (now - this.lastWheelAt < 350) return;
     const delta = Math.abs(e.deltaY) > Math.abs(e.deltaX) ? e.deltaY : e.deltaX;
     if (Math.abs(delta) < 4) return;
-    this.lastWheelAt = now;
+    // A single trackpad swipe fires a burst of wheel events (with momentum
+    // trailing off over several hundred ms), so a fixed cooldown from the
+    // last *trigger* can still fire twice inside one physical gesture. Lock
+    // on the first event instead, and only unlock once the burst itself has
+    // gone quiet for a beat — one gesture, one step, regardless of length.
+    clearTimeout(this.wheelUnlockTimer);
+    this.wheelUnlockTimer = setTimeout(() => { this.wheelLocked = false; }, 260);
+    if (this.wheelLocked) return;
+    this.wheelLocked = true;
     this.shiftCenter(kind, delta > 0 ? 1 : -1);
   }
   // Touch-swipe support for the coverflow stages (mouse-wheel nav above
@@ -1630,7 +1637,11 @@ class Component extends DCLogic {
     return d;
   }
 
-  buildCoverflow(list, center) {
+  focusCard(kind, index) {
+    const key = kind === 'work' ? 'workCenter' : 'forFunCenter';
+    this.setState({ [key]: index });
+  }
+  buildCoverflow(list, center, kind) {
     const n = list.length;
     const k = this.coverflowScale();
     return list.map((p, i) => {
@@ -1646,6 +1657,7 @@ class Component extends DCLogic {
       const hidden = absOff > 2;
       return {
         ...p,
+        onClick: off === 0 ? p.onClick : () => this.focusCard(kind, i),
         wrapperStyle: {
           // Card itself stays the original fixed 322x428 (so its fixed-px
           // inner layout — the 238px image, text padding, etc. — never
@@ -1873,7 +1885,7 @@ class Component extends DCLogic {
       },
       goAbout: () => this.goTo('about'),
       goForFun: () => this.goTo('forfun'),
-      workCoverflow: this.buildCoverflow(this.projectsData.filter(p => p.origin === 'work').map(p => this.mkProject(p)), this.state.workCenter),
+      workCoverflow: this.buildCoverflow(this.projectsData.filter(p => p.origin === 'work').map(p => this.mkProject(p)), this.state.workCenter, 'work'),
       coverflowStageStyle: { position: 'relative', zIndex: 2, height: Math.round(590 * this.coverflowScale()) + 'px', perspective: Math.round(2600 * this.coverflowScale()) + 'px', transformStyle: 'preserve-3d', maxWidth: 1120, margin: '0 auto' },
       forFunFloating: this.projectsData.filter(p => p.origin === 'forfun').map(p => this.mkProject(p)).map((p, i) => {
         const statusMap = { sendit: 'Work in progress', wrobe: 'Reworking' };
@@ -1964,11 +1976,6 @@ class Component extends DCLogic {
         return {
           label: d.label,
           onClick: (e) => { e.preventDefault(); this.setState({ activeSection: d.id }); this.scrollToSection(d.id); },
-          num: String(i + 1).padStart(2, '0'),
-          numStyle: {
-            fontFamily: "'IBM Plex Mono', ui-monospace, monospace", fontSize: 11, letterSpacing: '.08em',
-            color: on ? '#FF7A1A' : '#c3c0bb', transition: 'color .18s',
-          },
           style: {
             fontSize: 15, lineHeight: 1.3, color: on ? '#17171A' : '#a5a3a0', fontWeight: on ? 700 : 500,
             borderBottom: on ? '2px solid #FF7A1A' : '2px solid transparent', paddingBottom: 2,
