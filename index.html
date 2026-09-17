@@ -102,19 +102,14 @@ a:hover{color:#FF7A1A}
      font-size, so this one rule reaches all of them without a class on
      each — smaller and easier to read at a phone's line length. */
   [style*="font-size:20px"]{font-size:14px !important}
-  /* Force the Timeline/Tools/Contributions/Agency facts to stay on one
-     row (shrunk to fit) instead of wrapping into a tall stack — cell text
-     may still wrap, the row of boxes itself shouldn't. minmax(0,1fr) (not
-     a bare 1fr) matters here: a bare 1fr track still has an implicit auto
-     minimum sized to its content, which can force the grid wider than the
-     phone screen. */
-  .jk-meta-grid{grid-template-columns:repeat(4,minmax(0,1fr)) !important;gap:6px !important;padding:12px 0 !important}
-  /* A single long uppercase word ("CONTRIBUTIONS") with letter-spacing has
-     no break point, so at any font size it can still render wider than
-     its own narrow column and visually bleed into the next one instead of
-     wrapping — overflow-wrap forces a break rather than an overlap. */
-  .jk-meta-grid [style*="font-size:10px"]{font-size:7px !important;letter-spacing:0 !important;overflow-wrap:break-word !important}
-  .jk-meta-grid [style*="font-size:13px"]{font-size:9px !important;overflow-wrap:break-word !important}
+  /* Timeline/Tools/Contributions/Agency: trying to keep these 4 in one
+     row on a phone keeps hitting the same overlap no matter how small the
+     text gets, so stack them instead — one fact per row, label on the
+     left and value on the right, each with the full row width. */
+  .jk-meta-grid{grid-template-columns:1fr !important;gap:10px !important;padding:12px 0 !important}
+  .jk-meta-grid > div{display:flex !important;align-items:baseline !important;justify-content:space-between !important;gap:14px !important}
+  .jk-meta-grid [style*="font-size:10px"]{font-size:11px !important;margin-bottom:0 !important;flex:0 0 auto !important}
+  .jk-meta-grid [style*="font-size:13px"]{font-size:13px !important;text-align:right !important}
   /* Headline data-highlight numbers (2 weeks / Minutes / 100%): targeted
      by class now, not an inline-style substring match, and allowed to
      wrap to a second row (auto-fit) instead of being forced into exactly
@@ -135,7 +130,7 @@ a:hover{color:#FF7A1A}
      blurb text down with it. Shrink the title and give the blurb column
      less room to ask for. */
   .jk-more-work a{grid-template-columns:24px 1fr minmax(0,130px) 16px !important;gap:10px !important}
-  .jk-more-work [style*="font-size:22px"]{font-size:13px !important}
+  .jk-more-work [style*="font-size:22px"]{font-size:11px !important}
 }
 @media (max-width:560px){
   /* Generic-case-study icon+text cards (Bethel/Koop): the desktop 2x2 grid
@@ -218,7 +213,7 @@ a:hover{color:#FF7A1A}
     </div>
     <canvas ref="{{ bgWaveRef }}" style="display:block;width:100%;height:110px;margin-bottom:8px"></canvas>
     <div style="padding: 0 0 140px">
-      <div ref="{{ workStageRef }}" style="{{ coverflowStageStyle }}" data-comment-anchor="8ef7e52c52-div">
+      <div id="work-carousel" ref="{{ workStageRef }}" style="{{ coverflowStageStyle }}" data-comment-anchor="8ef7e52c52-div">
         <sc-for list="{{ workCoverflow }}" as="p" hint-placeholder-count="6">
           <div class="jk-card jk-album" style="{{ p.wrapperStyle }}" onClick="{{ p.onClick }}">
             <div class="jk-card-img" style="width:100%;height:238px;position:relative;overflow:hidden">
@@ -1320,19 +1315,18 @@ class Component extends DCLogic {
   }
   // Navbar "Work" icon: jump straight to the project carousel — the logo
   // already covers "top of the home page", so this should land somewhere
-  // distinct. Scrolls by the actual carousel element's position rather
-  // than a scrollHeight-derived guess, and waits two frames when coming
-  // from another page so the newly-mounted work page has actually laid
-  // out before we measure it.
-  scrollToWorkCarousel() {
-    const el = this.workStageRef.current;
-    if (el) window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - 100, behavior: 'smooth' });
+  // distinct. Looks the stage up by id (not the workStageRef, which can
+  // still be stale/unmounted for a beat right after switching pages) and
+  // retries for up to ~500ms instead of silently giving up if it isn't in
+  // the DOM yet on the first check.
+  scrollToWorkCarousel(attempt) {
+    const el = document.getElementById('work-carousel');
+    if (el) { window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - 100, behavior: 'smooth' }); return; }
+    if ((attempt || 0) < 10) setTimeout(() => this.scrollToWorkCarousel((attempt || 0) + 1), 50);
   }
   goWorkCarousel() {
     if (this.state.page === 'work') { this.scrollToWorkCarousel(); return; }
-    this.setState({ page: 'work', detailId: null }, () => {
-      requestAnimationFrame(() => requestAnimationFrame(() => this.scrollToWorkCarousel()));
-    });
+    this.setState({ page: 'work', detailId: null }, () => this.scrollToWorkCarousel());
   }
   resetScroll() {
     const apply = () => {
