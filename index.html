@@ -1246,12 +1246,18 @@ class Component extends DCLogic {
   initBgWave() {
     // Glow colors match each icon's own drop-shadow on the For Fun page
     // exactly (same hue, same alpha) rather than one shared shadow tint.
+    const hexToRgb = hex => { const n = parseInt(hex.replace('#', ''), 16); return { r: (n >> 16) & 255, g: (n >> 8) & 255, b: n & 255 }; };
+    const lerpRgb = (a, b, t) => `rgb(${Math.round(a.r + (b.r - a.r) * t)},${Math.round(a.g + (b.g - a.g) * t)},${Math.round(a.b + (b.b - a.b) * t)})`;
+    // Idle color for every note — a warm-biased grey rather than a flat
+    // mid-grey, so "dormant" still reads as belonging to the same warm
+    // palette as the lit-up colors it crossfades into.
+    const GREY = hexToRgb('#9a9490');
     const iconDefs = [
       { path: 'M9 18V5l12-2v13', circles: [{ cx: 6, cy: 18, r: 3 }, { cx: 18, cy: 16, r: 3 }], stroke: '#FF7A1A', glowColor: 'rgba(255,122,26,.7)', glowBlur: 6 },
       { path: 'M9 18V5l12-2v13', circles: [{ cx: 6, cy: 18, r: 3 }, { cx: 18, cy: 16, r: 3 }], stroke: '#E8B21F', glowColor: 'rgba(232,178,31,.6)', glowBlur: 6 },
       { path: 'M9 18V5l12-2v13a3 3 0 1 1-2-2.83V6.28L11 7.5v9.5a3 3 0 1 1-2-2.83Z', fill: '#D8571C', glowColor: 'rgba(216,87,28,.7)', glowBlur: 6 },
       { path: 'M9 18V6l2-.3v10.6a3 3 0 1 1-2-2.3Z', fill: '#ffffff', glowColor: 'rgba(255,255,255,.6)', glowBlur: 5 },
-    ].map(def => ({ ...def, path2d: new Path2D(def.path) }));
+    ].map(def => ({ ...def, path2d: new Path2D(def.path), mainRgb: hexToRgb(def.fill || def.stroke) }));
     let seed = 99;
     const rand = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
     this.heroIcons = Array.from({ length: 12 }, (_, i) => ({
@@ -1262,9 +1268,12 @@ class Component extends DCLogic {
       dir: i % 2 === 0 ? 1 : -1,
       bobPhase: rand() * Math.PI * 2,
       bobSpeed: 0.6 + rand() * 0.6,
+      // Spring-physics scale: notes "pop" slightly as they wake up rather
+      // than just snapping to a bigger size, and settle back the same way.
+      springScale: 1, springVel: 0,
     }));
     this._lastWaveCvs = null;
-    let speedMul = 0.3, t = 0;
+    let speedMul = 0.3, colorMul = 0, t = 0;
     const draw = () => {
       const cvs = this.bgWaveRef.current;
       if (cvs) {
@@ -1277,6 +1286,11 @@ class Component extends DCLogic {
         const w = cvs.width, h = cvs.height;
         ctx.clearRect(0, 0, w, h);
         speedMul += ((this.state.playerPlaying ? 1 : 0.3) - speedMul) * 0.04;
+        // Idle -> playing colorization: 0 is fully grey/dim, 1 is each
+        // note's real color at full glow. Eased the same way speedMul is,
+        // independently of it, since it needs to run from a true 0 (unlike
+        // speedMul's 0.3 floor) to read as "off" while dormant.
+        colorMul += ((this.state.playerPlaying ? 1 : 0) - colorMul) * 0.04;
         t += 0.016;
         // Icons fade out approaching either edge and fade back in past it,
         // instead of wrapping while still fully opaque — that fade zone is
@@ -1289,27 +1303,35 @@ class Component extends DCLogic {
         // phone one — scale it down above the mobile breakpoint instead of
         // touching the mobile speed, which was already fine as-is.
         const desktopSlow = (this.state.viewportW || w) > 820 ? 0.78 : 1;
+        // Spring target for the wake-up pop: a little bigger while playing,
+        // back to normal size at rest. Stiffness/damping tuned so it
+        // overshoots slightly on the way up (the "pop") then settles
+        // without visibly oscillating.
+        const springTarget = 1 + 0.16 * (this.state.playerPlaying ? 1 : 0);
         this.heroIcons.forEach(ic => {
           ic.x += 0.0011 * ic.speed * speedMul * ic.dir * desktopSlow;
           if (ic.x > 1 + edgeMargin) ic.x = -edgeMargin; else if (ic.x < -edgeMargin) ic.x = 1 + edgeMargin;
+          ic.springVel += (springTarget - ic.springScale) * 220 * 0.016 - ic.springVel * 9 * 0.016;
+          ic.springScale += ic.springVel * 0.016;
           const x = ic.x * w;
           const y = ic.y * h + Math.sin(t * ic.bobSpeed + ic.bobPhase) * h * 0.06;
-          const s = ic.scale * (h / 150) * 1.3;
+          const s = ic.scale * (h / 150) * 1.3 * ic.springScale;
           let edgeFade = 1;
           if (ic.x < edgeMargin) edgeFade = Math.max(0, ic.x / edgeMargin);
           else if (ic.x > 1 - edgeMargin) edgeFade = Math.max(0, (1 - ic.x) / edgeMargin);
           if (edgeFade <= 0) return;
+          const color = lerpRgb(GREY, ic.def.mainRgb, colorMul);
           ctx.save();
           ctx.translate(x, y);
           ctx.scale(s, s);
           ctx.translate(-12, -12);
-          ctx.globalAlpha = (0.5 + 0.3 * speedMul) * edgeFade;
-          ctx.shadowColor = ic.def.glowColor; ctx.shadowBlur = ic.def.glowBlur;
-          if (ic.def.fill) { ctx.fillStyle = ic.def.fill; ctx.fill(ic.def.path2d); }
-          if (ic.def.stroke) { ctx.strokeStyle = ic.def.stroke; ctx.lineWidth = 1.8; ctx.stroke(ic.def.path2d); }
+          ctx.globalAlpha = (0.3 + 0.5 * colorMul) * edgeFade;
+          if (colorMul > 0.02) { ctx.shadowColor = ic.def.glowColor; ctx.shadowBlur = ic.def.glowBlur * colorMul; } else { ctx.shadowBlur = 0; }
+          if (ic.def.fill) { ctx.fillStyle = color; ctx.fill(ic.def.path2d); }
+          if (ic.def.stroke) { ctx.strokeStyle = color; ctx.lineWidth = 1.8; ctx.stroke(ic.def.path2d); }
           (ic.def.circles || []).forEach(c => {
             ctx.beginPath(); ctx.arc(c.cx, c.cy, c.r, 0, Math.PI * 2);
-            if (ic.def.fill) ctx.fill(); else { ctx.strokeStyle = ic.def.stroke; ctx.stroke(); }
+            if (ic.def.fill) ctx.fill(); else { ctx.strokeStyle = color; ctx.stroke(); }
           });
           ctx.restore();
         });
