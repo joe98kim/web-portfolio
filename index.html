@@ -121,7 +121,7 @@ a:hover{color:#FF7A1A}
      are all written as plain style="font-size:20px;..." text directly in
      the template, not a bound JS style object, so the substring actually
      appears verbatim in the rendered markup. */
-  [style*="font-size:20px"]{font-size:13px !important}
+  [style*="font-size:20px"]{font-size:12px !important}
   /* About/For fun page big headers ("Get to know me", "The things I make
      for fun") and their small uppercase eyebrow labels above them. */
   [style*="font-size:38px"]{font-size:26px !important}
@@ -160,6 +160,10 @@ a:hover{color:#FF7A1A}
      silently never matched at all. */
   .jk-more-work a{grid-template-columns:24px 1fr minmax(0,130px) 16px !important;gap:10px !important}
   .jk-more-work-title{font-size:11px !important}
+  /* Blurb (the brief project description) matched to the title's size —
+     also bound as a JS style object (blurbStyle), so targeted the same
+     way via a real class instead of a substring guess. */
+  .jk-more-work-blurb{font-size:11px !important}
 }
 @media (max-width:560px){
   /* Generic-case-study icon+text cards (Bethel/Koop): the desktop 2x2 grid
@@ -682,7 +686,7 @@ a:hover{color:#FF7A1A}
           <a href="#" onClick="{{ op.onClick }}" style="{{ op.rowStyle }}" style-hover="background:rgba(23,23,26,.03)">
             <span style="{{ op.numStyle }}">{{ op.num }}</span>
             <span class="jk-more-work-title" style="{{ op.titleStyle }}">{{ op.title }}</span>
-            <span style="{{ op.blurbStyle }}">{{ op.blurbText }}</span>
+            <span class="jk-more-work-blurb" style="{{ op.blurbStyle }}">{{ op.blurbText }}</span>
             <span style="{{ op.markerStyle }}">{{ op.marker }}</span>
           </a>
         </sc-for>
