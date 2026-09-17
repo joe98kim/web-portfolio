@@ -1303,28 +1303,24 @@ class Component extends DCLogic {
     { id: 'wrobe', title: 'Wrobe', img: 'assets/wrobe.jpg', origin: 'forfun' },
   ];
 
+  // Generic page switch (logo, About, For fun, the case-study "back to
+  // work" link): always lands at the top of the new page. Goes through
+  // resetScroll, not window.scrollTo — see the note on scrollWindowTo
+  // below for why that API isn't trusted here — so it can't leave the
+  // previous page's scroll position bleeding into the new one, and it
+  // can't get confused by any "last scroll position" state like the
+  // carousel target below.
   goTo(page) {
-    const alreadyThere = this.state.page === page;
-    this.setState({ page, detailId: null }, () => {
-      requestAnimationFrame(() => {
-        const target = page === 'work' ? document.documentElement.scrollHeight - window.innerHeight : 0;
-        if (alreadyThere && Math.abs(window.scrollY - target) < 2) return;
-        window.scrollTo({ top: target, behavior: 'smooth' });
-      });
-    });
+    this.setState({ page, detailId: null }, () => this.resetScroll());
   }
   // Navbar "Work" icon: jump straight to the project carousel — the logo
-  // already covers "top of the home page", so this should land somewhere
-  // distinct. Two earlier attempts at this (workStageRef + rAF timing,
-  // then a getElementById + retry) both still landed at the top —
-  // window.scrollTo({behavior:'smooth'}) is the common thread, and this
-  // codebase already has direct evidence it isn't trustworthy here:
-  // scrollToSection below deliberately drives scrollTop itself with its
-  // own rAF loop instead of using it, and resetScroll sets scrollTop on
-  // three different candidate elements rather than trusting one. This
-  // does the same — animate scrollTop on every candidate scrolling
-  // element at once, so it works regardless of which one this browser
-  // actually treats as "the" scrolling element for the page.
+  // (goTo above) already covers "top of the home page", so this lands
+  // somewhere distinct. window.scrollTo({behavior:'smooth'}) turned out
+  // not to be trustworthy in this page (this codebase already had two
+  // other places — scrollToSection and resetScroll — that quietly work
+  // around exactly that by driving scrollTop directly instead), so this
+  // animates scrollTop on every candidate scrolling element at once
+  // rather than delegating to the browser's smooth-scroll.
   scrollWindowTo(target) {
     const els = [document.documentElement, document.body, document.scrollingElement].filter(Boolean);
     const start = window.scrollY;
@@ -1340,14 +1336,35 @@ class Component extends DCLogic {
     };
     requestAnimationFrame(step);
   }
-  scrollToWorkCarousel(attempt) {
+  scrollToWorkCarousel() {
     const el = this.workStageRef.current || document.getElementById('work-carousel');
-    if (el) { this.scrollWindowTo(el.getBoundingClientRect().top + window.scrollY - 100); return; }
-    if ((attempt || 0) < 10) setTimeout(() => this.scrollToWorkCarousel((attempt || 0) + 1), 50);
+    if (el) this.scrollWindowTo(el.getBoundingClientRect().top + window.scrollY - 100);
+  }
+  // Coming from another page, the carousel element doesn't exist until
+  // the new page has actually mounted — a fixed retry count occasionally
+  // lost that race, so this watches the DOM directly (with a timed
+  // fallback in case the observer is ever the thing that doesn't fire)
+  // instead of guessing how long mounting takes.
+  waitForWorkCarousel() {
+    const existing = this.workStageRef.current || document.getElementById('work-carousel');
+    if (existing) { this.scrollToWorkCarousel(); return; }
+    if (this._carouselWaitObserver) this._carouselWaitObserver.disconnect();
+    const done = () => {
+      if (this._carouselWaitObserver) { this._carouselWaitObserver.disconnect(); this._carouselWaitObserver = null; }
+      clearTimeout(this._carouselWaitTimer);
+      this.scrollToWorkCarousel();
+    };
+    const obs = new MutationObserver(() => { if (document.getElementById('work-carousel')) done(); });
+    obs.observe(document.body, { childList: true, subtree: true });
+    this._carouselWaitObserver = obs;
+    this._carouselWaitTimer = setTimeout(done, 2000);
   }
   goWorkCarousel() {
     if (this.state.page === 'work') { this.scrollToWorkCarousel(); return; }
-    this.setState({ page: 'work', detailId: null }, () => this.scrollToWorkCarousel());
+    this.setState({ page: 'work', detailId: null }, () => {
+      this.resetScroll();
+      this.waitForWorkCarousel();
+    });
   }
   resetScroll() {
     const apply = () => {
@@ -1966,11 +1983,7 @@ class Component extends DCLogic {
       forFunTabClass: tabClass('forfun'),
       aboutTabClass: tabClass('about'),
       goWork: (e) => { e.preventDefault(); this.goWorkCarousel(); },
-      goHome: () => {
-        this.setState({ page: 'work', detailId: null }, () => {
-          requestAnimationFrame(() => window.scrollTo({ top: 0, behavior: 'smooth' }));
-        });
-      },
+      goHome: () => this.goTo('work'),
       goAbout: () => this.goTo('about'),
       goForFun: () => this.goTo('forfun'),
       workCoverflow: this.buildCoverflow(this.projectsData.filter(p => p.origin === 'work').map(p => this.mkProject(p)), this.state.workCenter, 'work'),
