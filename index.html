@@ -51,14 +51,22 @@ a:hover{color:#FF7A1A}
 .jk-play-btn{width:52px;height:52px;border-radius:50%;background:rgba(255,255,255,.92);display:flex;align-items:center;justify-content:center;box-shadow:0 4px 10px rgba(0,0,0,.22)}
 .jk-vinyl{animation:jk-spin 6s linear infinite}
 @keyframes jk-spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
-/* Now-playing title marquee: two copies of the title back to back,
-   translated by exactly half the track's width — that's what makes the
-   loop seamless (the moment the first copy scrolls fully off, the second
-   is sitting exactly where the first started) without ever needing to
-   measure the actual text width in JS. */
-.jk-marquee-mask{overflow:hidden;width:100%;text-align:left}
-.jk-marquee-track{display:inline-flex;white-space:nowrap;animation:jk-marquee linear infinite}
-@keyframes jk-marquee{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+/* Now-playing title marquee: holds at the start, scrolls to reveal the
+   end, holds there, scrolls back, loops. `left:100%` combined with
+   `translateX(-100%)` on the "end" keyframe is what lines the text's
+   *right* edge up with the mask's right edge without ever needing to
+   measure the text's actual rendered width in JS — left:100% is a
+   percentage of the container (the mask), so it always lands the text's
+   own left edge at the mask's right edge regardless of how long the text
+   is, and translateX(-100%) (a percentage of the text itself here) then
+   shifts it back by exactly its own width. */
+.jk-marquee-mask{position:relative;overflow:hidden;width:100%;height:21px}
+.jk-marquee-track{position:absolute;top:0;left:0;white-space:nowrap;animation:jk-marquee-bounce ease-in-out infinite}
+@keyframes jk-marquee-bounce{
+  0%,12%{left:0%;transform:translateX(0)}
+  45%,65%{left:100%;transform:translateX(-100%)}
+  100%{left:0%;transform:translateX(0)}
+}
 .jk-seek{-webkit-appearance:none;appearance:none;width:100%;height:4px;border-radius:999px;background:rgba(23,23,26,.35);outline:none;cursor:pointer}
 .jk-seek::-webkit-slider-thumb{-webkit-appearance:none;width:12px;height:12px;border-radius:50%;background:#17171a;margin-top:-4px}
 .jk-seek::-moz-range-thumb{width:12px;height:12px;border-radius:50%;background:#17171a;border:none}
@@ -732,8 +740,7 @@ a:hover{color:#FF7A1A}
         <sc-if value="{{ hasLongPlayerTitle }}" hint-placeholder-val="{{ false }}">
           <div class="jk-marquee-mask">
             <div class="jk-marquee-track" style="{{ playerTitleMarqueeStyle }}">
-              <span style="font-size:17px;font-weight:800;letter-spacing:-.01em;line-height:1.2;padding-right:36px">{{ playerTrack.title }}</span>
-              <span aria-hidden="true" style="font-size:17px;font-weight:800;letter-spacing:-.01em;line-height:1.2;padding-right:36px">{{ playerTrack.title }}</span>
+              <span style="font-size:17px;font-weight:800;letter-spacing:-.01em;line-height:21px">{{ playerTrack.title }}</span>
             </div>
           </div>
         </sc-if>
@@ -2253,10 +2260,11 @@ class Component extends DCLogic {
       // of ellipsizing. Length-based rather than measuring actual layout
       // (no DOM ref for this text), same approach as headlineStyle above —
       // duration scales with length too, so a longer title doesn't end up
-      // scrolling noticeably faster than a shorter one.
+      // scrolling (and covering more distance) in the same time as a
+      // shorter one.
       hasLongPlayerTitle: ((this.getActiveTracks()[this.state.playerIndex] || {}).title || '').length > 22,
       hasShortPlayerTitle: ((this.getActiveTracks()[this.state.playerIndex] || {}).title || '').length <= 22,
-      playerTitleMarqueeStyle: { animationDuration: Math.max(7, (((this.getActiveTracks()[this.state.playerIndex] || {}).title || '').length) * 0.4) + 's' },
+      playerTitleMarqueeStyle: { animationDuration: Math.max(8, (((this.getActiveTracks()[this.state.playerIndex] || {}).title || '').length) * 0.45) + 's' },
       togglePlaylistPicker: () => this.setState(s => ({ playlistPickerOpen: !s.playlistPickerOpen })),
       playlistPickerOpen: this.state.playlistPickerOpen,
       playlistOptions: [
