@@ -211,6 +211,8 @@ a:hover{color:#FF7A1A}
             </div>
           </div>
         </sc-for>
+        <div onClick="{{ scrollWorkLeft }}" style="{{ workPrevHotspotStyle }}" aria-label="Previous project"></div>
+        <div onClick="{{ scrollWorkRight }}" style="{{ workNextHotspotStyle }}" aria-label="Next project"></div>
       </div>
       <div style="display:flex;justify-content:center;align-items:center;gap:8px;padding-top:14px" data-comment-anchor="9c27553382-div">
         <sc-for list="{{ workDots }}" as="d" hint-placeholder-count="6">
@@ -1641,6 +1643,15 @@ class Component extends DCLogic {
     const key = kind === 'work' ? 'workCenter' : 'forFunCenter';
     this.setState({ [key]: index });
   }
+  coverflowHotspotStyle(dir) {
+    const k = this.coverflowScale();
+    const x = dir * 263 * k;
+    return {
+      position: 'absolute', left: '50%', top: '50%', width: Math.round(204 * k), height: Math.round(560 * k),
+      transform: `translate(-50%,-50%) translateX(${x}px)`,
+      zIndex: 150, cursor: 'pointer', background: 'transparent',
+    };
+  }
   buildCoverflow(list, center, kind) {
     const n = list.length;
     const k = this.coverflowScale();
@@ -1887,6 +1898,16 @@ class Component extends DCLogic {
       goForFun: () => this.goTo('forfun'),
       workCoverflow: this.buildCoverflow(this.projectsData.filter(p => p.origin === 'work').map(p => this.mkProject(p)), this.state.workCenter, 'work'),
       coverflowStageStyle: { position: 'relative', zIndex: 2, height: Math.round(590 * this.coverflowScale()) + 'px', perspective: Math.round(2600 * this.coverflowScale()) + 'px', transformStyle: 'preserve-3d', maxWidth: 1120, margin: '0 auto' },
+      // Flat, unrotated click targets laid over the neighbor cards. The
+      // cards themselves are 3D-transformed (rotateY + explicit z-index)
+      // inside a preserve-3d stage, which flattens their stacking to plain
+      // z-index order — so the centered card's rectangular hit box can win
+      // clicks even where a neighbor card is the thing visibly showing.
+      // These sit above everything and just call the same shiftCenter used
+      // by the dots, so "click the next/previous card" is reliable
+      // regardless of how the browser resolves the 3D hit-test underneath.
+      workPrevHotspotStyle: this.coverflowHotspotStyle(-1),
+      workNextHotspotStyle: this.coverflowHotspotStyle(1),
       forFunFloating: this.projectsData.filter(p => p.origin === 'forfun').map(p => this.mkProject(p)).map((p, i) => {
         const statusMap = { sendit: 'Work in progress', wrobe: 'Reworking' };
         const status = statusMap[p.id];
