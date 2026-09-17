@@ -797,7 +797,7 @@ a:hover{color:#FF7A1A}
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props="{&quot;customCursor&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Interaction&quot;}}">
 class Component extends DCLogic {
-  state = { page: 'work', detailId: null, indicatorStyle: { position: 'absolute', opacity: 0 }, playerPlaying: false, playerIndex: 0, playerTime: 0, playerDuration: 0, playerExpanded: false, workCenter: 0, forFunCenter: 0, playerShuffle: false, playerVolume: 1, playerVolumeOpen: false, playlistFile: null, playlistItems: [], ytMeta: (function(){ try { const r = JSON.parse(localStorage.getItem('jk-portfolio-ytmeta-v11') || 'null'); return (r && typeof r === 'object') ? r : {}; } catch (e) { return {}; } })(), playlistBusy: false, playlistError: '', playerTitleOverflowing: false, playerTitleOverflowPx: 0, activePlaylistId: 'main', playlistPickerOpen: false, dropZoneActive: false, viewportW: (typeof window !== 'undefined' ? window.innerWidth : 1200) };
+  state = { page: 'work', detailId: null, indicatorStyle: { position: 'absolute', opacity: 0 }, playerPlaying: false, playerIndex: 0, playerTime: 0, playerDuration: 0, playerExpanded: false, workCenter: 0, forFunCenter: 0, playerShuffle: false, playerVolume: 1, playerVolumeOpen: false, playlistFile: null, playlistItems: [], ytMeta: (function(){ try { const r = JSON.parse(localStorage.getItem('jk-portfolio-ytmeta-v12') || 'null'); return (r && typeof r === 'object') ? r : {}; } catch (e) { return {}; } })(), playlistBusy: false, playlistError: '', playerTitleOverflowing: false, playerTitleOverflowPx: 0, activePlaylistId: 'main', playlistPickerOpen: false, dropZoneActive: false, viewportW: (typeof window !== 'undefined' ? window.innerWidth : 1200) };
   navRef = React.createRef();
   workTabRef = React.createRef();
   forFunTabRef = React.createRef();
@@ -878,7 +878,15 @@ class Component extends DCLogic {
   stripYtTitleTags(title) {
     const HANGUL = /[가-힣]/;
     const isFeatGroup = s => /^(feat\.?|ft\.?|featuring)\b/i.test(s.trim());
-    const isJunkGroup = s => /^(official\s*)?(m\/?v|music\s*video|lyric(s)?\s*video|audio|visualizer|video|hd|4k|8k|live|remaster(ed)?|color[\s-]?coded|eng(lish)?\s*sub(s)?|lyrics?)\b/i.test(s.trim());
+    const isJunkGroup = s => {
+      const g = s.trim();
+      // "with X" sponsor/brand mentions ("with LOTTE CASTLE") and named
+      // live-session recordings ("Audiotree Live", or any other "X Live"
+      // session-series tag) don't fit the leading-keyword check below —
+      // checked separately since neither starts with a recognizable tag.
+      if (/^with\b/i.test(g) || /\blive$/i.test(g)) return true;
+      return /^(official\s*)?(m\/?v|music\s*video|lyric(s)?\s*video|audio|visualizer|video|hd|4k|8k|live|remaster(ed)?|color[\s-]?coded|eng(lish)?\s*sub(s)?|lyrics?)\b/i.test(g);
+    };
     let t = String(title || '');
     const groups = [];
     t = t.replace(/[([]([^)\]]*)[)\]]/g, (m, inner) => { groups.push(inner.trim()); return '~~MKR~~' + (groups.length - 1) + '~~MKR~~'; });
@@ -1017,7 +1025,7 @@ class Component extends DCLogic {
           if (!entry.title) return;
           this.setState(s => {
             const next = { ...(s.ytMeta || {}), [id]: entry };
-            try { localStorage.setItem('jk-portfolio-ytmeta-v11', JSON.stringify(next)); } catch (e) {}
+            try { localStorage.setItem('jk-portfolio-ytmeta-v12', JSON.stringify(next)); } catch (e) {}
             return { ytMeta: next };
           });
         });
