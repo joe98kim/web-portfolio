@@ -797,7 +797,7 @@ a:hover{color:#FF7A1A}
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props="{&quot;customCursor&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Interaction&quot;}}">
 class Component extends DCLogic {
-  state = { page: 'work', detailId: null, indicatorStyle: { position: 'absolute', opacity: 0 }, playerPlaying: false, playerIndex: 0, playerTime: 0, playerDuration: 0, playerExpanded: false, workCenter: 0, forFunCenter: 0, playerShuffle: false, playerVolume: 1, playerVolumeOpen: false, playlistFile: null, playlistItems: [], ytMeta: (function(){ try { const r = JSON.parse(localStorage.getItem('jk-portfolio-ytmeta-v6') || 'null'); return (r && typeof r === 'object') ? r : {}; } catch (e) { return {}; } })(), playlistBusy: false, playlistError: '', playerTitleOverflowing: false, playerTitleOverflowPx: 0, activePlaylistId: 'main', playlistPickerOpen: false, dropZoneActive: false, viewportW: (typeof window !== 'undefined' ? window.innerWidth : 1200) };
+  state = { page: 'work', detailId: null, indicatorStyle: { position: 'absolute', opacity: 0 }, playerPlaying: false, playerIndex: 0, playerTime: 0, playerDuration: 0, playerExpanded: false, workCenter: 0, forFunCenter: 0, playerShuffle: false, playerVolume: 1, playerVolumeOpen: false, playlistFile: null, playlistItems: [], ytMeta: (function(){ try { const r = JSON.parse(localStorage.getItem('jk-portfolio-ytmeta-v7') || 'null'); return (r && typeof r === 'object') ? r : {}; } catch (e) { return {}; } })(), playlistBusy: false, playlistError: '', playerTitleOverflowing: false, playerTitleOverflowPx: 0, activePlaylistId: 'main', playlistPickerOpen: false, dropZoneActive: false, viewportW: (typeof window !== 'undefined' ? window.innerWidth : 1200) };
   navRef = React.createRef();
   workTabRef = React.createRef();
   forFunTabRef = React.createRef();
@@ -868,15 +868,66 @@ class Component extends DCLogic {
     a = a.replace(/\s+[-–—]\s+/g, ' ');
     return a.replace(/\s{2,}/g, ' ').trim();
   }
-  // Strips any parenthetical part of a fetched YouTube title (e.g. "Song
-  // (Official Video)" -> "Song") — applied everywhere a title comes from
-  // YouTube, not just the curated mixtapes. Also strips an artist-name
-  // segment and its " - " separator (the common "Artist - Song" YouTube
-  // title convention), using the oEmbed author name when available to
-  // pick the right side of the dash; without a match it defaults to that
-  // convention and drops whatever comes before the first dash.
+  // Sorts a YouTube title's bracketed groups into three buckets instead of
+  // stripping all of them uniformly: a "(feat. X)" credit (kept,
+  // normalized to that exact form — the one thing worth keeping), an
+  // English alt-title sitting alongside a Korean one (common on K-pop
+  // uploads — "곡 제목 (Song Title)" — used to replace the whole title
+  // rather than discarded), and everything else ("Official Video", "Lyric
+  // Video", "MV", "4K", label/channel tags, etc. — stripped).
+  stripYtTitleTags(title) {
+    const HANGUL = /[가-힣]/;
+    const isFeatGroup = s => /^(feat\.?|ft\.?|featuring)\b/i.test(s.trim());
+    const isJunkGroup = s => /^(official\s*)?(m\/?v|music\s*video|lyric(s)?\s*video|audio|visualizer|video|hd|4k|8k|live|remaster(ed)?|color[\s-]?coded|eng(lish)?\s*sub(s)?|lyrics?)\b/i.test(s.trim());
+    let t = String(title || '');
+    const groups = [];
+    t = t.replace(/[([]([^)\]]*)[)\]]/g, (m, inner) => { groups.push(inner.trim()); return '~~MKR~~' + (groups.length - 1) + '~~MKR~~'; });
+    const baseHasHangul = HANGUL.test(t.replace(/~~MKR~~\d+~~MKR~~/g, ''));
+    // A K-pop title's dash conventionally separates "Artist(s)" from
+    // "Song Title", each of which can carry its own English gloss in
+    // brackets ("Artist (Eng Name) - 제목 (Eng Title)") — only the one
+    // after the last dash is the SONG's alt-title; one before it is an
+    // artist name gloss, which a plain "first Latin bracket found" rule
+    // can't tell apart and would wrongly pick as the title.
+    const lastDash = t.search(/[-–—](?!.*[-–—])/);
+    let altEnglish = null;
+    groups.forEach((g, i) => {
+      const placeholder = '~~MKR~~' + i + '~~MKR~~';
+      if (isFeatGroup(g)) {
+        const rest = g.replace(/^(feat\.?|ft\.?|featuring)\s*/i, '').trim();
+        t = t.replace(placeholder, `(feat. ${rest})`);
+        return;
+      }
+      const isEnglishCandidate = baseHasHangul && !isJunkGroup(g) && /[a-zA-Z]/.test(g) && !HANGUL.test(g);
+      if (isEnglishCandidate && !altEnglish) {
+        const pos = t.indexOf(placeholder);
+        if (lastDash === -1 || pos > lastDash) { altEnglish = g; t = t.replace(placeholder, ''); return; }
+      }
+      t = t.replace(placeholder, '');
+    });
+    if (altEnglish) t = altEnglish;
+    // Same tag words, but for when YouTube left them unbracketed entirely
+    // (e.g. "Song Title Lyric Video" with no parens at all).
+    t = t.replace(/\b(official\s*)?(m\/?v|music\s*video|lyric(s)?\s*video|visualizer)\b/gi, '');
+    // Stray straight or smart quote marks wrapping the title.
+    t = t.replace(/^[\s"'“”‘’]+/, '').replace(/[\s"'“”‘’]+$/, '');
+    return t.replace(/\s{2,}/g, ' ').trim();
+  }
+  // Also strips an artist-name segment and its " - " separator (the
+  // common "Artist - Song" YouTube title convention), using the oEmbed
+  // author name when available to pick the right side of the dash;
+  // without a match it defaults to that convention and drops whatever
+  // comes before the first dash. Applied everywhere a title comes from
+  // YouTube, not just the curated mixtapes.
   cleanYtTitle(title, artist) {
-    let t = String(title || '').replace(/\s*\([^)]*\)/g, '').replace(/\s*\[[^\]]*\]/g, '').trim();
+    let t = this.stripYtTitleTags(title);
+    // A kept "(feat. ...)" credit needs protecting from the dash-split and
+    // bracket cleanup below (which would otherwise catch it as just
+    // another dash-separated segment, or strip its parens) — pull it out
+    // and reattach once the rest of the cleanup is done.
+    let featSuffix = '';
+    const featMatch = t.match(/\s*\(feat\. [^)]*\)\s*$/i);
+    if (featMatch) { featSuffix = featMatch[0].trim(); t = t.slice(0, featMatch.index).trim(); }
     const norm = s => String(s || '').toLowerCase().replace(/[^a-z0-9]/g, '');
     const artistNorm = norm(artist);
     // Requires whitespace on at least one side of the dash (not both) so
@@ -897,7 +948,19 @@ class Component extends DCLogic {
     // that wasn't cleanly balanced to begin with (e.g. "She )").
     t = t.replace(/^\s*[-–—:]\s*/, '').replace(/\s*[-–—:]\s*$/, '');
     t = t.replace(/[()\[\]]/g, '');
-    return t.replace(/\s{2,}/g, ' ').trim();
+    t = t.replace(/\s{2,}/g, ' ').trim();
+    return featSuffix ? (t + ' ' + featSuffix) : t;
+  }
+  // Last-resort corrections for cases neither YouTube's own metadata nor
+  // the iTunes catalog lookup gets right — checked after both, keyed by
+  // the normalized cleaned title so it applies wherever the id maps to
+  // that title.
+  manualMetaOverrides = {
+    'nerdy love': { artist: 'pH-1, Yerin Baek' },
+  };
+  applyManualOverride(meta) {
+    const o = this.manualMetaOverrides[String(meta.title || '').toLowerCase().trim()];
+    return o ? { title: o.title || meta.title, artist: o.artist || meta.artist } : meta;
   }
   // Resolves a curated {youtubeId} entry into a full track, using cached
   // metadata once ensureYtMeta has fetched it (falls back to an id-based
@@ -935,11 +998,11 @@ class Component extends DCLogic {
         const ytTitle = this.cleanYtTitle(meta.title, ytArtist);
         return this.lookupCatalogMeta(ytTitle, ytArtist).then(catalog => {
           this._ytMetaFetching.delete(id);
-          const entry = { title: (catalog && catalog.title) || ytTitle, artist: (catalog && catalog.artist) || ytArtist };
+          const entry = this.applyManualOverride({ title: (catalog && catalog.title) || ytTitle, artist: (catalog && catalog.artist) || ytArtist });
           if (!entry.title) return;
           this.setState(s => {
             const next = { ...(s.ytMeta || {}), [id]: entry };
-            try { localStorage.setItem('jk-portfolio-ytmeta-v6', JSON.stringify(next)); } catch (e) {}
+            try { localStorage.setItem('jk-portfolio-ytmeta-v7', JSON.stringify(next)); } catch (e) {}
             return { ytMeta: next };
           });
         });
@@ -2025,8 +2088,7 @@ class Component extends DCLogic {
       const ytArtist = this.cleanYtArtist(meta.author_name);
       const ytTitle = this.cleanYtTitle(meta.title, ytArtist) || this.ytTitleFrom(link);
       this.lookupCatalogMeta(ytTitle, ytArtist).then(catalog => {
-        const title = (catalog && catalog.title) || ytTitle;
-        const artist = (catalog && catalog.artist) || ytArtist;
+        const { title, artist } = this.applyManualOverride({ title: (catalog && catalog.title) || ytTitle, artist: (catalog && catalog.artist) || ytArtist });
         const track = {
           title,
           sourceLabel: artist || 'YouTube',
