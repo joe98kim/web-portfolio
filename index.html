@@ -797,7 +797,7 @@ a:hover{color:#FF7A1A}
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props="{&quot;customCursor&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Interaction&quot;}}">
 class Component extends DCLogic {
-  state = { page: 'work', detailId: null, indicatorStyle: { position: 'absolute', opacity: 0 }, playerPlaying: false, playerIndex: 0, playerTime: 0, playerDuration: 0, playerExpanded: false, workCenter: 0, forFunCenter: 0, playerShuffle: false, playerVolume: 1, playerVolumeOpen: false, playlistFile: null, playlistItems: [], ytMeta: (function(){ try { const r = JSON.parse(localStorage.getItem('jk-portfolio-ytmeta-v9') || 'null'); return (r && typeof r === 'object') ? r : {}; } catch (e) { return {}; } })(), playlistBusy: false, playlistError: '', playerTitleOverflowing: false, playerTitleOverflowPx: 0, activePlaylistId: 'main', playlistPickerOpen: false, dropZoneActive: false, viewportW: (typeof window !== 'undefined' ? window.innerWidth : 1200) };
+  state = { page: 'work', detailId: null, indicatorStyle: { position: 'absolute', opacity: 0 }, playerPlaying: false, playerIndex: 0, playerTime: 0, playerDuration: 0, playerExpanded: false, workCenter: 0, forFunCenter: 0, playerShuffle: false, playerVolume: 1, playerVolumeOpen: false, playlistFile: null, playlistItems: [], ytMeta: (function(){ try { const r = JSON.parse(localStorage.getItem('jk-portfolio-ytmeta-v10') || 'null'); return (r && typeof r === 'object') ? r : {}; } catch (e) { return {}; } })(), playlistBusy: false, playlistError: '', playerTitleOverflowing: false, playerTitleOverflowPx: 0, activePlaylistId: 'main', playlistPickerOpen: false, dropZoneActive: false, viewportW: (typeof window !== 'undefined' ? window.innerWidth : 1200) };
   navRef = React.createRef();
   workTabRef = React.createRef();
   forFunTabRef = React.createRef();
@@ -964,6 +964,12 @@ class Component extends DCLogic {
     { match: /^산책$/, title: 'Walk', artist: 'GongGongGoo009' },
     { match: /^love$/i, title: 'Love Love Love', artist: 'Epik High' },
     { match: /그땐|then\s*then\s*then/i, title: 'Then Then Then', artist: 'Supreme Team' },
+    // Matched on the Korean original only, not an "earth" fallback like
+    // the others have — "Earth" alone is common enough as a song title
+    // that a broad match could misattribute an unrelated artist's own
+    // "Earth" track to JANNABI, the same class of mistake the catalog
+    // lookup's generic-title guard exists to avoid.
+    { match: /어스/, title: 'Earth', artist: 'JANNABI' },
   ];
   applyManualOverride(meta) {
     const t = String(meta.title || '');
@@ -1010,7 +1016,7 @@ class Component extends DCLogic {
           if (!entry.title) return;
           this.setState(s => {
             const next = { ...(s.ytMeta || {}), [id]: entry };
-            try { localStorage.setItem('jk-portfolio-ytmeta-v9', JSON.stringify(next)); } catch (e) {}
+            try { localStorage.setItem('jk-portfolio-ytmeta-v10', JSON.stringify(next)); } catch (e) {}
             return { ytMeta: next };
           });
         });
