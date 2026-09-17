@@ -752,7 +752,13 @@ a:hover{color:#FF7A1A}
           </div>
         </sc-if>
         <sc-if value="{{ hasShortPlayerTitle }}" hint-placeholder-val="{{ true }}">
-          <div style="font-size:17px;font-weight:800;letter-spacing:-.01em;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ playerTrack.title }}</div>
+          <!-- No overflow/ellipsis clipping here: syncPlayerTitleMarquee
+               already only routes a title to this branch when its real
+               measured overflow is at most the 14px marquee threshold (or
+               zero), so any spillover is small enough to sit in the
+               panel's own side padding rather than visibly cutting the
+               title off. -->
+          <div style="font-size:17px;font-weight:800;letter-spacing:-.01em;line-height:1.2;white-space:nowrap">{{ playerTrack.title }}</div>
         </sc-if>
         <div style="font-size:11.5px;color:#c05e0e;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ playerTrack.artist }}</div>
       </div>
