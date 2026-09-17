@@ -51,6 +51,14 @@ a:hover{color:#FF7A1A}
 .jk-play-btn{width:52px;height:52px;border-radius:50%;background:rgba(255,255,255,.92);display:flex;align-items:center;justify-content:center;box-shadow:0 4px 10px rgba(0,0,0,.22)}
 .jk-vinyl{animation:jk-spin 6s linear infinite}
 @keyframes jk-spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+/* Now-playing title marquee: two copies of the title back to back,
+   translated by exactly half the track's width — that's what makes the
+   loop seamless (the moment the first copy scrolls fully off, the second
+   is sitting exactly where the first started) without ever needing to
+   measure the actual text width in JS. */
+.jk-marquee-mask{overflow:hidden;width:100%;text-align:left}
+.jk-marquee-track{display:inline-flex;white-space:nowrap;animation:jk-marquee linear infinite}
+@keyframes jk-marquee{from{transform:translateX(0)}to{transform:translateX(-50%)}}
 .jk-seek{-webkit-appearance:none;appearance:none;width:100%;height:4px;border-radius:999px;background:rgba(23,23,26,.35);outline:none;cursor:pointer}
 .jk-seek::-webkit-slider-thumb{-webkit-appearance:none;width:12px;height:12px;border-radius:50%;background:#17171a;margin-top:-4px}
 .jk-seek::-moz-range-thumb{width:12px;height:12px;border-radius:50%;background:#17171a;border:none}
@@ -719,7 +727,17 @@ a:hover{color:#FF7A1A}
         </div>
       </div>
       <div style="text-align:center;max-width:100%">
-        <div style="font-size:17px;font-weight:800;letter-spacing:-.01em;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ playerTrack.title }}</div>
+        <sc-if value="{{ hasLongPlayerTitle }}" hint-placeholder-val="{{ false }}">
+          <div class="jk-marquee-mask">
+            <div class="jk-marquee-track" style="{{ playerTitleMarqueeStyle }}">
+              <span style="font-size:17px;font-weight:800;letter-spacing:-.01em;line-height:1.2;padding-right:36px">{{ playerTrack.title }}</span>
+              <span aria-hidden="true" style="font-size:17px;font-weight:800;letter-spacing:-.01em;line-height:1.2;padding-right:36px">{{ playerTrack.title }}</span>
+            </div>
+          </div>
+        </sc-if>
+        <sc-if value="{{ hasShortPlayerTitle }}" hint-placeholder-val="{{ true }}">
+          <div style="font-size:17px;font-weight:800;letter-spacing:-.01em;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ playerTrack.title }}</div>
+        </sc-if>
         <div style="font-size:11.5px;color:#c05e0e;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ playerTrack.artist }}</div>
       </div>
     </div>
@@ -2193,6 +2211,14 @@ class Component extends DCLogic {
       bgWaveRef: this.bgWaveRef,
       playerTrack: this.getActiveTracks()[this.state.playerIndex] || { title: 'No track', artist: 'Add a song', src: '' },
       hasPlayerSrc: !!(this.getActiveTracks()[this.state.playerIndex] && this.getActiveTracks()[this.state.playerIndex].src),
+      // A title long enough to clip in the expanded panel scrolls instead
+      // of ellipsizing. Length-based rather than measuring actual layout
+      // (no DOM ref for this text), same approach as headlineStyle above —
+      // duration scales with length too, so a longer title doesn't end up
+      // scrolling noticeably faster than a shorter one.
+      hasLongPlayerTitle: ((this.getActiveTracks()[this.state.playerIndex] || {}).title || '').length > 22,
+      hasShortPlayerTitle: ((this.getActiveTracks()[this.state.playerIndex] || {}).title || '').length <= 22,
+      playerTitleMarqueeStyle: { animationDuration: Math.max(7, (((this.getActiveTracks()[this.state.playerIndex] || {}).title || '').length) * 0.4) + 's' },
       togglePlaylistPicker: () => this.setState(s => ({ playlistPickerOpen: !s.playlistPickerOpen })),
       playlistPickerOpen: this.state.playlistPickerOpen,
       playlistOptions: [
@@ -2261,7 +2287,7 @@ class Component extends DCLogic {
       // Expanded player: docked to the same bottom-right corner instead of
       // floating centered, so it grows from where the collapsed dot was.
       playerPanelStyle: {
-        position: 'fixed', right: 24, bottom: 24, zIndex: 25, width: 'min(260px, calc(100vw - 48px))',
+        position: 'fixed', right: 24, bottom: 24, zIndex: 25, width: 'min(300px, calc(100vw - 48px))',
         background: 'rgba(238,240,241,.72)', backdropFilter: 'blur(22px) saturate(120%)', WebkitBackdropFilter: 'blur(22px) saturate(120%)',
         border: '1px solid #17171a', borderRadius: 24, overflow: 'hidden',
       },
