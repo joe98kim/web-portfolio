@@ -1388,29 +1388,25 @@ class Component extends DCLogic {
 
   wheelLocked = false;
   wheelUnlockTimer = null;
-  wheelLastAbsDelta = 0;
   workStageRef = React.createRef();
   forFunStageRef = React.createRef();
   onWheelKind(kind, e) {
     e.preventDefault();
     const delta = Math.abs(e.deltaY) > Math.abs(e.deltaX) ? e.deltaY : e.deltaX;
-    const absDelta = Math.abs(delta);
-    if (absDelta < 4) return;
-    // Trackpad momentum decays smoothly once the fingers lift, so one
-    // swipe's tail is a run of shrinking deltas — locking until the stream
-    // goes quiet (renewed below) consolidates that whole run into a single
-    // step, however long the tail runs. But a fresh swipe started before
-    // that tail finishes looks like more of the same stream, which forced
-    // waiting out the *entire* old tail's silence before the carousel
-    // would respond again. A new swipe's deltas re-accelerate — they jump
-    // noticeably above the immediately preceding (decaying) one — so that
-    // jump is treated as its own gesture and let through right away
-    // instead of queuing behind the old tail.
-    const isNewGesture = this.wheelLocked && absDelta > this.wheelLastAbsDelta * 1.6 + 6;
-    this.wheelLastAbsDelta = absDelta;
+    // One shared floor for everything — starting a gesture, renewing the
+    // lock, AND releasing it. A split "low bar to start, high bar to keep
+    // renewing" version of this caused its own bug: once the high bar let
+    // the lock expire, the swipe's still-dribbling weak tail (below the
+    // renew bar but above the low starting one) came in and got read as
+    // the start of a *new* gesture, firing a spurious second step. Ignoring
+    // anything under this single floor entirely — not weighed for
+    // triggering, renewing, or unlocking — closes that gap: the tail stops
+    // being visible to this code at all well before the physical swipe has
+    // fully stopped, so the lock can't be reopened by its own leftovers.
+    if (Math.abs(delta) < 10) return;
     clearTimeout(this.wheelUnlockTimer);
-    this.wheelUnlockTimer = setTimeout(() => { this.wheelLocked = false; this.wheelLastAbsDelta = 0; }, 220);
-    if (this.wheelLocked && !isNewGesture) return;
+    this.wheelUnlockTimer = setTimeout(() => { this.wheelLocked = false; }, 150);
+    if (this.wheelLocked) return;
     this.wheelLocked = true;
     this.shiftCenter(kind, delta > 0 ? 1 : -1);
   }
