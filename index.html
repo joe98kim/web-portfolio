@@ -114,27 +114,24 @@ a:hover{color:#FF7A1A}
      as dead space on one side of the page. Desktop keeps the reservation
      (it prevents layout shift there); mobile doesn't need it. */
   html{scrollbar-gutter:auto !important}
-  /* Every case-study/About/For-fun body paragraph shares this exact
-     inline font-size, so this one rule reaches all of them without a
-     class on each — smaller and easier to read at a phone's line length.
-     Deliberately left this as a literal-text match (not a class): these
-     are all written as plain style="font-size:20px;..." text directly in
-     the template, not a bound JS style object, so the substring actually
-     appears verbatim in the rendered markup. */
-  [style*="font-size:20px"]{font-size:12px !important}
-  /* About/For fun page hero: eyebrow label, big heading ("Get to know
-     me"/"The things I make for fun"), and the paragraph(s) below it.
-     Reported as still unchanged twice despite the rule above and a
-     previous [style*="font-size:38px"] one that both check out
-     byte-for-byte against the actual source — so rather than keep
-     guessing at why an inline-style substring match might not be landing
-     in the rendered DOM, these are now plain classes instead, which
-     can't have that problem regardless of the cause. jk-page-hero-body
-     duplicates the effect of the generic font-size:20px rule above for
-     these two elements specifically, deliberately redundant. */
+  /* Case-study body/lead paragraphs and the About/For-fun hero text were
+     both reported as still unchanged despite the selectors that targeted
+     them checking out byte-for-byte against the actual source (re-verified
+     with a raw regex dump — no hidden whitespace, no encoding issue).
+     Rather than keep guessing at why an inline-style substring match
+     might not be landing in the actual rendered DOM, every one of these
+     elements now carries a real class instead (jk-case-body /
+     jk-page-hero-body/-heading/-eyebrow), which can't have that failure
+     mode regardless of the underlying cause. */
+  .jk-case-body{font-size:12px !important}
   .jk-page-hero-eyebrow{font-size:10px !important}
   .jk-page-hero-heading{font-size:26px !important}
   .jk-page-hero-body{font-size:12px !important}
+  /* Widowed words (a single short word stranded alone on a heading or
+     paragraph's last line, e.g. "fun" on its own under "The things I
+     make for") — text-wrap:balance redistributes the line breaks instead
+     of always filling every line to the max before wrapping. */
+  h1,h2,h3,.jk-case-body,.jk-page-hero-heading,.jk-page-hero-body{text-wrap:balance}
   /* For-fun project cards (SendIt, Wrobe): title and one-line tag,
      matched by real class rather than the h3's inline-style text — its
      size is fine to match on text alone, but keeping the pattern
@@ -512,10 +509,10 @@ a:hover{color:#FF7A1A}
         <div id="{{ sec.domId }}" style="margin:0 0 44px">
           <h3 style="font-size:13px;font-weight:700;color:#FF7A1A;letter-spacing:.08em;text-transform:uppercase;margin:0 0 14px">{{ sec.heading }}</h3>
           <sc-if value="{{ sec.hasLead }}" hint-placeholder-val="{{ false }}">
-            <p style="font-size:20px;line-height:1.7;font-weight:700;color:#17171A;margin:0 0 20px">{{ sec.lead }}</p>
+            <p class="jk-case-body" style="font-size:20px;line-height:1.7;font-weight:700;color:#17171A;margin:0 0 20px">{{ sec.lead }}</p>
           </sc-if>
           <sc-if value="{{ sec.hasBody }}" hint-placeholder-val="{{ false }}">
-            <p style="font-size:20px;line-height:1.7;color:#4a4a4c;margin:0">{{ sec.body }}</p>
+            <p class="jk-case-body" style="font-size:20px;line-height:1.7;color:#4a4a4c;margin:0">{{ sec.body }}</p>
           </sc-if>
           <sc-if value="{{ sec.hasSlot }}" hint-placeholder-val="{{ false }}">
             <image-slot data-autoheight="" id="{{ sec.slotId }}" src="{{ sec.src }}" style="{{ sec.slotStyle }}" shape="rect" radius="0" fit="contain" placeholder="Drop an image"></image-slot>
@@ -555,20 +552,20 @@ a:hover{color:#FF7A1A}
       <sc-if value="{{ detailHasDescription }}" hint-placeholder-val="{{ false }}">
         <h3 style="font-size:13px;font-weight:700;color:#FF7A1A;letter-spacing:.08em;text-transform:uppercase;margin:60px 0 14px" id="cs-overview">Overview</h3>
         <sc-if value="{{ detailHasDescriptionLead }}" hint-placeholder-val="{{ false }}">
-          <p style="font-size:20px;line-height:1.7;font-weight:700;color:#17171A;margin:0 0 20px">{{ detail.descriptionLead }}</p>
+          <p class="jk-case-body" style="font-size:20px;line-height:1.7;font-weight:700;color:#17171A;margin:0 0 20px">{{ detail.descriptionLead }}</p>
         </sc-if>
-        <p style="font-size:20px;line-height:1.7;color:#4a4a4c;margin:0 0 20px" data-comment-anchor="003ec62998-p">{{ detail.description }}</p>
+        <p class="jk-case-body" style="font-size:20px;line-height:1.7;color:#4a4a4c;margin:0 0 20px" data-comment-anchor="003ec62998-p">{{ detail.description }}</p>
         <sc-if value="{{ detailHasDescription2 }}" hint-placeholder-val="{{ false }}">
-          <p style="font-size:20px;line-height:1.7;color:#4a4a4c;margin:0">{{ detail.description2 }}</p>
+          <p class="jk-case-body" style="font-size:20px;line-height:1.7;color:#4a4a4c;margin:0">{{ detail.description2 }}</p>
         </sc-if>
       </sc-if>
 
       <sc-if value="{{ detailHasIntroCaption }}" hint-placeholder-val="{{ false }}">
         <div style="display:flex;flex-direction:column;align-items:center;gap:2px;text-align:center;margin:60px 0 10px">
           <sc-if value="{{ detailHasIntroCaptionLead }}" hint-placeholder-val="{{ false }}">
-            <p style="font-size:20px;line-height:1.7;font-weight:700;color:#17171A;margin:0">{{ detail.introCaptionLead }}</p>
+            <p class="jk-case-body" style="font-size:20px;line-height:1.7;font-weight:700;color:#17171A;margin:0">{{ detail.introCaptionLead }}</p>
           </sc-if>
-          <p style="font-size:20px;line-height:1.7;color:#4a4a4c;margin:0">{{ detail.introCaption }}</p>
+          <p class="jk-case-body" style="font-size:20px;line-height:1.7;color:#4a4a4c;margin:0">{{ detail.introCaption }}</p>
         </div>
       </sc-if>
       <sc-if value="{{ detailHasIntroSlot }}" hint-placeholder-val="{{ true }}">
@@ -585,9 +582,9 @@ a:hover{color:#FF7A1A}
 
       <h3 style="font-size:13px;font-weight:700;color:#FF7A1A;letter-spacing:.08em;text-transform:uppercase;margin:60px 0 14px" id="cs-problem">The Problem</h3>
       <sc-if value="{{ detailHasProblemLead }}" hint-placeholder-val="{{ false }}">
-        <p style="font-size:20px;line-height:1.7;font-weight:700;color:#17171A;margin:0 0 20px">{{ detail.problemLead }}</p>
+        <p class="jk-case-body" style="font-size:20px;line-height:1.7;font-weight:700;color:#17171A;margin:0 0 20px">{{ detail.problemLead }}</p>
       </sc-if>
-      <p style="font-size:20px;line-height:1.7;color:#4a4a4c;margin:0 0 24px" data-comment-anchor="fd5c9b62f0-p">{{ detail.problem }}</p>
+      <p class="jk-case-body" style="font-size:20px;line-height:1.7;color:#4a4a4c;margin:0 0 24px" data-comment-anchor="fd5c9b62f0-p">{{ detail.problem }}</p>
 
 
       <sc-if value="{{ detailHasProblemSlot }}" hint-placeholder-val="{{ true }}">
@@ -599,23 +596,23 @@ a:hover{color:#FF7A1A}
 
       <h3 style="font-size:13px;font-weight:700;color:#FF7A1A;letter-spacing:.08em;text-transform:uppercase;margin:60px 0 16px" id="cs-process">My Process</h3>
       <sc-if value="{{ detailHasProcessLead }}" hint-placeholder-val="{{ false }}">
-        <p style="font-size:20px;line-height:1.7;font-weight:700;color:#17171A;margin:0 0 22px">{{ detail.processLead }}</p>
+        <p class="jk-case-body" style="font-size:20px;line-height:1.7;font-weight:700;color:#17171A;margin:0 0 22px">{{ detail.processLead }}</p>
       </sc-if>
       <sc-for list="{{ detail.process }}" as="step" hint-placeholder-count="3">
         <div style="{{ step.wrapStyle }}">
-          <p style="font-size:20px;line-height:1.7;color:#4a4a4c;margin:0"><sc-if value="{{ step.hasLabel }}" hint-placeholder-val="{{ true }}"><em style="font-style:normal;font-weight:700;color:#17171A">{{ step.label }}</em>&nbsp;</sc-if>{{ step.body }}</p>
+          <p class="jk-case-body" style="font-size:20px;line-height:1.7;color:#4a4a4c;margin:0"><sc-if value="{{ step.hasLabel }}" hint-placeholder-val="{{ true }}"><em style="font-style:normal;font-weight:700;color:#17171A">{{ step.label }}</em>&nbsp;</sc-if>{{ step.body }}</p>
           <sc-if value="{{ step.hasBody2 }}" hint-placeholder-val="{{ false }}">
-            <p style="font-size:20px;line-height:1.7;color:#4a4a4c;margin:14px 0 0">{{ step.body2 }}</p>
+            <p class="jk-case-body" style="font-size:20px;line-height:1.7;color:#4a4a4c;margin:14px 0 0">{{ step.body2 }}</p>
           </sc-if>
           <sc-if value="{{ step.hasBullets }}" hint-placeholder-val="{{ false }}">
             <ul style="margin:12px 0 0;padding-left:20px" data-comment-anchor="42905cb946-ul">
               <sc-for list="{{ step.bullets }}" as="b" hint-placeholder-count="4">
-                <li style="font-size:20px;line-height:1.7;color:#4a4a4c;margin-bottom:10px"><strong style="color:#17171A">{{ b.label }}</strong> — {{ b.body }}</li>
+                <li class="jk-case-body" style="font-size:20px;line-height:1.7;color:#4a4a4c;margin-bottom:10px"><strong style="color:#17171A">{{ b.label }}</strong> — {{ b.body }}</li>
               </sc-for>
             </ul>
           </sc-if>
           <sc-if value="{{ step.hasPostBullets }}" hint-placeholder-val="{{ false }}">
-            <p style="font-size:20px;line-height:1.7;color:#4a4a4c;margin:20px 0 0">{{ step.postBullets }}</p>
+            <p class="jk-case-body" style="font-size:20px;line-height:1.7;color:#4a4a4c;margin:20px 0 0">{{ step.postBullets }}</p>
           </sc-if>
           <sc-if value="{{ step.hasSlideshow }}" hint-placeholder-val="{{ false }}">
             <div style="{{ slideshowFrameStyle }}">
@@ -672,20 +669,20 @@ a:hover{color:#FF7A1A}
 
       <h3 style="font-size:13px;font-weight:700;color:#FF7A1A;letter-spacing:.08em;text-transform:uppercase;margin:60px 0 14px" id="cs-decisions">Key Decisions</h3>
       <sc-if value="{{ detailHasDecisionsLead }}" hint-placeholder-val="{{ false }}">
-        <p style="font-size:20px;line-height:1.7;font-weight:700;color:#17171A;margin:0 0 20px">{{ detail.decisionsLead }}</p>
+        <p class="jk-case-body" style="font-size:20px;line-height:1.7;font-weight:700;color:#17171A;margin:0 0 20px">{{ detail.decisionsLead }}</p>
       </sc-if>
-      <p style="font-size:20px;line-height:1.7;color:#4a4a4c;margin:0" data-comment-anchor="47541da82c-p">{{ detail.decisions }}</p>
+      <p class="jk-case-body" style="font-size:20px;line-height:1.7;color:#4a4a4c;margin:0" data-comment-anchor="47541da82c-p">{{ detail.decisions }}</p>
 
       <h3 style="font-size:13px;font-weight:700;color:#FF7A1A;letter-spacing:.08em;text-transform:uppercase;margin:60px 0 16px" id="cs-impact">Impact</h3>
       <sc-if value="{{ detailHasImpactLead }}" hint-placeholder-val="{{ false }}">
-        <p style="font-size:20px;line-height:1.7;font-weight:700;color:#17171A;margin:0 0 18px">{{ detail.impactLead }}</p>
+        <p class="jk-case-body" style="font-size:20px;line-height:1.7;font-weight:700;color:#17171A;margin:0 0 18px">{{ detail.impactLead }}</p>
       </sc-if>
       <sc-if value="{{ detailHasImpactBody }}" hint-placeholder-val="{{ false }}">
-        <p style="font-size:20px;line-height:1.7;color:#4a4a4c;margin:0 0 20px">{{ detail.impactBody }}</p>
+        <p class="jk-case-body" style="font-size:20px;line-height:1.7;color:#4a4a4c;margin:0 0 20px">{{ detail.impactBody }}</p>
       </sc-if>
       <ul style="margin:0 0 22px;padding-left:20px">
         <sc-for list="{{ detail.impact }}" as="imp" hint-placeholder-count="5">
-          <li style="font-size:20px;line-height:1.7;color:#4a4a4c;margin-bottom:10px">{{ imp }}</li>
+          <li class="jk-case-body" style="font-size:20px;line-height:1.7;color:#4a4a4c;margin-bottom:10px">{{ imp }}</li>
         </sc-for>
       </ul>
       <sc-if value="{{ detailHasMetricsRest }}" hint-placeholder-val="{{ false }}">
@@ -699,9 +696,9 @@ a:hover{color:#FF7A1A}
 
       <h3 style="font-size:13px;font-weight:700;color:#FF7A1A;letter-spacing:.08em;text-transform:uppercase;margin:60px 0 14px" id="cs-reflection">Reflection</h3>
       <sc-if value="{{ detailHasReflectionLead }}" hint-placeholder-val="{{ false }}">
-        <p style="font-size:20px;line-height:1.7;font-weight:700;color:#17171A;margin:0 0 20px">{{ detail.reflectionLead }}</p>
+        <p class="jk-case-body" style="font-size:20px;line-height:1.7;font-weight:700;color:#17171A;margin:0 0 20px">{{ detail.reflectionLead }}</p>
       </sc-if>
-      <p style="font-size:20px;line-height:1.7;color:#4a4a4c;margin:0" data-comment-anchor="425d24479a-p">{{ detail.reflection }}</p>
+      <p class="jk-case-body" style="font-size:20px;line-height:1.7;color:#4a4a4c;margin:0" data-comment-anchor="425d24479a-p">{{ detail.reflection }}</p>
 
       </sc-if>
 
