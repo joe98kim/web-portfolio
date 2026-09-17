@@ -1302,7 +1302,7 @@ class Component extends DCLogic {
         // (and reads faster) on a wide desktop canvas than on a narrow
         // phone one — scale it down above the mobile breakpoint instead of
         // touching the mobile speed, which was already fine as-is.
-        const desktopSlow = (this.state.viewportW || w) > 820 ? 0.78 : 1;
+        const desktopSlow = (this.state.viewportW || w) > 820 ? 0.68 : 1;
         // Spring target for the wake-up pop: a little bigger while playing,
         // back to normal size at rest. Stiffness/damping tuned so it
         // overshoots slightly on the way up (the "pop") then settles
