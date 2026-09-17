@@ -213,6 +213,8 @@ a:hover{color:#FF7A1A}
         </sc-for>
         <div onClick="{{ scrollWorkLeft }}" style="{{ workPrevHotspotStyle }}" aria-label="Previous project"></div>
         <div onClick="{{ scrollWorkRight }}" style="{{ workNextHotspotStyle }}" aria-label="Next project"></div>
+        <div onClick="{{ scrollWork2Left }}" style="{{ workPrevHotspot2Style }}" aria-label="Jump back two projects"></div>
+        <div onClick="{{ scrollWork2Right }}" style="{{ workNextHotspot2Style }}" aria-label="Jump forward two projects"></div>
       </div>
       <div style="display:flex;justify-content:center;align-items:center;gap:8px;padding-top:14px" data-comment-anchor="9c27553382-div">
         <sc-for list="{{ workDots }}" as="d" hint-placeholder-count="6">
@@ -1643,11 +1645,16 @@ class Component extends DCLogic {
     const key = kind === 'work' ? 'workCenter' : 'forFunCenter';
     this.setState({ [key]: index });
   }
-  coverflowHotspotStyle(dir) {
+  coverflowHotspotStyle(dir, level) {
     const k = this.coverflowScale();
-    const x = dir * 263 * k;
+    // level 1 covers the immediate neighbor (161-365), level 2 picks up
+    // right where that ends and covers the far card (365-555). Kept as
+    // separate non-overlapping zones so each always resolves to one card.
+    const center = level === 2 ? 460 : 263;
+    const width = level === 2 ? 190 : 204;
+    const x = dir * center * k;
     return {
-      position: 'absolute', left: '50%', top: '50%', width: Math.round(204 * k), height: Math.round(560 * k),
+      position: 'absolute', left: '50%', top: '50%', width: Math.round(width * k), height: Math.round(560 * k),
       transform: `translate(-50%,-50%) translateX(${x}px)`,
       zIndex: 150, cursor: 'pointer', background: 'transparent',
     };
@@ -1906,8 +1913,10 @@ class Component extends DCLogic {
       // These sit above everything and just call the same shiftCenter used
       // by the dots, so "click the next/previous card" is reliable
       // regardless of how the browser resolves the 3D hit-test underneath.
-      workPrevHotspotStyle: this.coverflowHotspotStyle(-1),
-      workNextHotspotStyle: this.coverflowHotspotStyle(1),
+      workPrevHotspotStyle: this.coverflowHotspotStyle(-1, 1),
+      workNextHotspotStyle: this.coverflowHotspotStyle(1, 1),
+      workPrevHotspot2Style: this.coverflowHotspotStyle(-1, 2),
+      workNextHotspot2Style: this.coverflowHotspotStyle(1, 2),
       forFunFloating: this.projectsData.filter(p => p.origin === 'forfun').map(p => this.mkProject(p)).map((p, i) => {
         const statusMap = { sendit: 'Work in progress', wrobe: 'Reworking' };
         const status = statusMap[p.id];
@@ -1939,6 +1948,8 @@ class Component extends DCLogic {
       forFunStageRef: this.forFunStageRef,
       scrollWorkLeft: () => this.shiftCenter('work', -1),
       scrollWorkRight: () => this.shiftCenter('work', 1),
+      scrollWork2Left: () => this.shiftCenter('work', -2),
+      scrollWork2Right: () => this.shiftCenter('work', 2),
       scrollForFunLeft: () => this.shiftCenter('forfun', -1),
       scrollForFunRight: () => this.shiftCenter('forfun', 1),
       detail,
