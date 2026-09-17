@@ -84,30 +84,48 @@ a:hover{color:#FF7A1A}
      stacks to one column it lands in its own row with no height to match,
      so give it a real height of its own instead of collapsing to 0. */
   .jk-about-photo{width:100% !important;height:auto !important;aspect-ratio:4/3;margin:0 auto !important}
+  /* scrollbar-gutter:stable (set on html, above) reserves a permanent
+     vertical-scrollbar-width strip even where no scrollbar ever renders —
+     some mobile browser chrome honors that reservation anyway, showing up
+     as dead space on one side of the page. Desktop keeps the reservation
+     (it prevents layout shift there); mobile doesn't need it. */
+  html{scrollbar-gutter:auto !important}
   /* Every case-study/About body paragraph shares this exact inline
      font-size, so this one rule reaches all of them without a class on
      each — smaller and easier to read at a phone's line length. */
-  [style*="font-size:20px"]{font-size:16px !important}
+  [style*="font-size:20px"]{font-size:14px !important}
   /* Force the Timeline/Tools/Contributions/Agency facts and the headline
      stat numbers to stay on one row each (shrunk to fit) instead of
      wrapping into a tall stack — cell text may still wrap, the row of
-     boxes itself shouldn't. */
-  .jk-meta-grid{grid-template-columns:repeat(4,1fr) !important;gap:8px !important;padding:12px 0 !important}
+     boxes itself shouldn't. minmax(0,1fr) (not a bare 1fr) on both grids
+     below matters: a bare 1fr track still has an implicit auto minimum
+     sized to its content, which can force the grid wider than the phone
+     screen and push the whole row off-center — minmax(0,1fr) lets a
+     track actually shrink to fit. */
+  .jk-meta-grid{grid-template-columns:repeat(4,minmax(0,1fr)) !important;gap:8px !important;padding:12px 0 !important}
   .jk-meta-grid [style*="font-size:10px"]{font-size:8px !important}
   .jk-meta-grid [style*="font-size:13px"]{font-size:10px !important}
-  .jk-stats-grid{grid-template-columns:repeat(3,1fr) !important;gap:8px !important}
-  .jk-stats-grid [style*="font-size:40px"]{font-size:20px !important}
-  .jk-stats-grid [style*="font-size:15px"]{font-size:9px !important}
+  .jk-stats-grid{grid-template-columns:repeat(3,minmax(0,1fr)) !important;gap:8px !important}
+  .jk-stats-grid [style*="font-size:40px"]{font-size:16px !important}
+  .jk-stats-grid [style*="font-size:15px"]{font-size:8px !important}
+  /* Case-study "More work" list: the title column is a fixed 22px on
+     desktop, which is too wide for the row's other columns (index number,
+     blurb, arrow) at phone width — it wraps to 2 lines and pushes the
+     blurb text down with it. Shrink the title and give the blurb column
+     less room to ask for. */
+  .jk-more-work a{grid-template-columns:24px 1fr minmax(0,130px) 16px !important;gap:10px !important}
+  .jk-more-work [style*="font-size:22px"]{font-size:15px !important}
 }
 @media (max-width:560px){
-  /* Generic-case-study icon+text cards (Bethel/Koop): 2x2 on desktop is
-     fine, but on mobile these should share one horizontal row like the
-     meta/stat grids above, not stack into 2 tall rows — shrink icon,
-     text, and padding to fit. */
-  .jk-detail-cards{grid-template-columns:repeat(auto-fit,minmax(85px,1fr)) !important;gap:8px !important}
-  .jk-detail-cards > div{padding:10px 8px !important;gap:6px !important;flex-direction:column !important;text-align:center}
-  .jk-detail-cards [style*="font-size:15.5px"]{font-size:10px !important;line-height:1.35 !important}
-  .jk-detail-cards svg{zoom:.55}
+  /* Generic-case-study icon+text cards (Bethel/Koop): the desktop 2x2 grid
+     squeezes each card down to phone-column width, which wraps the text
+     tall inside a tiny box. Stack them in a single column instead — full
+     row width per card, so the text runs horizontally like it does on
+     desktop instead of down. */
+  .jk-detail-cards{grid-template-columns:1fr !important;gap:10px !important}
+  .jk-detail-cards > div{padding:14px 16px !important}
+  .jk-detail-cards [style*="font-size:15.5px"]{font-size:13px !important;line-height:1.45 !important}
+  .jk-detail-cards svg{zoom:.8}
   /* The four decorative notes on the Jam Sesh section are positioned by
      percentage against a container that's much narrower on a phone, so
      they land on top of the centered heading/paragraph text instead of
@@ -612,7 +630,7 @@ a:hover{color:#FF7A1A}
       </sc-if>
 
       <h3 style="font-size:13px;font-weight:700;color:#FF7A1A;letter-spacing:.08em;text-transform:uppercase;margin:90px 0 20px">More work</h3>
-      <div style="display:flex;flex-direction:column">
+      <div class="jk-more-work" style="display:flex;flex-direction:column">
         <sc-for list="{{ otherProjects }}" as="op" hint-placeholder-count="3">
           <a href="#" onClick="{{ op.onClick }}" style="{{ op.rowStyle }}" style-hover="background:rgba(23,23,26,.03)">
             <span style="{{ op.numStyle }}">{{ op.num }}</span>
@@ -1997,8 +2015,13 @@ class Component extends DCLogic {
       detailAgencyLabel: (detail && (detail.id === 'bethel' || detail.id === 'koop')) ? 'Client' : 'Agency',
       headlineStyle: (() => {
         const len = (detail && detail.headline || '').length;
+        const max = len > 78 ? 30 : len > 62 ? 33 : 36;
+        // clamp() instead of a flat px size: shrinks smoothly on narrow
+        // (mobile) viewports without touching desktop, where 5.6vw is
+        // already well past `max` and clamp just resolves to it — same
+        // desktop size as before, no media query needed.
         return {
-          fontSize: len > 78 ? 30 : len > 62 ? 33 : 36, lineHeight: 1.25, fontWeight: 700, color: '#17171A',
+          fontSize: `clamp(20px, 5.6vw, ${max}px)`, lineHeight: 1.25, fontWeight: 700, color: '#17171A',
           textWrap: 'balance', textAlign: 'center', margin: '24px 0 40px',
         };
       })(),
