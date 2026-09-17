@@ -1267,7 +1267,7 @@ class Component extends DCLogic {
         '64% of attendees reported implementing real changes to their teams by the 3–6 month check-in',
         'Changes included dedicated in-office days, adjusted meeting cadences, cutting meeting load by up to half, and adoption of collaboration tools like Mural',
         'Post-workshop satisfaction survey averaged 4.6 / 5',
-        '[PLACEHOLDER — replace with a real attendee testimonial before publishing]',
+        '"The team did a great job facilitating the workshop. Many leaders, like myself, were able to brainstorm contextualized solutions for our teams to tackle hybrid work."',
       ],
       reflectionLead: 'Long-term follow-through is what proved real impact, not just a well-received event.',
       reflection: "The 1/3/6-month check-ins were the most valuable part of this project. Without them, I'd only know how the room felt on the day, not whether anything actually changed. That follow-through is what turned this from \"a well-received workshop\" into a measurable shift in how teams operate.",
@@ -1312,6 +1312,22 @@ class Component extends DCLogic {
         if (alreadyThere && Math.abs(window.scrollY - target) < 2) return;
         window.scrollTo({ top: target, behavior: 'smooth' });
       });
+    });
+  }
+  // Navbar "Work" icon: jump straight to the project carousel — the logo
+  // already covers "top of the home page", so this should land somewhere
+  // distinct. Scrolls by the actual carousel element's position rather
+  // than a scrollHeight-derived guess, and waits two frames when coming
+  // from another page so the newly-mounted work page has actually laid
+  // out before we measure it.
+  scrollToWorkCarousel() {
+    const el = this.workStageRef.current;
+    if (el) window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - 100, behavior: 'smooth' });
+  }
+  goWorkCarousel() {
+    if (this.state.page === 'work') { this.scrollToWorkCarousel(); return; }
+    this.setState({ page: 'work', detailId: null }, () => {
+      requestAnimationFrame(() => requestAnimationFrame(() => this.scrollToWorkCarousel()));
     });
   }
   resetScroll() {
@@ -1930,7 +1946,7 @@ class Component extends DCLogic {
       workTabClass: tabClass('work'),
       forFunTabClass: tabClass('forfun'),
       aboutTabClass: tabClass('about'),
-      goWork: (e) => { e.preventDefault(); this.goTo('work'); },
+      goWork: (e) => { e.preventDefault(); this.goWorkCarousel(); },
       goHome: () => {
         this.setState({ page: 'work', detailId: null }, () => {
           requestAnimationFrame(() => window.scrollTo({ top: 0, behavior: 'smooth' }));
