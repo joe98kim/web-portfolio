@@ -1315,13 +1315,34 @@ class Component extends DCLogic {
   }
   // Navbar "Work" icon: jump straight to the project carousel — the logo
   // already covers "top of the home page", so this should land somewhere
-  // distinct. Looks the stage up by id (not the workStageRef, which can
-  // still be stale/unmounted for a beat right after switching pages) and
-  // retries for up to ~500ms instead of silently giving up if it isn't in
-  // the DOM yet on the first check.
+  // distinct. Two earlier attempts at this (workStageRef + rAF timing,
+  // then a getElementById + retry) both still landed at the top —
+  // window.scrollTo({behavior:'smooth'}) is the common thread, and this
+  // codebase already has direct evidence it isn't trustworthy here:
+  // scrollToSection below deliberately drives scrollTop itself with its
+  // own rAF loop instead of using it, and resetScroll sets scrollTop on
+  // three different candidate elements rather than trusting one. This
+  // does the same — animate scrollTop on every candidate scrolling
+  // element at once, so it works regardless of which one this browser
+  // actually treats as "the" scrolling element for the page.
+  scrollWindowTo(target) {
+    const els = [document.documentElement, document.body, document.scrollingElement].filter(Boolean);
+    const start = window.scrollY;
+    const dist = target - start;
+    if (Math.abs(dist) < 2) return;
+    const dur = 500, t0 = performance.now();
+    const step = (now) => {
+      const p = Math.min(1, (now - t0) / dur);
+      const e = p < 0.5 ? 2 * p * p : 1 - Math.pow(-2 * p + 2, 2) / 2;
+      const y = start + dist * e;
+      els.forEach(el => { el.scrollTop = y; });
+      if (p < 1) requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+  }
   scrollToWorkCarousel(attempt) {
-    const el = document.getElementById('work-carousel');
-    if (el) { window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - 100, behavior: 'smooth' }); return; }
+    const el = this.workStageRef.current || document.getElementById('work-carousel');
+    if (el) { this.scrollWindowTo(el.getBoundingClientRect().top + window.scrollY - 100); return; }
     if ((attempt || 0) < 10) setTimeout(() => this.scrollToWorkCarousel((attempt || 0) + 1), 50);
   }
   goWorkCarousel() {
