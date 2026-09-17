@@ -836,7 +836,7 @@ a:hover{color:#FF7A1A}
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props="{&quot;customCursor&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Interaction&quot;}}">
 class Component extends DCLogic {
-  state = { page: 'work', detailId: null, indicatorStyle: { position: 'absolute', opacity: 0 }, playerPlaying: false, playerIndex: 0, playerTime: 0, playerDuration: 0, playerExpanded: false, workCenter: 0, forFunCenter: 0, playerShuffle: false, playerVolume: 1, playerVolumeOpen: false, playlistFile: null, playlistItems: [], ytMeta: (function(){ try { const r = JSON.parse(localStorage.getItem('jk-portfolio-ytmeta-v12') || 'null'); return (r && typeof r === 'object') ? r : {}; } catch (e) { return {}; } })(), playlistBusy: false, playlistError: '', playerTitleOverflowing: false, playerTitleOverflowPx: 0, activePlaylistId: 'main', playlistPickerOpen: false, dropZoneActive: false, viewportW: (typeof window !== 'undefined' ? window.innerWidth : 1200) };
+  state = { page: 'work', detailId: null, indicatorStyle: { position: 'absolute', opacity: 0 }, playerPlaying: false, playerIndex: 0, playerTime: 0, playerDuration: 0, playerExpanded: false, workCenter: 0, forFunCenter: 0, playerShuffle: false, playerVolume: 1, playerVolumeOpen: false, playlistFile: null, playlistItems: [], ytMeta: (function(){ try { const r = JSON.parse(localStorage.getItem('jk-portfolio-ytmeta-v13') || 'null'); return (r && typeof r === 'object') ? r : {}; } catch (e) { return {}; } })(), playlistBusy: false, playlistError: '', playerTitleOverflowing: false, playerTitleOverflowPx: 0, activePlaylistId: 'main', playlistPickerOpen: false, dropZoneActive: false, viewportW: (typeof window !== 'undefined' ? window.innerWidth : 1200) };
   navRef = React.createRef();
   workTabRef = React.createRef();
   forFunTabRef = React.createRef();
@@ -1064,7 +1064,7 @@ class Component extends DCLogic {
           if (!entry.title) return;
           this.setState(s => {
             const next = { ...(s.ytMeta || {}), [id]: entry };
-            try { localStorage.setItem('jk-portfolio-ytmeta-v12', JSON.stringify(next)); } catch (e) {}
+            try { localStorage.setItem('jk-portfolio-ytmeta-v13', JSON.stringify(next)); } catch (e) {}
             return { ytMeta: next };
           });
         });
@@ -1283,8 +1283,14 @@ class Component extends DCLogic {
         // wide enough that an icon is already invisible before any part of
         // it would be clipped by the canvas bounds.
         const edgeMargin = 0.14;
+        // Desktop-only slowdown: the drift step is a fixed fraction of
+        // canvas width per frame, so the same fraction covers more pixels
+        // (and reads faster) on a wide desktop canvas than on a narrow
+        // phone one — scale it down above the mobile breakpoint instead of
+        // touching the mobile speed, which was already fine as-is.
+        const desktopSlow = (this.state.viewportW || w) > 820 ? 0.78 : 1;
         this.heroIcons.forEach(ic => {
-          ic.x += 0.0011 * ic.speed * speedMul * ic.dir;
+          ic.x += 0.0011 * ic.speed * speedMul * ic.dir * desktopSlow;
           if (ic.x > 1 + edgeMargin) ic.x = -edgeMargin; else if (ic.x < -edgeMargin) ic.x = 1 + edgeMargin;
           const x = ic.x * w;
           const y = ic.y * h + Math.sin(t * ic.bobSpeed + ic.bobPhase) * h * 0.06;
