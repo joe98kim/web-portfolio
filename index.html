@@ -360,7 +360,9 @@ a:hover{color:#FF7A1A}
           <sc-if value="{{ playlistNotBusy }}" hint-placeholder-val="{{ true }}">Add</sc-if>
         </button>
       </div>
-
+      <sc-if value="{{ hasPlaylistError }}" hint-placeholder-val="{{ false }}">
+        <div style="margin-top:8px;font-size:12.5px;color:#c0392b;text-align:left;padding-left:16px">{{ playlistError }}</div>
+      </sc-if>
       </div>
       <div style="margin-top:28px;background:rgba(238,240,241,.5);backdrop-filter:blur(18px) saturate(120%);-webkit-backdrop-filter:blur(18px) saturate(120%);border:1px solid #17171a;border-radius:20px;overflow:hidden;text-align:left">
         <div style="padding:14px 18px 10px;font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:#c05e0e;border-bottom:1px solid rgba(23,23,26,.16)">Jam Sesh</div>
@@ -775,7 +777,7 @@ a:hover{color:#FF7A1A}
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props="{&quot;customCursor&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Interaction&quot;}}">
 class Component extends DCLogic {
-  state = { page: 'work', detailId: null, indicatorStyle: { position: 'absolute', opacity: 0 }, playerPlaying: false, playerIndex: 0, playerTime: 0, playerDuration: 0, playerExpanded: false, workCenter: 0, forFunCenter: 0, playerShuffle: false, playerVolume: 1, playerVolumeOpen: false, playlistFile: null, playlistItems: [], ytMeta: (function(){ try { const r = JSON.parse(localStorage.getItem('jk-portfolio-ytmeta-v5') || 'null'); return (r && typeof r === 'object') ? r : {}; } catch (e) { return {}; } })(), playlistBusy: false, activePlaylistId: 'main', playlistPickerOpen: false, dropZoneActive: false, viewportW: (typeof window !== 'undefined' ? window.innerWidth : 1200) };
+  state = { page: 'work', detailId: null, indicatorStyle: { position: 'absolute', opacity: 0 }, playerPlaying: false, playerIndex: 0, playerTime: 0, playerDuration: 0, playerExpanded: false, workCenter: 0, forFunCenter: 0, playerShuffle: false, playerVolume: 1, playerVolumeOpen: false, playlistFile: null, playlistItems: [], ytMeta: (function(){ try { const r = JSON.parse(localStorage.getItem('jk-portfolio-ytmeta-v5') || 'null'); return (r && typeof r === 'object') ? r : {}; } catch (e) { return {}; } })(), playlistBusy: false, playlistError: '', activePlaylistId: 'main', playlistPickerOpen: false, dropZoneActive: false, viewportW: (typeof window !== 'undefined' ? window.innerWidth : 1200) };
   navRef = React.createRef();
   workTabRef = React.createRef();
   forFunTabRef = React.createRef();
@@ -1906,22 +1908,57 @@ class Component extends DCLogic {
     e.stopPropagation();
     this.setState({ playlistFile: null });
   }
+  // Confirms a submitted link resolves to a real YouTube video (not just a
+  // string shaped like one) via oEmbed — YouTube's own public endpoint,
+  // and the only source that can actually say "yes, this id exists and is
+  // embeddable." A link that merely LOOKS like a YouTube URL is caught by
+  // getYouTubeId's regex already; this catches ids that are well-formed
+  // but don't correspond to a real, public video (typo'd, private,
+  // deleted, or just made up) — those get rejected instead of silently
+  // added with a placeholder title.
+  verifyYouTubeVideo(id) {
+    return fetch('https://www.youtube.com/oembed?url=' + encodeURIComponent('https://www.youtube.com/watch?v=' + id) + '&format=json')
+      .then(r => (r.ok ? r.json() : null))
+      .catch(() => null);
+  }
+  // Cross-checks the YouTube upload's own title/channel against Apple's
+  // iTunes Search catalog — a real music database, not just whatever text
+  // the uploader put in their video title. Catches the mess a lot of
+  // uploads come with ("Song (Official Music Video) [VEVO]") and uploads
+  // that aren't from the original artist at all. Only trusts a result
+  // whose track name actually overlaps what was searched for, so an
+  // unrelated top hit can't silently replace a correct title; anything
+  // else falls back to the YouTube-derived title/artist untouched.
+  lookupCatalogMeta(title, artist) {
+    const query = [artist, title].filter(Boolean).join(' ').trim();
+    if (!query) return Promise.resolve(null);
+    const url = 'https://itunes.apple.com/search?' + new URLSearchParams({ term: query, media: 'music', entity: 'song', limit: '5' });
+    return fetch(url).then(r => (r.ok ? r.json() : null)).catch(() => null).then(data => {
+      const norm = s => String(s || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+      const titleNorm = norm(title);
+      const results = (data && data.results) || [];
+      const hit = results.find(r => r.trackName && titleNorm && (norm(r.trackName).includes(titleNorm) || titleNorm.includes(norm(r.trackName))));
+      return hit ? { title: hit.trackName, artist: hit.artistName || artist } : null;
+    });
+  }
   submitPlaylist() {
     const link = (this.state.playlistLink || '').trim();
     if (!link || this.state.playlistBusy) return;
     const id = this.getYouTubeId(link);
-    if (!id) return; // not a recognizable YouTube link — nothing to add
-    this.setState({ playlistBusy: true });
-    // oEmbed is YouTube's public, no-key, CORS-open endpoint for a video's
-    // real title/author — used instead of the id-only placeholder title
-    // when it's reachable; falls back to that placeholder otherwise.
-    fetch('https://www.youtube.com/oembed?url=' + encodeURIComponent('https://www.youtube.com/watch?v=' + id) + '&format=json')
-      .then(r => (r.ok ? r.json() : null))
-      .catch(() => null)
-      .then(meta => {
-        const artist = this.cleanYtArtist(meta && meta.author_name);
+    if (!id) { this.setState({ playlistError: "That doesn't look like a YouTube link — paste a youtube.com or youtu.be URL." }); return; }
+    this.setState({ playlistBusy: true, playlistError: '' });
+    this.verifyYouTubeVideo(id).then(meta => {
+      if (!meta) {
+        this.setState({ playlistBusy: false, playlistError: "Couldn't find that video on YouTube — check the link and try again." });
+        return;
+      }
+      const ytArtist = this.cleanYtArtist(meta.author_name);
+      const ytTitle = this.cleanYtTitle(meta.title, ytArtist) || this.ytTitleFrom(link);
+      this.lookupCatalogMeta(ytTitle, ytArtist).then(catalog => {
+        const title = (catalog && catalog.title) || ytTitle;
+        const artist = (catalog && catalog.artist) || ytArtist;
         const track = {
-          title: this.cleanYtTitle(meta && meta.title, artist) || this.ytTitleFrom(link),
+          title,
           sourceLabel: artist || 'YouTube',
           youtubeId: id,
           // YouTube auto-generates this thumbnail for every video at this
@@ -1958,6 +1995,7 @@ class Component extends DCLogic {
             addLocally();
           });
       });
+    });
   }
   removePlaylistItem(key) {
     if (this._db) { this._db.collection('playlist').doc(key).delete().catch((err) => console.error('Jam Sesh: Firestore delete failed —', err && err.message)); return; }
@@ -2248,7 +2286,9 @@ class Component extends DCLogic {
       onDropZoneDragLeave: (e) => this.onDropZoneDragLeave(e),
       onDropZoneDrop: (e) => this.onDropZoneDrop(e),
       playlistLink: this.state.playlistLink || '',
-      onPlaylistLinkChange: (e) => this.setState({ playlistLink: e.target.value }),
+      onPlaylistLinkChange: (e) => this.setState({ playlistLink: e.target.value, playlistError: '' }),
+      playlistError: this.state.playlistError || '',
+      hasPlaylistError: !!this.state.playlistError,
       onPlaylistLinkKeyDown: (e) => { if (e.key === 'Enter') { e.preventDefault(); this.submitPlaylist(); } },
       playlistHasFile: false,
       clearPlaylistFile: (e) => this.clearPlaylistFile(e),
