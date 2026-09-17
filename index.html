@@ -736,7 +736,7 @@ a:hover{color:#FF7A1A}
           <div style="{{ playerLabelStyle }}"></div>
         </div>
       </div>
-      <div style="text-align:center;max-width:100%">
+      <div style="text-align:center;max-width:100%;width:100%">
         <sc-if value="{{ hasLongPlayerTitle }}" hint-placeholder-val="{{ false }}">
           <div class="jk-marquee-mask">
             <div class="jk-marquee-track" style="{{ playerTitleMarqueeStyle }}">
@@ -2264,7 +2264,7 @@ class Component extends DCLogic {
       // shorter one.
       hasLongPlayerTitle: ((this.getActiveTracks()[this.state.playerIndex] || {}).title || '').length > 22,
       hasShortPlayerTitle: ((this.getActiveTracks()[this.state.playerIndex] || {}).title || '').length <= 22,
-      playerTitleMarqueeStyle: { animationDuration: Math.max(8, (((this.getActiveTracks()[this.state.playerIndex] || {}).title || '').length) * 0.45) + 's' },
+      playerTitleMarqueeStyle: { animationDuration: Math.max(12, (((this.getActiveTracks()[this.state.playerIndex] || {}).title || '').length) * 0.7) + 's' },
       togglePlaylistPicker: () => this.setState(s => ({ playlistPickerOpen: !s.playlistPickerOpen })),
       playlistPickerOpen: this.state.playlistPickerOpen,
       playlistOptions: [
