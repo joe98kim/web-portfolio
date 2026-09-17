@@ -79,6 +79,14 @@ a:hover{color:#FF7A1A}
   .jk-about-photo{order:1}
   .jk-about-text{order:2}
   .jk-case-rail{display:none !important}
+  /* The real fix for the mobile right-side gap: this spacer exists to
+     balance the rail's 210px width so desktop content stays centered in
+     the wider max-width:1616px row. It's gated by the same JS flag as the
+     rail (detailHasRail), not by this media query, so hiding the rail
+     with display:none above left the spacer behind — still in the flex
+     row, still pulling its 48px gap with it, entirely on the right side
+     only. Hide it the same way. */
+  .jk-case-rail-spacer{display:none !important}
   /* The profile photo relies on height:100% to stretch to match the text
      column's height in the side-by-side desktop grid row — once the grid
      stacks to one column it lands in its own row with no height to match,
@@ -94,27 +102,36 @@ a:hover{color:#FF7A1A}
      font-size, so this one rule reaches all of them without a class on
      each — smaller and easier to read at a phone's line length. */
   [style*="font-size:20px"]{font-size:14px !important}
-  /* Force the Timeline/Tools/Contributions/Agency facts and the headline
-     stat numbers to stay on one row each (shrunk to fit) instead of
-     wrapping into a tall stack — cell text may still wrap, the row of
-     boxes itself shouldn't. minmax(0,1fr) (not a bare 1fr) on both grids
-     below matters: a bare 1fr track still has an implicit auto minimum
-     sized to its content, which can force the grid wider than the phone
-     screen and push the whole row off-center — minmax(0,1fr) lets a
-     track actually shrink to fit. */
+  /* Force the Timeline/Tools/Contributions/Agency facts to stay on one
+     row (shrunk to fit) instead of wrapping into a tall stack — cell text
+     may still wrap, the row of boxes itself shouldn't. minmax(0,1fr) (not
+     a bare 1fr) matters here: a bare 1fr track still has an implicit auto
+     minimum sized to its content, which can force the grid wider than the
+     phone screen. */
   .jk-meta-grid{grid-template-columns:repeat(4,minmax(0,1fr)) !important;gap:8px !important;padding:12px 0 !important}
   .jk-meta-grid [style*="font-size:10px"]{font-size:8px !important}
   .jk-meta-grid [style*="font-size:13px"]{font-size:10px !important}
-  .jk-stats-grid{grid-template-columns:repeat(3,minmax(0,1fr)) !important;gap:8px !important}
-  .jk-stats-grid [style*="font-size:40px"]{font-size:16px !important}
-  .jk-stats-grid [style*="font-size:15px"]{font-size:8px !important}
+  /* Headline data-highlight numbers (2 weeks / Minutes / 100%): targeted
+     by class now, not an inline-style substring match, and allowed to
+     wrap to a second row (auto-fit) instead of being forced into exactly
+     3 columns — forcing 3 columns at any font size risks the values
+     overlapping again the moment one of them is a touch wider. */
+  .jk-stats-grid{grid-template-columns:repeat(auto-fit,minmax(84px,1fr)) !important;gap:6px 10px !important}
+  .jk-stat-value{font-size:13px !important}
+  .jk-stat-label{font-size:7px !important}
+  /* Metric callouts (the black boxes): same problem and same fix as the
+     Bethel/Koop icon+text cards — stack in one column so the text runs
+     horizontally at full row width instead of wrapping tall in a squeezed
+     column. */
+  .jk-metrics-grid{grid-template-columns:1fr !important;gap:8px !important}
+  .jk-metric-box{min-height:0 !important;padding:14px 16px !important}
   /* Case-study "More work" list: the title column is a fixed 22px on
      desktop, which is too wide for the row's other columns (index number,
      blurb, arrow) at phone width — it wraps to 2 lines and pushes the
      blurb text down with it. Shrink the title and give the blurb column
      less room to ask for. */
   .jk-more-work a{grid-template-columns:24px 1fr minmax(0,130px) 16px !important;gap:10px !important}
-  .jk-more-work [style*="font-size:22px"]{font-size:15px !important}
+  .jk-more-work [style*="font-size:22px"]{font-size:18px !important}
 }
 @media (max-width:560px){
   /* Generic-case-study icon+text cards (Bethel/Koop): the desktop 2x2 grid
@@ -403,8 +420,8 @@ a:hover{color:#FF7A1A}
         <div class="jk-stats-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:24px;margin:0">
           <sc-for list="{{ detail.headlineStats }}" as="st" hint-placeholder-count="3">
             <div style="display:flex;flex-direction:column;align-items:center;text-align:center;gap:6px">
-              <div style="font-size:40px;line-height:1;font-weight:700;color:#FF7A1A">{{ st.value }}</div>
-              <div style="font-size:15px;color:#8a8a8e">{{ st.label }}</div>
+              <div class="jk-stat-value" style="font-size:40px;line-height:1;font-weight:700;color:#FF7A1A">{{ st.value }}</div>
+              <div class="jk-stat-label" style="font-size:15px;color:#8a8a8e">{{ st.label }}</div>
             </div>
           </sc-for>
         </div>
@@ -613,9 +630,9 @@ a:hover{color:#FF7A1A}
         </sc-for>
       </ul>
       <sc-if value="{{ detailHasMetricsRest }}" hint-placeholder-val="{{ false }}">
-      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px;margin:0" data-comment-anchor="929c6e5aca-div">
+      <div class="jk-metrics-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px;margin:0" data-comment-anchor="929c6e5aca-div">
         <sc-for list="{{ detailMetricsRest }}" as="m" hint-placeholder-count="1">
-          <div style="background:#17171A;color:#fff;border-radius:16px;padding:22px 16px;min-height:104px;display:flex;align-items:center;justify-content:center;text-align:center;font-size:15px;font-weight:700;line-height:1.35;box-shadow:0 5px 14px rgba(0,0,0,.09)">{{ m }}</div>
+          <div class="jk-metric-box" style="background:#17171A;color:#fff;border-radius:16px;padding:22px 16px;min-height:104px;display:flex;align-items:center;justify-content:center;text-align:center;font-size:15px;font-weight:700;line-height:1.35;box-shadow:0 5px 14px rgba(0,0,0,.09)">{{ m }}</div>
         </sc-for>
       </div>
       </sc-if>
@@ -643,7 +660,7 @@ a:hover{color:#FF7A1A}
 
     </div>
     <sc-if value="{{ detailHasRail }}" hint-placeholder-val="{{ false }}">
-      <div style="flex:0 1000 210px;min-width:0"></div>
+      <div class="jk-case-rail-spacer" style="flex:0 1000 210px;min-width:0"></div>
     </sc-if>
     </div>
   </div>
