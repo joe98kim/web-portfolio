@@ -797,7 +797,7 @@ a:hover{color:#FF7A1A}
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props="{&quot;customCursor&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Interaction&quot;}}">
 class Component extends DCLogic {
-  state = { page: 'work', detailId: null, indicatorStyle: { position: 'absolute', opacity: 0 }, playerPlaying: false, playerIndex: 0, playerTime: 0, playerDuration: 0, playerExpanded: false, workCenter: 0, forFunCenter: 0, playerShuffle: false, playerVolume: 1, playerVolumeOpen: false, playlistFile: null, playlistItems: [], ytMeta: (function(){ try { const r = JSON.parse(localStorage.getItem('jk-portfolio-ytmeta-v8') || 'null'); return (r && typeof r === 'object') ? r : {}; } catch (e) { return {}; } })(), playlistBusy: false, playlistError: '', playerTitleOverflowing: false, playerTitleOverflowPx: 0, activePlaylistId: 'main', playlistPickerOpen: false, dropZoneActive: false, viewportW: (typeof window !== 'undefined' ? window.innerWidth : 1200) };
+  state = { page: 'work', detailId: null, indicatorStyle: { position: 'absolute', opacity: 0 }, playerPlaying: false, playerIndex: 0, playerTime: 0, playerDuration: 0, playerExpanded: false, workCenter: 0, forFunCenter: 0, playerShuffle: false, playerVolume: 1, playerVolumeOpen: false, playlistFile: null, playlistItems: [], ytMeta: (function(){ try { const r = JSON.parse(localStorage.getItem('jk-portfolio-ytmeta-v9') || 'null'); return (r && typeof r === 'object') ? r : {}; } catch (e) { return {}; } })(), playlistBusy: false, playlistError: '', playerTitleOverflowing: false, playerTitleOverflowPx: 0, activePlaylistId: 'main', playlistPickerOpen: false, dropZoneActive: false, viewportW: (typeof window !== 'undefined' ? window.innerWidth : 1200) };
   navRef = React.createRef();
   workTabRef = React.createRef();
   forFunTabRef = React.createRef();
@@ -952,16 +952,22 @@ class Component extends DCLogic {
     return featSuffix ? (t + ' ' + featSuffix) : t;
   }
   // Last-resort corrections for cases neither YouTube's own metadata nor
-  // the iTunes catalog lookup gets right — checked after both, keyed by
-  // the normalized cleaned title so it applies wherever the id maps to
-  // that title.
-  manualMetaOverrides = {
-    'nerdy love': { artist: 'pH-1, Yerin Baek' },
-    '산책': { title: 'Walk', artist: 'GongGongGoo009' },
-    'love': { title: 'Love Love Love', artist: 'Epik High' },
-  };
+  // the iTunes catalog lookup gets right — checked after both. Matched by
+  // regex (substring, not exact-equality) against whatever title survived
+  // those two steps, since that title isn't always in exactly the same
+  // form an exact-key lookup would need — the catalog step or the
+  // English-alt-title logic in cleanYtTitle can leave it with slightly
+  // different formatting (a trailing "(feat. ...)", different spacing,
+  // etc.), which silently missed an exact-string match before.
+  manualMetaOverrides = [
+    { match: /nerdy\s*love/i, artist: 'pH-1, Yerin Baek' },
+    { match: /^산책$/, title: 'Walk', artist: 'GongGongGoo009' },
+    { match: /^love$/i, title: 'Love Love Love', artist: 'Epik High' },
+    { match: /그땐|then\s*then\s*then/i, title: 'Then Then Then', artist: 'Supreme Team' },
+  ];
   applyManualOverride(meta) {
-    const o = this.manualMetaOverrides[String(meta.title || '').toLowerCase().trim()];
+    const t = String(meta.title || '');
+    const o = this.manualMetaOverrides.find(o => o.match.test(t));
     return o ? { title: o.title || meta.title, artist: o.artist || meta.artist } : meta;
   }
   // Resolves a curated {youtubeId} entry into a full track, using cached
@@ -1004,7 +1010,7 @@ class Component extends DCLogic {
           if (!entry.title) return;
           this.setState(s => {
             const next = { ...(s.ytMeta || {}), [id]: entry };
-            try { localStorage.setItem('jk-portfolio-ytmeta-v8', JSON.stringify(next)); } catch (e) {}
+            try { localStorage.setItem('jk-portfolio-ytmeta-v9', JSON.stringify(next)); } catch (e) {}
             return { ytMeta: next };
           });
         });
