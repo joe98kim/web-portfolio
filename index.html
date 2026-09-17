@@ -108,17 +108,21 @@ a:hover{color:#FF7A1A}
      a bare 1fr) matters here: a bare 1fr track still has an implicit auto
      minimum sized to its content, which can force the grid wider than the
      phone screen. */
-  .jk-meta-grid{grid-template-columns:repeat(4,minmax(0,1fr)) !important;gap:8px !important;padding:12px 0 !important}
-  .jk-meta-grid [style*="font-size:10px"]{font-size:8px !important}
-  .jk-meta-grid [style*="font-size:13px"]{font-size:10px !important}
+  .jk-meta-grid{grid-template-columns:repeat(4,minmax(0,1fr)) !important;gap:6px !important;padding:12px 0 !important}
+  /* A single long uppercase word ("CONTRIBUTIONS") with letter-spacing has
+     no break point, so at any font size it can still render wider than
+     its own narrow column and visually bleed into the next one instead of
+     wrapping — overflow-wrap forces a break rather than an overlap. */
+  .jk-meta-grid [style*="font-size:10px"]{font-size:7px !important;letter-spacing:0 !important;overflow-wrap:break-word !important}
+  .jk-meta-grid [style*="font-size:13px"]{font-size:9px !important;overflow-wrap:break-word !important}
   /* Headline data-highlight numbers (2 weeks / Minutes / 100%): targeted
      by class now, not an inline-style substring match, and allowed to
      wrap to a second row (auto-fit) instead of being forced into exactly
      3 columns — forcing 3 columns at any font size risks the values
      overlapping again the moment one of them is a touch wider. */
-  .jk-stats-grid{grid-template-columns:repeat(auto-fit,minmax(84px,1fr)) !important;gap:6px 10px !important}
-  .jk-stat-value{font-size:13px !important}
-  .jk-stat-label{font-size:7px !important}
+  .jk-stats-grid{grid-template-columns:repeat(auto-fit,minmax(92px,1fr)) !important;gap:8px 10px !important}
+  .jk-stat-value{font-size:17px !important}
+  .jk-stat-label{font-size:9px !important}
   /* Metric callouts (the black boxes): same problem and same fix as the
      Bethel/Koop icon+text cards — stack in one column so the text runs
      horizontally at full row width instead of wrapping tall in a squeezed
@@ -131,7 +135,7 @@ a:hover{color:#FF7A1A}
      blurb text down with it. Shrink the title and give the blurb column
      less room to ask for. */
   .jk-more-work a{grid-template-columns:24px 1fr minmax(0,130px) 16px !important;gap:10px !important}
-  .jk-more-work [style*="font-size:22px"]{font-size:18px !important}
+  .jk-more-work [style*="font-size:22px"]{font-size:13px !important}
 }
 @media (max-width:560px){
   /* Generic-case-study icon+text cards (Bethel/Koop): the desktop 2x2 grid
