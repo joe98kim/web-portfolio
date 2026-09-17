@@ -122,10 +122,19 @@ a:hover{color:#FF7A1A}
      the template, not a bound JS style object, so the substring actually
      appears verbatim in the rendered markup. */
   [style*="font-size:20px"]{font-size:12px !important}
-  /* About/For fun page big headers ("Get to know me", "The things I make
-     for fun") and their small uppercase eyebrow labels above them. */
-  [style*="font-size:38px"]{font-size:26px !important}
-  [style*="font-size:12px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase"]{font-size:10px !important}
+  /* About/For fun page hero: eyebrow label, big heading ("Get to know
+     me"/"The things I make for fun"), and the paragraph(s) below it.
+     Reported as still unchanged twice despite the rule above and a
+     previous [style*="font-size:38px"] one that both check out
+     byte-for-byte against the actual source — so rather than keep
+     guessing at why an inline-style substring match might not be landing
+     in the rendered DOM, these are now plain classes instead, which
+     can't have that problem regardless of the cause. jk-page-hero-body
+     duplicates the effect of the generic font-size:20px rule above for
+     these two elements specifically, deliberately redundant. */
+  .jk-page-hero-eyebrow{font-size:10px !important}
+  .jk-page-hero-heading{font-size:26px !important}
+  .jk-page-hero-body{font-size:12px !important}
   /* For-fun project cards (SendIt, Wrobe): title and one-line tag,
      matched by real class rather than the h3's inline-style text — its
      size is fine to match on text alone, but keeping the pattern
@@ -313,10 +322,10 @@ a:hover{color:#FF7A1A}
     <div style="max-width:1120px;width:100%">
     <div class="jk-about-grid" style="display:grid;grid-template-columns:1.3fr 0.7fr;gap:72px;align-items:stretch">
       <div class="jk-about-text">
-        <div style="font-size:12px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:#FF7A1A;margin-bottom:12px">About</div>
-        <h1 style="font-size:38px;font-weight:800;margin:0 0 24px">Get to know me</h1>
-        <p style="font-size:20px;line-height:1.7;color:#4a4a4c;max-width:620px;margin:0 0 20px">I'm a passionate UI/UX designer with additional experience in client consulting, visual design, and human-centered design (HCD). I thrive at the intersection of creativity and strategy, crafting user-focused solutions that uncover possibilities and define actionable insights for furthering the client mission.</p>
-        <p style="font-size:20px;line-height:1.7;color:#4a4a4c;max-width:620px;margin:0">As a 9 wing 1 on the Enneagram, I naturally seek harmony and clarity, ensuring that every detail serves a purpose. Beyond design, I find inspiration in music, playing guitar, and exploring the outdoors, all of which fuel my passion for thoughtful and intentional problem-solving.</p>
+        <div class="jk-page-hero-eyebrow" style="font-size:12px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:#FF7A1A;margin-bottom:12px">About</div>
+        <h1 class="jk-page-hero-heading" style="font-size:38px;font-weight:800;margin:0 0 24px">Get to know me</h1>
+        <p class="jk-page-hero-body" style="font-size:20px;line-height:1.7;color:#4a4a4c;max-width:620px;margin:0 0 20px">I'm a passionate UI/UX designer with additional experience in client consulting, visual design, and human-centered design (HCD). I thrive at the intersection of creativity and strategy, crafting user-focused solutions that uncover possibilities and define actionable insights for furthering the client mission.</p>
+        <p class="jk-page-hero-body" style="font-size:20px;line-height:1.7;color:#4a4a4c;max-width:620px;margin:0">As a 9 wing 1 on the Enneagram, I naturally seek harmony and clarity, ensuring that every detail serves a purpose. Beyond design, I find inspiration in music, playing guitar, and exploring the outdoors, all of which fuel my passion for thoughtful and intentional problem-solving.</p>
       </div>
       <div class="jk-about-photo" style="width:340px;max-width:100%;height:100%;overflow:hidden;border-radius:6px;margin:0 0 0 auto">
         <img src="uploads/72b668d4-6ad0-436f-98dd-f7ba1b8b93ef_edited-db5b53d7.jpg" alt="Joe Kim" style="width:100%;height:100%;object-fit:cover;display:block">
@@ -346,9 +355,9 @@ a:hover{color:#FF7A1A}
   <sc-if value="{{ isForFun }}" hint-placeholder-val="{{ false }}">
   <div data-screen-label="For Fun" style="flex:1">
     <div style="padding:56px 32px 72px;max-width:1100px;margin:0 auto;text-align:center">
-      <h1 style="font-family:Inter;font-size:12px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:#FF7A1A;margin:0 0 12px">For fun</h1>
-      <h2 style="font-size:38px;font-weight:800;letter-spacing:-0.02em;margin:0 0 16px">The things I make for fun</h2>
-      <p style="font-size:20px;line-height:1.7;color:#4a4a4c;max-width:820px;margin:0 auto;text-wrap:balance">Lately I build most of them with Claude on nights and weekends, prototyping fast to see how far a loose idea gets before it needs a real plan.</p>
+      <h1 class="jk-page-hero-eyebrow" style="font-family:Inter;font-size:12px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:#FF7A1A;margin:0 0 12px">For fun</h1>
+      <h2 class="jk-page-hero-heading" style="font-size:38px;font-weight:800;letter-spacing:-0.02em;margin:0 0 16px">The things I make for fun</h2>
+      <p class="jk-page-hero-body" style="font-size:20px;line-height:1.7;color:#4a4a4c;max-width:820px;margin:0 auto;text-wrap:balance">Lately I build most of them with Claude on nights and weekends, prototyping fast to see how far a loose idea gets before it needs a real plan.</p>
     </div>
     <div style="padding:40px 32px 40px;display:flex;flex-wrap:wrap;justify-content:center;align-items:flex-start;gap:56px;max-width:1100px;margin:0 auto" data-comment-anchor="de89052804-div">
       <sc-for list="{{ forFunFloating }}" as="p" hint-placeholder-count="2">
