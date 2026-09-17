@@ -797,7 +797,7 @@ a:hover{color:#FF7A1A}
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props="{&quot;customCursor&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Interaction&quot;}}">
 class Component extends DCLogic {
-  state = { page: 'work', detailId: null, indicatorStyle: { position: 'absolute', opacity: 0 }, playerPlaying: false, playerIndex: 0, playerTime: 0, playerDuration: 0, playerExpanded: false, workCenter: 0, forFunCenter: 0, playerShuffle: false, playerVolume: 1, playerVolumeOpen: false, playlistFile: null, playlistItems: [], ytMeta: (function(){ try { const r = JSON.parse(localStorage.getItem('jk-portfolio-ytmeta-v7') || 'null'); return (r && typeof r === 'object') ? r : {}; } catch (e) { return {}; } })(), playlistBusy: false, playlistError: '', playerTitleOverflowing: false, playerTitleOverflowPx: 0, activePlaylistId: 'main', playlistPickerOpen: false, dropZoneActive: false, viewportW: (typeof window !== 'undefined' ? window.innerWidth : 1200) };
+  state = { page: 'work', detailId: null, indicatorStyle: { position: 'absolute', opacity: 0 }, playerPlaying: false, playerIndex: 0, playerTime: 0, playerDuration: 0, playerExpanded: false, workCenter: 0, forFunCenter: 0, playerShuffle: false, playerVolume: 1, playerVolumeOpen: false, playlistFile: null, playlistItems: [], ytMeta: (function(){ try { const r = JSON.parse(localStorage.getItem('jk-portfolio-ytmeta-v8') || 'null'); return (r && typeof r === 'object') ? r : {}; } catch (e) { return {}; } })(), playlistBusy: false, playlistError: '', playerTitleOverflowing: false, playerTitleOverflowPx: 0, activePlaylistId: 'main', playlistPickerOpen: false, dropZoneActive: false, viewportW: (typeof window !== 'undefined' ? window.innerWidth : 1200) };
   navRef = React.createRef();
   workTabRef = React.createRef();
   forFunTabRef = React.createRef();
@@ -957,6 +957,8 @@ class Component extends DCLogic {
   // that title.
   manualMetaOverrides = {
     'nerdy love': { artist: 'pH-1, Yerin Baek' },
+    '산책': { title: 'Walk', artist: 'GongGongGoo009' },
+    'love': { title: 'Love Love Love', artist: 'Epik High' },
   };
   applyManualOverride(meta) {
     const o = this.manualMetaOverrides[String(meta.title || '').toLowerCase().trim()];
@@ -1002,7 +1004,7 @@ class Component extends DCLogic {
           if (!entry.title) return;
           this.setState(s => {
             const next = { ...(s.ytMeta || {}), [id]: entry };
-            try { localStorage.setItem('jk-portfolio-ytmeta-v7', JSON.stringify(next)); } catch (e) {}
+            try { localStorage.setItem('jk-portfolio-ytmeta-v8', JSON.stringify(next)); } catch (e) {}
             return { ytMeta: next };
           });
         });
@@ -2058,10 +2060,7 @@ class Component extends DCLogic {
   // iTunes Search catalog — a real music database, not just whatever text
   // the uploader put in their video title. Catches the mess a lot of
   // uploads come with ("Song (Official Music Video) [VEVO]") and uploads
-  // that aren't from the original artist at all. Only trusts a result
-  // whose track name actually overlaps what was searched for, so an
-  // unrelated top hit can't silently replace a correct title; anything
-  // else falls back to the YouTube-derived title/artist untouched.
+  // that aren't from the original artist at all.
   lookupCatalogMeta(title, artist) {
     const query = [artist, title].filter(Boolean).join(' ').trim();
     if (!query) return Promise.resolve(null);
@@ -2069,8 +2068,23 @@ class Component extends DCLogic {
     return fetch(url).then(r => (r.ok ? r.json() : null)).catch(() => null).then(data => {
       const norm = s => String(s || '').toLowerCase().replace(/[^a-z0-9]/g, '');
       const titleNorm = norm(title);
+      const artistNorm = norm(artist);
       const results = (data && data.results) || [];
-      const hit = results.find(r => r.trackName && titleNorm && (norm(r.trackName).includes(titleNorm) || titleNorm.includes(norm(r.trackName))));
+      const titleMatches = r => r.trackName && titleNorm && (norm(r.trackName).includes(titleNorm) || titleNorm.includes(norm(r.trackName)));
+      const artistMatches = r => artistNorm && r.artistName && (norm(r.artistName).includes(artistNorm) || artistNorm.includes(norm(r.artistName)));
+      // Prefer a result that matches both title and artist. A title match
+      // alone used to be trusted outright, which is exactly how "LOVE" (a
+      // one-word title plenty of unrelated artists have used) once got
+      // silently replaced with an unrelated Jhené Aiko track — iTunes'
+      // top hit for that search, matching on title only, wasn't even the
+      // right song. Only fall back to a title-only match when the title
+      // is distinctive enough on its own (longer than a short, generic
+      // word) that a coincidental collision with a different artist's
+      // same-titled song is unlikely; otherwise, no confident match means
+      // no override — better to keep YouTube's own title/artist than
+      // guess wrong.
+      let hit = results.find(r => titleMatches(r) && artistMatches(r));
+      if (!hit && titleNorm.length > 8) hit = results.find(titleMatches);
       return hit ? { title: hit.trackName, artist: hit.artistName || artist } : null;
     });
   }
