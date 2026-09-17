@@ -1388,28 +1388,25 @@ class Component extends DCLogic {
 
   wheelLocked = false;
   wheelUnlockTimer = null;
-  wheelLockStartAt = 0;
   workStageRef = React.createRef();
   forFunStageRef = React.createRef();
   onWheelKind(kind, e) {
     e.preventDefault();
     const delta = Math.abs(e.deltaY) > Math.abs(e.deltaX) ? e.deltaY : e.deltaX;
     if (Math.abs(delta) < 4) return;
-    // A single trackpad swipe fires a burst of wheel events, with momentum
-    // that can keep sending events well over a second on a strong flick.
-    // Unlocking only once the burst goes fully quiet (the 150ms renewal
-    // below) stops one swipe firing two steps, but on its own has no
-    // ceiling — a strong swipe could hold the lock for seconds, which is
-    // exactly what made the carousel feel unresponsive on a fast swipe.
-    // MAX_LOCK caps how long any single gesture can hold it regardless.
-    const now = Date.now();
-    const MAX_LOCK = 550;
-    if (this.wheelLocked && now - this.wheelLockStartAt >= MAX_LOCK) this.wheelLocked = false;
+    // One physical swipe/scroll, however long it's held, should always
+    // move exactly one project — so the lock has no time ceiling: it only
+    // releases once the wheel-event stream actually goes quiet (renewed on
+    // every qualifying event below), which is the one signal that reliably
+    // means the gesture itself has ended, regardless of how long that
+    // takes. Trading a capped-but-occasionally-double-firing lock for this
+    // was the right call once "one gesture, one step" was confirmed to
+    // matter more here than shaving the worst-case wait between two
+    // separate, deliberately-quick swipes.
     clearTimeout(this.wheelUnlockTimer);
-    this.wheelUnlockTimer = setTimeout(() => { this.wheelLocked = false; }, 150);
+    this.wheelUnlockTimer = setTimeout(() => { this.wheelLocked = false; }, 220);
     if (this.wheelLocked) return;
     this.wheelLocked = true;
-    this.wheelLockStartAt = now;
     this.shiftCenter(kind, delta > 0 ? 1 : -1);
   }
   // Touch-swipe support for the coverflow stages (mouse-wheel nav above
