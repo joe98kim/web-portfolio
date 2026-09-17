@@ -797,7 +797,7 @@ a:hover{color:#FF7A1A}
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props="{&quot;customCursor&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Interaction&quot;}}">
 class Component extends DCLogic {
-  state = { page: 'work', detailId: null, indicatorStyle: { position: 'absolute', opacity: 0 }, playerPlaying: false, playerIndex: 0, playerTime: 0, playerDuration: 0, playerExpanded: false, workCenter: 0, forFunCenter: 0, playerShuffle: false, playerVolume: 1, playerVolumeOpen: false, playlistFile: null, playlistItems: [], ytMeta: (function(){ try { const r = JSON.parse(localStorage.getItem('jk-portfolio-ytmeta-v5') || 'null'); return (r && typeof r === 'object') ? r : {}; } catch (e) { return {}; } })(), playlistBusy: false, playlistError: '', playerTitleOverflowing: false, playerTitleOverflowPx: 0, activePlaylistId: 'main', playlistPickerOpen: false, dropZoneActive: false, viewportW: (typeof window !== 'undefined' ? window.innerWidth : 1200) };
+  state = { page: 'work', detailId: null, indicatorStyle: { position: 'absolute', opacity: 0 }, playerPlaying: false, playerIndex: 0, playerTime: 0, playerDuration: 0, playerExpanded: false, workCenter: 0, forFunCenter: 0, playerShuffle: false, playerVolume: 1, playerVolumeOpen: false, playlistFile: null, playlistItems: [], ytMeta: (function(){ try { const r = JSON.parse(localStorage.getItem('jk-portfolio-ytmeta-v6') || 'null'); return (r && typeof r === 'object') ? r : {}; } catch (e) { return {}; } })(), playlistBusy: false, playlistError: '', playerTitleOverflowing: false, playerTitleOverflowPx: 0, activePlaylistId: 'main', playlistPickerOpen: false, dropZoneActive: false, viewportW: (typeof window !== 'undefined' ? window.innerWidth : 1200) };
   navRef = React.createRef();
   workTabRef = React.createRef();
   forFunTabRef = React.createRef();
@@ -912,8 +912,15 @@ class Component extends DCLogic {
     };
   }
   // Fetches + caches a curated track's real title/artist once (oEmbed,
-  // same public endpoint Jam Sesh uses) and persists the cache so repeat
-  // visits don't refetch. No-ops if already cached or already in flight.
+  // same public endpoint Jam Sesh uses), cross-checked against the same
+  // iTunes catalog lookup Jam Sesh's own submitPlaylist uses — external
+  // verification is the standard step for every song this site adds, not
+  // just user-submitted ones. This matters even more for curated tracks:
+  // a lot of these (especially Korean releases) are uploaded by a label
+  // or a third-party channel rather than the artist's own, so oEmbed's
+  // author_name is frequently a distributor/label name, not the actual
+  // artist — exactly the mismatch the catalog lookup is meant to catch.
+  // Persists the cache so repeat visits don't refetch.
   ensureYtMeta(id) {
     if (!id || (this.state.ytMeta && this.state.ytMeta[id])) return;
     if (!this._ytMetaFetching) this._ytMetaFetching = new Set();
@@ -923,14 +930,18 @@ class Component extends DCLogic {
       .then(r => (r.ok ? r.json() : null))
       .catch(() => null)
       .then(meta => {
-        this._ytMetaFetching.delete(id);
-        const artist = this.cleanYtArtist(meta && meta.author_name);
-        const entry = { title: this.cleanYtTitle(meta && meta.title, artist), artist };
-        if (!entry.title) return; // fetch failed — leave the id-based placeholder in place, try again next visit
-        this.setState(s => {
-          const next = { ...(s.ytMeta || {}), [id]: entry };
-          try { localStorage.setItem('jk-portfolio-ytmeta-v5', JSON.stringify(next)); } catch (e) {}
-          return { ytMeta: next };
+        if (!meta) { this._ytMetaFetching.delete(id); return; } // fetch failed — leave the id-based placeholder in place, try again next visit
+        const ytArtist = this.cleanYtArtist(meta.author_name);
+        const ytTitle = this.cleanYtTitle(meta.title, ytArtist);
+        return this.lookupCatalogMeta(ytTitle, ytArtist).then(catalog => {
+          this._ytMetaFetching.delete(id);
+          const entry = { title: (catalog && catalog.title) || ytTitle, artist: (catalog && catalog.artist) || ytArtist };
+          if (!entry.title) return;
+          this.setState(s => {
+            const next = { ...(s.ytMeta || {}), [id]: entry };
+            try { localStorage.setItem('jk-portfolio-ytmeta-v6', JSON.stringify(next)); } catch (e) {}
+            return { ytMeta: next };
+          });
         });
       });
   }
