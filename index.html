@@ -1388,21 +1388,28 @@ class Component extends DCLogic {
 
   wheelLocked = false;
   wheelUnlockTimer = null;
+  wheelLockStartAt = 0;
   workStageRef = React.createRef();
   forFunStageRef = React.createRef();
   onWheelKind(kind, e) {
     e.preventDefault();
     const delta = Math.abs(e.deltaY) > Math.abs(e.deltaX) ? e.deltaY : e.deltaX;
     if (Math.abs(delta) < 4) return;
-    // A single trackpad swipe fires a burst of wheel events (with momentum
-    // trailing off over several hundred ms), so a fixed cooldown from the
-    // last *trigger* can still fire twice inside one physical gesture. Lock
-    // on the first event instead, and only unlock once the burst itself has
-    // gone quiet for a beat — one gesture, one step, regardless of length.
+    // A single trackpad swipe fires a burst of wheel events, with momentum
+    // that can keep sending events well over a second on a strong flick.
+    // Unlocking only once the burst goes fully quiet (the 150ms renewal
+    // below) stops one swipe firing two steps, but on its own has no
+    // ceiling — a strong swipe could hold the lock for seconds, which is
+    // exactly what made the carousel feel unresponsive on a fast swipe.
+    // MAX_LOCK caps how long any single gesture can hold it regardless.
+    const now = Date.now();
+    const MAX_LOCK = 550;
+    if (this.wheelLocked && now - this.wheelLockStartAt >= MAX_LOCK) this.wheelLocked = false;
     clearTimeout(this.wheelUnlockTimer);
-    this.wheelUnlockTimer = setTimeout(() => { this.wheelLocked = false; }, 260);
+    this.wheelUnlockTimer = setTimeout(() => { this.wheelLocked = false; }, 150);
     if (this.wheelLocked) return;
     this.wheelLocked = true;
+    this.wheelLockStartAt = now;
     this.shiftCenter(kind, delta > 0 ? 1 : -1);
   }
   // Touch-swipe support for the coverflow stages (mouse-wheel nav above
