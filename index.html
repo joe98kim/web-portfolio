@@ -114,10 +114,18 @@ a:hover{color:#FF7A1A}
      as dead space on one side of the page. Desktop keeps the reservation
      (it prevents layout shift there); mobile doesn't need it. */
   html{scrollbar-gutter:auto !important}
-  /* Every case-study/About body paragraph shares this exact inline
-     font-size, so this one rule reaches all of them without a class on
-     each — smaller and easier to read at a phone's line length. */
-  [style*="font-size:20px"]{font-size:14px !important}
+  /* Every case-study/About/For-fun body paragraph shares this exact
+     inline font-size, so this one rule reaches all of them without a
+     class on each — smaller and easier to read at a phone's line length.
+     Deliberately left this as a literal-text match (not a class): these
+     are all written as plain style="font-size:20px;..." text directly in
+     the template, not a bound JS style object, so the substring actually
+     appears verbatim in the rendered markup. */
+  [style*="font-size:20px"]{font-size:13px !important}
+  /* About/For fun page big headers ("Get to know me", "The things I make
+     for fun") and their small uppercase eyebrow labels above them. */
+  [style*="font-size:38px"]{font-size:26px !important}
+  [style*="font-size:12px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase"]{font-size:10px !important}
   /* Timeline/Tools/Contributions/Agency: trying to keep these 4 in one
      row on a phone keeps hitting the same overlap no matter how small the
      text gets, so stack them instead — one fact per row, label on the
@@ -144,9 +152,14 @@ a:hover{color:#FF7A1A}
      desktop, which is too wide for the row's other columns (index number,
      blurb, arrow) at phone width — it wraps to 2 lines and pushes the
      blurb text down with it. Shrink the title and give the blurb column
-     less room to ask for. */
+     less room to ask for. Targeted by a real class, not an inline-style
+     substring match — that title's style is bound as a whole JS object
+     ({fontSize:22,...}), and however this template runtime serializes an
+     object to the style attribute apparently isn't the plain
+     "font-size:22px" text the substring selector was looking for, so it
+     silently never matched at all. */
   .jk-more-work a{grid-template-columns:24px 1fr minmax(0,130px) 16px !important;gap:10px !important}
-  .jk-more-work [style*="font-size:22px"]{font-size:11px !important}
+  .jk-more-work-title{font-size:11px !important}
 }
 @media (max-width:560px){
   /* Generic-case-study icon+text cards (Bethel/Koop): the desktop 2x2 grid
@@ -668,7 +681,7 @@ a:hover{color:#FF7A1A}
         <sc-for list="{{ otherProjects }}" as="op" hint-placeholder-count="3">
           <a href="#" onClick="{{ op.onClick }}" style="{{ op.rowStyle }}" style-hover="background:rgba(23,23,26,.03)">
             <span style="{{ op.numStyle }}">{{ op.num }}</span>
-            <span style="{{ op.titleStyle }}">{{ op.title }}</span>
+            <span class="jk-more-work-title" style="{{ op.titleStyle }}">{{ op.title }}</span>
             <span style="{{ op.blurbStyle }}">{{ op.blurbText }}</span>
             <span style="{{ op.markerStyle }}">{{ op.marker }}</span>
           </a>
@@ -2310,11 +2323,11 @@ class Component extends DCLogic {
         const len = (detail && detail.headline || '').length;
         const max = len > 78 ? 30 : len > 62 ? 33 : 36;
         // clamp() instead of a flat px size: shrinks smoothly on narrow
-        // (mobile) viewports without touching desktop, where 5.6vw is
+        // (mobile) viewports without touching desktop, where 4.6vw is
         // already well past `max` and clamp just resolves to it — same
         // desktop size as before, no media query needed.
         return {
-          fontSize: `clamp(20px, 5.6vw, ${max}px)`, lineHeight: 1.25, fontWeight: 700, color: '#17171A',
+          fontSize: `clamp(17px, 4.6vw, ${max}px)`, lineHeight: 1.25, fontWeight: 700, color: '#17171A',
           textWrap: 'balance', textAlign: 'center', margin: '24px 0 40px',
         };
       })(),
