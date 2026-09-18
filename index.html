@@ -123,10 +123,13 @@ a:hover{color:#FF7A1A}
      elements now carries a real class instead (jk-case-body /
      jk-page-hero-body/-heading/-eyebrow), which can't have that failure
      mode regardless of the underlying cause. */
-  .jk-case-body{font-size:12px !important}
-  .jk-page-hero-eyebrow{font-size:10px !important}
+  .jk-case-body{font-size:14px !important}
+  /* "About"/"For fun" eyebrow matched to the case-study section labels
+     (Overview, The Problem, ... Reflection) — same role, same size. */
+  .jk-page-hero-eyebrow{font-size:14px !important}
   .jk-page-hero-heading{font-size:26px !important}
-  .jk-page-hero-body{font-size:12px !important}
+  .jk-page-hero-body{font-size:14px !important}
+  .jk-case-heading{font-size:14px !important}
   /* Widowed words (a single short word stranded alone on a heading or
      paragraph's last line, e.g. "fun" on its own under "The things I
      make for") — text-wrap:balance redistributes the line breaks instead
@@ -395,7 +398,7 @@ a:hover{color:#FF7A1A}
       <svg class="jk-jam-note" viewBox="0 0 24 24" width="22" height="22" fill="#D8571C" stroke="none" style="position:absolute;top:-6px;right:22%;opacity:.9;filter:drop-shadow(0 0 6px rgba(216,87,28,.7));animation:jk-float-l 5.5s ease-in-out infinite"><path d="M9 18V5l12-2v13a3 3 0 1 1-2-2.83V6.28L11 7.5v9.5a3 3 0 1 1-2-2.83Z"></path></svg>
       <svg class="jk-jam-note" viewBox="0 0 24 24" width="28" height="28" fill="#FFFFFF" stroke="none" style="position:absolute;top:38px;left:13%;opacity:.85;filter:drop-shadow(0 0 5px rgba(255,255,255,.6));animation:jk-float-l 5s ease-in-out infinite"><path d="M9 18V6l2-.3v10.6a3 3 0 1 1-2-2.3Z"></path></svg>
       <h2 style="font-size:26px;font-weight:800;margin:0 0 8px">Let's jam together!</h2>
-      <p style="font-size:14px;color:#8a7d74;margin:0 0 24px">Drop a YouTube link and I'll add it to the playlist below.</p>
+      <p style="font-size:14px;color:#8a7d74;margin:0 0 24px">Drop a Youtube Link to add a song to the Jam Sesh playlist.</p>
       <div style="position:relative">
       <div onDragOver="{{ onDropZoneDragOver }}" onDragLeave="{{ onDropZoneDragLeave }}" onDrop="{{ onDropZoneDrop }}" style="{{ dropZoneStyle }}">
         <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#8a7d74" stroke-width="1.8" stroke-linecap="round" style="flex:0 0 auto"><path d="M10 13a5 5 0 0 0 7 0l2-2a5 5 0 0 0-7-7l-1 1"></path><path d="M14 11a5 5 0 0 0-7 0l-2 2a5 5 0 0 0 7 7l1-1"></path></svg>
@@ -507,7 +510,7 @@ a:hover{color:#FF7A1A}
       </sc-if>
       <sc-for list="{{ detailSections }}" as="sec" hint-placeholder-count="3">
         <div id="{{ sec.domId }}" style="margin:0 0 44px">
-          <h3 style="font-size:13px;font-weight:700;color:#FF7A1A;letter-spacing:.08em;text-transform:uppercase;margin:0 0 14px">{{ sec.heading }}</h3>
+          <h3 class="jk-case-heading" style="font-size:13px;font-weight:700;color:#FF7A1A;letter-spacing:.08em;text-transform:uppercase;margin:0 0 14px">{{ sec.heading }}</h3>
           <sc-if value="{{ sec.hasLead }}" hint-placeholder-val="{{ false }}">
             <p class="jk-case-body" style="font-size:20px;line-height:1.7;font-weight:700;color:#17171A;margin:0 0 20px">{{ sec.lead }}</p>
           </sc-if>
@@ -550,7 +553,7 @@ a:hover{color:#FF7A1A}
 
 
       <sc-if value="{{ detailHasDescription }}" hint-placeholder-val="{{ false }}">
-        <h3 style="font-size:13px;font-weight:700;color:#FF7A1A;letter-spacing:.08em;text-transform:uppercase;margin:60px 0 14px" id="cs-overview">Overview</h3>
+        <h3 class="jk-case-heading" style="font-size:13px;font-weight:700;color:#FF7A1A;letter-spacing:.08em;text-transform:uppercase;margin:60px 0 14px" id="cs-overview">Overview</h3>
         <sc-if value="{{ detailHasDescriptionLead }}" hint-placeholder-val="{{ false }}">
           <p class="jk-case-body" style="font-size:20px;line-height:1.7;font-weight:700;color:#17171A;margin:0 0 20px">{{ detail.descriptionLead }}</p>
         </sc-if>
@@ -580,7 +583,7 @@ a:hover{color:#FF7A1A}
       </div>
       </sc-if>
 
-      <h3 style="font-size:13px;font-weight:700;color:#FF7A1A;letter-spacing:.08em;text-transform:uppercase;margin:60px 0 14px" id="cs-problem">The Problem</h3>
+      <h3 class="jk-case-heading" style="font-size:13px;font-weight:700;color:#FF7A1A;letter-spacing:.08em;text-transform:uppercase;margin:60px 0 14px" id="cs-problem">The Problem</h3>
       <sc-if value="{{ detailHasProblemLead }}" hint-placeholder-val="{{ false }}">
         <p class="jk-case-body" style="font-size:20px;line-height:1.7;font-weight:700;color:#17171A;margin:0 0 20px">{{ detail.problemLead }}</p>
       </sc-if>
@@ -594,7 +597,7 @@ a:hover{color:#FF7A1A}
         <p style="font-size:12px;color:#8a8a8e;margin:0">{{ detail.problemCaption }}</p>
       </sc-if>
 
-      <h3 style="font-size:13px;font-weight:700;color:#FF7A1A;letter-spacing:.08em;text-transform:uppercase;margin:60px 0 16px" id="cs-process">My Process</h3>
+      <h3 class="jk-case-heading" style="font-size:13px;font-weight:700;color:#FF7A1A;letter-spacing:.08em;text-transform:uppercase;margin:60px 0 16px" id="cs-process">My Process</h3>
       <sc-if value="{{ detailHasProcessLead }}" hint-placeholder-val="{{ false }}">
         <p class="jk-case-body" style="font-size:20px;line-height:1.7;font-weight:700;color:#17171A;margin:0 0 22px">{{ detail.processLead }}</p>
       </sc-if>
@@ -667,13 +670,13 @@ a:hover{color:#FF7A1A}
         </div>
       </sc-for>
 
-      <h3 style="font-size:13px;font-weight:700;color:#FF7A1A;letter-spacing:.08em;text-transform:uppercase;margin:60px 0 14px" id="cs-decisions">Key Decisions</h3>
+      <h3 class="jk-case-heading" style="font-size:13px;font-weight:700;color:#FF7A1A;letter-spacing:.08em;text-transform:uppercase;margin:60px 0 14px" id="cs-decisions">Key Decisions</h3>
       <sc-if value="{{ detailHasDecisionsLead }}" hint-placeholder-val="{{ false }}">
         <p class="jk-case-body" style="font-size:20px;line-height:1.7;font-weight:700;color:#17171A;margin:0 0 20px">{{ detail.decisionsLead }}</p>
       </sc-if>
       <p class="jk-case-body" style="font-size:20px;line-height:1.7;color:#4a4a4c;margin:0" data-comment-anchor="47541da82c-p">{{ detail.decisions }}</p>
 
-      <h3 style="font-size:13px;font-weight:700;color:#FF7A1A;letter-spacing:.08em;text-transform:uppercase;margin:60px 0 16px" id="cs-impact">Impact</h3>
+      <h3 class="jk-case-heading" style="font-size:13px;font-weight:700;color:#FF7A1A;letter-spacing:.08em;text-transform:uppercase;margin:60px 0 16px" id="cs-impact">Impact</h3>
       <sc-if value="{{ detailHasImpactLead }}" hint-placeholder-val="{{ false }}">
         <p class="jk-case-body" style="font-size:20px;line-height:1.7;font-weight:700;color:#17171A;margin:0 0 18px">{{ detail.impactLead }}</p>
       </sc-if>
@@ -694,7 +697,7 @@ a:hover{color:#FF7A1A}
       </sc-if>
 
 
-      <h3 style="font-size:13px;font-weight:700;color:#FF7A1A;letter-spacing:.08em;text-transform:uppercase;margin:60px 0 14px" id="cs-reflection">Reflection</h3>
+      <h3 class="jk-case-heading" style="font-size:13px;font-weight:700;color:#FF7A1A;letter-spacing:.08em;text-transform:uppercase;margin:60px 0 14px" id="cs-reflection">Reflection</h3>
       <sc-if value="{{ detailHasReflectionLead }}" hint-placeholder-val="{{ false }}">
         <p class="jk-case-body" style="font-size:20px;line-height:1.7;font-weight:700;color:#17171A;margin:0 0 20px">{{ detail.reflectionLead }}</p>
       </sc-if>
@@ -2528,7 +2531,7 @@ class Component extends DCLogic {
       onPlaylistLinkKeyDown: (e) => { if (e.key === 'Enter') { e.preventDefault(); this.submitPlaylist(); } },
       playlistHasFile: false,
       clearPlaylistFile: (e) => this.clearPlaylistFile(e),
-      dropZoneStyle: { display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 8, width: '100%', borderRadius: 999, padding: '6px 6px 6px 16px', background: '#fff', border: '1px solid ' + (this.state.dropZoneActive ? '#FF7A1A' : 'rgba(23,23,26,.2)'), transition: 'border-color .2s ease, background .2s ease' },
+      dropZoneStyle: { display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 8, width: '100%', borderRadius: 999, padding: '6px 6px 6px 16px', background: 'transparent', border: '1px solid ' + (this.state.dropZoneActive ? '#FF7A1A' : '#17171a'), transition: 'border-color .2s ease, background .2s ease' },
       submitPlaylist: () => this.submitPlaylist(),
       playlistBusy: this.state.playlistBusy,
       playlistNotBusy: !this.state.playlistBusy,
