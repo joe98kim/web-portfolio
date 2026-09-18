@@ -107,7 +107,7 @@ a:hover{color:#FF7A1A}
      column's height in the side-by-side desktop grid row — once the grid
      stacks to one column it lands in its own row with no height to match,
      so give it a real height of its own instead of collapsing to 0. */
-  .jk-about-photo{width:100% !important;height:auto !important;aspect-ratio:4/3;margin:0 auto !important}
+  .jk-about-photo{width:100% !important;height:auto !important;aspect-ratio:4/3.3;margin:0 auto !important}
   /* scrollbar-gutter:stable (set on html, above) reserves a permanent
      vertical-scrollbar-width strip even where no scrollbar ever renders —
      some mobile browser chrome honors that reservation anyway, showing up
@@ -335,7 +335,7 @@ a:hover{color:#FF7A1A}
         <div style="display:flex;flex-direction:column;gap:16px">
           <image-slot id="about-pic-1" src="assets/about-1.jpg" style="width:100%;aspect-ratio:4 / 3" shape="rounded" radius="6" fit="cover" placeholder="Drop a photo"></image-slot>
           <image-slot id="about-pic-3" src="assets/about-3.jpg" style="width:100%;aspect-ratio:3 / 4" shape="rounded" radius="6" fit="cover" placeholder="Drop a photo"></image-slot>
-          <image-slot id="about-pic-5" src="assets/about-5.jpg" style="width:100%;aspect-ratio:4 / 3" shape="rounded" radius="6" fit="cover" placeholder="Drop a photo"></image-slot>
+          <image-slot id="about-pic-5" src="assets/about-5.jpg" style="width:100%;aspect-ratio:4 / 3" shape="rounded" radius="6" fit="cover" align="bottom" placeholder="Drop a photo"></image-slot>
         </div>
         <div style="display:flex;flex-direction:column;gap:16px;height:100%">
           <image-slot id="about-pic-2" src="assets/about-2.jpg" style="width:100%;flex:1 1 0;min-height:0" shape="rounded" radius="6" fit="cover" placeholder="Drop a photo"></image-slot>
