@@ -275,12 +275,11 @@ a:hover{color:#FF7A1A}
   <sc-if value="{{ isWork }}" hint-placeholder-val="{{ true }}">
   <div data-screen-label="Work" style="flex:1">
     <div style="position: relative; padding: clamp(28px,5vw,88px) 32px clamp(20px,4vw,72px); max-width: 1200px; box-sizing: border-box; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; margin: 0 auto">
-      <div style="font-size: clamp(14px,1.4vw,18px); font-weight: 600; color: #FF7A1A; margin-bottom: clamp(10px,1.8vw,28px); font-family: Inter; line-height:1.4; min-height:2.8em; display:flex; align-items:center; justify-content:center; flex-wrap:wrap">
+      <div style="font-size: clamp(14px,1.4vw,18px); font-weight: 600; color: #FF7A1A; margin-bottom: clamp(10px,1.8vw,28px); font-family: Inter; line-height:1.4; min-height:2.8em; display:flex; align-items:center; justify-content:center">
         <span style="position:relative;display:inline-block">
           <span class="jk-hero-eyebrow-hl {{ heroEyebrowHlClass }}"></span>
-          <span style="position:relative;white-space:pre-wrap">{{ heroEyebrowText }}</span>
+          <span style="position:relative;white-space:pre-wrap">{{ heroEyebrowText }}</span><span class="jk-hero-cursor" style="{{ heroCursorStyle }}"></span>
         </span>
-        <span class="jk-hero-cursor" style="{{ heroCursorStyle }}"></span>
       </div>
       <p style="font-size: clamp(26px, 4.2vw, 58px); line-height: 1.2; font-weight: 900; color: #17171a; margin: 0 0 clamp(10px,1.6vw,24px); letter-spacing: -0.015em; font-family: Inter; max-width: 1140px; text-wrap: balance" data-comment-anchor="e8e26dd4f9-p">Product designer, problem solver, and all-around design enthusiast.</p>
       <div style="font-size: 14px; color: #5a5a5f; font-family: Inter">Based in Arlington, VA · Currently at SAIC</div>
@@ -1979,6 +1978,16 @@ class Component extends DCLogic {
       });
       const RADIUS = 90;
       const reset = () => chars.forEach(s => { s.style.transform = ''; s.style.color = ''; });
+      // A touch tap fires one synthetic mousemove at the tap point (that's
+      // what triggers the tilt at all on mobile) but no ongoing movement
+      // and no mouseleave after \u2014 nothing would ever reset it. Re-arming a
+      // short idle timer on every mousemove covers both cases without
+      // needing to branch on touch vs. mouse: real hovering keeps firing
+      // mousemove often enough that the timer never gets to fire, while a
+      // single tap's one-off event goes idle and reverts itself shortly
+      // after.
+      let idleTimer = null;
+      const armIdleReset = () => { clearTimeout(idleTimer); idleTimer = setTimeout(reset, 300); };
       el.addEventListener('mousemove', (e) => {
         // Read every letter's rect first, then write \u2014 interleaving
         // getBoundingClientRect() with style writes across ~60 letters
@@ -1995,8 +2004,9 @@ class Component extends DCLogic {
           s.style.transform = `translateY(${(-10 * f).toFixed(2)}px) scale(${(1 + 0.35 * f).toFixed(3)}) rotate(${rot.toFixed(2)}deg)`;
           s.style.color = f > 0.15 ? '#c05e0e' : '';
         });
+        armIdleReset();
       });
-      el.addEventListener('mouseleave', reset);
+      el.addEventListener('mouseleave', () => { clearTimeout(idleTimer); reset(); });
     };
     this._attachHeadline();
   }
