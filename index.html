@@ -1947,24 +1947,56 @@ class Component extends DCLogic {
     window.addEventListener('scroll', this._sectionSpy, true);
     this._sectionSpy();
   }
+  // Magnetic letter tilt: each letter leans, scales and tints toward
+  // wherever the cursor actually is as it moves across the headline, not
+  // just on hover-in \u2014 the effect tracks live cursor position rather than
+  // playing a fixed animation. Letters are wrapped in a per-word span so
+  // a word never splits across a line break, then a per-letter span inside
+  // that for the actual tilt.
   initHeadlineHover() {
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     this._attachHeadline = () => {
       const el = document.querySelector('[data-comment-anchor="e8e26dd4f9-p"]');
-      if (!el || el.__wordLift) return;
-      el.__wordLift = true;
+      if (!el || el.__magnetic) return;
+      el.__magnetic = true;
       const words = el.textContent.split(' ');
       el.textContent = '';
-      const spans = words.map((w, i) => {
-        const s = document.createElement('span');
-        s.textContent = w + (i < words.length - 1 ? '\u00a0' : '');
-        s.style.display = 'inline-block';
-        s.style.transition = `transform .34s cubic-bezier(.2,.9,.25,1) ${i * 34}ms, color .34s ease ${i * 34}ms`;
-        el.appendChild(s);
-        return s;
+      const chars = [];
+      words.forEach((word, wi) => {
+        const wordSpan = document.createElement('span');
+        wordSpan.style.display = 'inline-block';
+        wordSpan.style.whiteSpace = 'nowrap';
+        [...word].forEach(ch => {
+          const s = document.createElement('span');
+          s.textContent = ch;
+          s.style.display = 'inline-block';
+          s.style.transition = 'transform .18s ease-out, color .18s ease-out';
+          wordSpan.appendChild(s);
+          chars.push(s);
+        });
+        el.appendChild(wordSpan);
+        if (wi < words.length - 1) el.appendChild(document.createTextNode('\u00a0'));
       });
-      el.addEventListener('mouseenter', () => spans.forEach(s => { s.style.transform = 'translateY(-9px)'; s.style.color = '#c05e0e'; }));
-      el.addEventListener('mouseleave', () => spans.forEach(s => { s.style.transform = 'none'; s.style.color = ''; }));
+      const RADIUS = 90;
+      const reset = () => chars.forEach(s => { s.style.transform = ''; s.style.color = ''; });
+      el.addEventListener('mousemove', (e) => {
+        // Read every letter's rect first, then write \u2014 interleaving
+        // getBoundingClientRect() with style writes across ~60 letters
+        // would force a layout reflow on every single one of them.
+        const rects = chars.map(s => s.getBoundingClientRect());
+        rects.forEach((cr, i) => {
+          const s = chars[i];
+          const cx = cr.left + cr.width / 2, cy = cr.top + cr.height / 2;
+          const dx = e.clientX - cx, dy = e.clientY - cy;
+          const dist = Math.hypot(dx, dy);
+          const f = Math.max(0, 1 - dist / RADIUS);
+          if (f <= 0) { s.style.transform = ''; s.style.color = ''; return; }
+          const rot = (dx < 0 ? -1 : 1) * 10 * f;
+          s.style.transform = `translateY(${(-10 * f).toFixed(2)}px) scale(${(1 + 0.35 * f).toFixed(3)}) rotate(${rot.toFixed(2)}deg)`;
+          s.style.color = f > 0.15 ? '#c05e0e' : '';
+        });
+      });
+      el.addEventListener('mouseleave', reset);
     };
     this._attachHeadline();
   }
