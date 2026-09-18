@@ -751,9 +751,9 @@ a:hover{color:#FF7A1A}
   <div style="{{ cardStackWrapStyle }}">
     <button type="button" onClick="{{ togglePlaylistPicker }}" aria-label="Card stack" style="position:relative;width:56px;height:56px;background:none;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0">
       <div class="jk-cardstack">
-        <div class="jk-cardstack-card jk-cardstack-base" style="background-image:url(assets/mixtape-2.png);background-size:cover;background-position:center;z-index:1"></div>
-        <div class="jk-cardstack-card jk-cardstack-mid" style="background-image:url(assets/jamsesh.jpg);background-size:cover;background-position:center;z-index:2"></div>
-        <div class="jk-cardstack-card jk-cardstack-top" style="background-image:url(assets/mixtape-1.jpg);background-size:cover;background-position:center;z-index:3"></div>
+        <div class="jk-cardstack-card jk-cardstack-base" style="background-image:url({{ cardStackBaseImg }});background-size:cover;background-position:center;z-index:1"></div>
+        <div class="jk-cardstack-card jk-cardstack-mid" style="background-image:url({{ cardStackMidImg }});background-size:cover;background-position:center;z-index:2"></div>
+        <div class="jk-cardstack-card jk-cardstack-top" style="background-image:url({{ cardStackTopImg }});background-size:cover;background-position:center;z-index:3"></div>
       </div>
     </button>
     <sc-if value="{{ playlistPickerOpen }}" hint-placeholder-val="{{ false }}">
@@ -2379,6 +2379,12 @@ class Component extends DCLogic {
     const tabActive = active === 'detail' && detail ? detail.origin : active;
     const tabClass = (p) => 'jk-tab' + (tabActive === p ? ' jk-tab-active' : '');
     const sectionLabels = { work: 'Work', forfun: 'For fun', about: 'About', detail: detail ? detail.title : '' };
+    // Card-stack order: whichever playlist is actually active sits on top
+    // (front of the stack) instead of always being Mix Tape #1 regardless
+    // of what's playing — the other two keep their normal relative order
+    // behind it.
+    const cardStackImages = { main: 'assets/mixtape-1.jpg', blank: 'assets/mixtape-2.png', forfun: 'assets/jamsesh.jpg' };
+    const cardStackOthers = ['main', 'blank', 'forfun'].filter(id => id !== this.state.activePlaylistId);
 
     return {
       isWork: active === 'work',
@@ -2614,10 +2620,13 @@ class Component extends DCLogic {
       playerTitleMarqueeStyle: { animationDuration: Math.max(9, 6 + this.state.playerTitleOverflowPx * 0.045) + 's' },
       togglePlaylistPicker: () => this.setState(s => ({ playlistPickerOpen: !s.playlistPickerOpen })),
       playlistPickerOpen: this.state.playlistPickerOpen,
+      cardStackBaseImg: cardStackImages[cardStackOthers[0]],
+      cardStackMidImg: cardStackImages[cardStackOthers[1]],
+      cardStackTopImg: cardStackImages[this.state.activePlaylistId],
       playlistOptions: [
-        { id: 'main', name: 'Mix Tap #1', swatch: '#5b6fd6', img: 'assets/mixtape-1.jpg' },
-        { id: 'blank', name: 'Mix Tape #2', swatch: '#4a4a4f', img: 'assets/mixtape-2.png' },
-        { id: 'forfun', name: 'Jam Sesh', swatch: '#FF7A1A', img: 'assets/jamsesh.jpg' },
+        { id: 'main', name: 'Mix Tap #1', swatch: '#5b6fd6', img: cardStackImages.main },
+        { id: 'blank', name: 'Mix Tape #2', swatch: '#4a4a4f', img: cardStackImages.blank },
+        { id: 'forfun', name: 'Jam Sesh', swatch: '#FF7A1A', img: cardStackImages.forfun },
       ].map(p => ({
         ...p,
         onClick: () => this.switchPlaylist(p.id),
