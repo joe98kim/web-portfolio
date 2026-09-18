@@ -275,7 +275,7 @@ a:hover{color:#FF7A1A}
   <sc-if value="{{ isWork }}" hint-placeholder-val="{{ true }}">
   <div data-screen-label="Work" style="flex:1">
     <div style="position: relative; padding: clamp(28px,5vw,88px) 32px clamp(20px,4vw,72px); max-width: 1200px; box-sizing: border-box; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; margin: 0 auto">
-      <div style="font-size: clamp(14px,1.4vw,18px); font-weight: 600; color: #FF7A1A; margin-bottom: clamp(10px,1.8vw,28px); font-family: Inter; display:flex; align-items:baseline; justify-content:center; flex-wrap:wrap">
+      <div style="font-size: clamp(14px,1.4vw,18px); font-weight: 600; color: #FF7A1A; margin-bottom: clamp(10px,1.8vw,28px); font-family: Inter; line-height:1.4; min-height:2.8em; display:flex; align-items:center; justify-content:center; flex-wrap:wrap">
         <span style="position:relative;display:inline-block">
           <span class="jk-hero-eyebrow-hl {{ heroEyebrowHlClass }}"></span>
           <span style="position:relative;white-space:pre-wrap">{{ heroEyebrowText }}</span>
@@ -2103,6 +2103,8 @@ class Component extends DCLogic {
         aerospace: 'Workshop Design · Facilitation · UX Research',
         bethel: 'UI/UX Design',
         koop: 'UI/UX Design',
+        sendit: 'Product Design',
+        wrobe: 'Product Design',
       })[p.id] || 'UX Research · Prototyping',
       heroSlotId: p.id + '-hero',
       heroSrc: p.heroImg || '',
