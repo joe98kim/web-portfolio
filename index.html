@@ -140,11 +140,17 @@ a:hover{color:#FF7A1A}
   .jk-page-hero-heading{font-size:26px !important}
   .jk-page-hero-body{font-size:14px !important}
   .jk-case-heading{font-size:14px !important}
-  /* Widowed words (a single short word stranded alone on a heading or
-     paragraph's last line, e.g. "fun" on its own under "The things I
-     make for") — text-wrap:balance redistributes the line breaks instead
-     of always filling every line to the max before wrapping. */
-  h1,h2,h3,.jk-case-body,.jk-page-hero-heading,.jk-page-hero-body{text-wrap:balance}
+  /* Widowed words (a single short word stranded alone on a heading's last
+     line, e.g. "fun" on its own under "The things I make for") —
+     text-wrap:balance redistributes the line breaks instead of always
+     filling every line to the max before wrapping. Headings only: the
+     same rule applied to body/lead paragraphs and bullet list items
+     (.jk-case-body) was pulling their line-wrap in well short of the
+     right edge on every multi-line paragraph and bullet, not just
+     preventing the rare widow — balance actively shortens lines to even
+     them out, which is fine for a 1-3 line heading but wrong for body
+     copy that should just fill the available width. */
+  h1,h2,h3,.jk-page-hero-heading{text-wrap:balance}
   /* For-fun project cards (SendIt, Wrobe): title and one-line tag,
      matched by real class rather than the h3's inline-style text — its
      size is fine to match on text alone, but keeping the pattern
