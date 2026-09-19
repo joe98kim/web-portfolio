@@ -214,7 +214,7 @@ a:hover{color:#FF7A1A}
      desktop instead of down. */
   .jk-detail-cards{grid-template-columns:1fr !important;gap:10px !important}
   .jk-detail-cards > div{padding:14px 16px !important}
-  .jk-detail-cards [style*="font-size:15.5px"]{font-size:13px !important;line-height:1.45 !important}
+  .jk-detail-card-text{font-size:12px !important;line-height:1.45 !important}
   .jk-detail-cards svg{zoom:.8}
   /* The four decorative notes on the Jam Sesh section are positioned by
      percentage against a container that's much narrower on a phone, so
@@ -524,7 +524,7 @@ a:hover{color:#FF7A1A}
           <sc-for list="{{ detailCards }}" as="card" hint-placeholder-count="4">
             <div style="display:flex;align-items:center;gap:16px;border:1px solid #17171a;border-radius:14px;padding:18px 20px">
               <span style="flex:0 0 auto;color:#FF7A1A;display:flex;align-items:center;justify-content:center">{{ card.icon }}</span>
-              <span style="font-size:15.5px;line-height:1.5;color:#4a4a4c">{{ card.text }}</span>
+              <span class="jk-detail-card-text" style="font-size:15.5px;line-height:1.5;color:#4a4a4c">{{ card.text }}</span>
             </div>
           </sc-for>
         </div>
@@ -562,7 +562,7 @@ a:hover{color:#FF7A1A}
           <sc-for list="{{ detailCards }}" as="card" hint-placeholder-count="4">
             <div style="display:flex;align-items:center;gap:16px;border:1px solid #17171a;border-radius:14px;padding:18px 20px">
               <span style="flex:0 0 auto;color:#FF7A1A;display:flex;align-items:center;justify-content:center">{{ card.icon }}</span>
-              <span style="font-size:15.5px;line-height:1.5;color:#4a4a4c">{{ card.text }}</span>
+              <span class="jk-detail-card-text" style="font-size:15.5px;line-height:1.5;color:#4a4a4c">{{ card.text }}</span>
             </div>
           </sc-for>
         </div>
